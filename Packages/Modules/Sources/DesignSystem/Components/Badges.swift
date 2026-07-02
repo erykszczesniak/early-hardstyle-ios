@@ -45,7 +45,8 @@ public struct DurationBadge: View {
     }
 
     /// Spoken duration, e.g. "1 hour 8 minutes". Exposed for reuse by cards.
-    public static func accessibleDuration(seconds: Int) -> String {
+    /// `nonisolated` because it is pure — callable from any isolation domain.
+    public nonisolated static func accessibleDuration(seconds: Int) -> String {
         let clamped = max(0, seconds)
         let hours = clamped / 3600
         let minutes = (clamped % 3600) / 60
