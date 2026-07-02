@@ -63,6 +63,12 @@ identifier_name:
     - z
     - dj
 
+type_name:
+  # `Dj` is the domain model name mandated by the project brief.
+  excluded:
+    - Dj
+    - DJ
+
 force_unwrapping:
   severity: error
 
