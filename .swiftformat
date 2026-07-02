@@ -1,0 +1,25 @@
+# SwiftFormat configuration for Early Hardstyle.
+# Run: swiftformat . --lint  (CI)  /  swiftformat .  (apply)
+
+--swiftversion 6.0
+
+# Rules
+--enable isEmpty
+--enable blankLinesAtStartOfScope
+--enable blankLinesAtEndOfScope
+--enable redundantSelf
+--enable sortImports
+--enable wrapMultilineStatementBraces
+
+--self remove
+--importgrouping testable-bottom
+--commas inline
+--trimwhitespace always
+--wraparguments before-first
+--wrapparameters before-first
+--wrapcollections before-first
+--maxwidth 120
+--indent 4
+
+# Exclusions
+--exclude .build,Packages/Modules/.build,EarlyHardstyle.xcodeproj
