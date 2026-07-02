@@ -60,6 +60,11 @@ let package = Package(
             swiftSettings: [.swiftLanguageMode(.v6)]
         ),
         .testTarget(
+            name: "DesignSystemTests",
+            dependencies: ["DesignSystem"],
+            swiftSettings: [.swiftLanguageMode(.v6)]
+        ),
+        .testTarget(
             name: "FeaturesTests",
             dependencies: ["Features"],
             swiftSettings: [.swiftLanguageMode(.v6)]
