@@ -1,0 +1,69 @@
+# SwiftLint configuration for Early Hardstyle.
+# Run: swiftlint lint --strict
+
+included:
+  - App/Sources
+  - Packages/Modules/Sources
+  - Packages/Modules/Tests
+
+excluded:
+  - .build
+  - Packages/Modules/.build
+  - EarlyHardstyle.xcodeproj
+
+opt_in_rules:
+  - empty_count
+  - empty_string
+  - closure_spacing
+  - contains_over_first_not_nil
+  - explicit_init
+  - first_where
+  - force_unwrapping
+  - implicitly_unwrapped_optional
+  - last_where
+  - literal_expression_end_indentation
+  - multiline_arguments
+  - multiline_parameters
+  - operator_usage_whitespace
+  - overridden_super_call
+  - redundant_nil_coalescing
+  - sorted_first_last
+  - toggle_bool
+  - unneeded_parentheses_in_closure_argument
+  - vertical_whitespace_closing_braces
+  - yoda_condition
+
+analyzer_rules:
+  - unused_import
+
+line_length:
+  warning: 120
+  error: 160
+  ignores_comments: true
+  ignores_urls: true
+
+type_body_length:
+  warning: 300
+  error: 400
+
+file_length:
+  warning: 500
+  error: 700
+
+function_body_length:
+  warning: 60
+  error: 100
+
+identifier_name:
+  min_length: 2
+  excluded:
+    - id
+    - x
+    - y
+    - z
+    - dj
+
+force_unwrapping:
+  severity: error
+
+reporter: "xcode"
