@@ -13,11 +13,18 @@ import Services
 /// are instantiated here and passed into `AppRootView`.
 @MainActor
 struct AppDependencies {
-    // Telemetry, catalog, favourites and player services are added here in
-    // their respective feature PRs and injected downstream.
+    /// Analytics + crash reporting, injected downstream to ViewModels.
+    let telemetry: Telemetry
 
-    /// Builds the production dependency graph used by the live app.
+    /// Builds the production dependency graph used by the live app. Telemetry
+    /// logs to the console in debug builds and stays inert in release until a
+    /// real backend is wired in.
     static func live() -> AppDependencies {
-        AppDependencies()
+        #if DEBUG
+            let telemetry = Telemetry.console
+        #else
+            let telemetry = Telemetry.noop
+        #endif
+        return AppDependencies(telemetry: telemetry)
     }
 }
