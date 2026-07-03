@@ -120,7 +120,7 @@ final class LibraryViewModelTests: XCTestCase {
 
         sut.searchQuery = "zzz"
         XCTAssertTrue(sut.visibleSets.isEmpty)
-        XCTAssertTrue(sut.hasNoSearchResults)
+        XCTAssertTrue(sut.hasNoResults)
     }
 
     // MARK: Favourites
@@ -145,6 +145,46 @@ final class LibraryViewModelTests: XCTestCase {
 
         XCTAssertEqual(sut.visibleSets.first { $0.id == "a" }?.isSaved, true)
         XCTAssertEqual(sut.visibleSets.first { $0.id == "b" }?.isSaved, false)
+    }
+
+    // MARK: Filters
+
+    func test_filterOptions_derivedAfterLoad() async {
+        let sut = makeSUT(catalog: MockCatalogService.returning(makeCatalog()))
+        await sut.load()
+
+        XCTAssertEqual(sut.filterOptions.years, [2007, 2005])
+        XCTAssertEqual(sut.filterOptions.countries, ["Italy", "Netherlands"])
+    }
+
+    func test_filter_narrowsVisibleSets() async {
+        let sut = makeSUT(catalog: MockCatalogService.returning(makeCatalog()))
+        await sut.load()
+
+        sut.filter.years = [2007]
+        XCTAssertEqual(sut.visibleSets.map(\.id), ["b"])
+        XCTAssertEqual(sut.activeFilterCount, 1)
+    }
+
+    func test_filterAndSearch_combine() async {
+        let sut = makeSUT(catalog: MockCatalogService.returning(makeCatalog()))
+        await sut.load()
+
+        sut.filter.countries = ["Netherlands"] // set "a" only
+        sut.searchQuery = "technoboy" // set "b" only
+        XCTAssertTrue(sut.visibleSets.isEmpty)
+        XCTAssertTrue(sut.hasNoResults)
+    }
+
+    func test_clearFilters_restoresAllSets() async {
+        let sut = makeSUT(catalog: MockCatalogService.returning(makeCatalog()))
+        await sut.load()
+        sut.filter.years = [2007]
+        XCTAssertEqual(sut.visibleSets.count, 1)
+
+        sut.clearFilters()
+        XCTAssertEqual(sut.visibleSets.count, 2)
+        XCTAssertFalse(sut.isRefining)
     }
 
     // MARK: Analytics

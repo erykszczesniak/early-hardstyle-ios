@@ -6,6 +6,7 @@ import SwiftUI
 public struct LibraryView: View {
     @State private var viewModel: LibraryViewModel
     @State private var selectedSet: SetCardModel?
+    @State private var showFilters = false
 
     private let columns = [
         GridItem(.flexible(), spacing: Spacing.cardGap),
@@ -23,13 +24,36 @@ public struct LibraryView: View {
                 .navigationTitle("EARLYHS")
                 .navigationBarTitleDisplayMode(.inline)
                 .toolbarBackground(Palette.base, for: .navigationBar)
+                .toolbar { filterToolbarItem }
                 .navigationDestination(item: $selectedSet) { set in
                     SetPlaceholderView(model: set)
                 }
         }
         .tint(Palette.accentBlueBright)
         .searchable(text: $viewModel.searchQuery, prompt: "Search sets, DJs, events")
+        .sheet(isPresented: $showFilters) {
+            LibraryFiltersView(viewModel: viewModel)
+                .presentationDetents([.medium, .large])
+        }
         .task { await viewModel.onAppear() }
+    }
+
+    @ToolbarContentBuilder
+    private var filterToolbarItem: some ToolbarContent {
+        if viewModel.state == .loaded, !viewModel.filterOptions.isEmpty {
+            ToolbarItem(placement: .topBarTrailing) {
+                Button { showFilters = true } label: {
+                    Image(systemName: viewModel.activeFilterCount > 0
+                        ? "line.3.horizontal.decrease.circle.fill"
+                        : "line.3.horizontal.decrease.circle")
+                }
+                .accessibilityLabel(
+                    viewModel.activeFilterCount > 0
+                        ? "Filters, \(viewModel.activeFilterCount) active"
+                        : "Filters"
+                )
+            }
+        }
     }
 
     @ViewBuilder
@@ -60,15 +84,17 @@ public struct LibraryView: View {
     private var grid: some View {
         ScrollView {
             VStack(spacing: Spacing.xl) {
-                if viewModel.searchQuery.isEmpty {
+                if !viewModel.isRefining {
                     hero
                 }
 
-                if viewModel.hasNoSearchResults {
+                if viewModel.hasNoResults {
                     EmptyState(
                         systemImage: "magnifyingglass",
                         title: "No results",
-                        message: "Nothing matches “\(viewModel.searchQuery)”."
+                        message: "No sets match your search or filters.",
+                        actionTitle: "Clear filters",
+                        action: viewModel.activeFilterCount > 0 ? { viewModel.clearFilters() } : nil
                     )
                     .padding(.top, Spacing.xxl)
                 } else {
