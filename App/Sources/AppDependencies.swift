@@ -19,8 +19,8 @@ struct AppDependencies {
 
     /// Builds the production dependency graph used by the live app. Telemetry
     /// logs to the console in debug builds and stays inert in release. The
-    /// catalogue is empty until the seed content lands (feature #12); the
-    /// favourites store is in-memory until persistence lands (feature #8).
+    /// catalogue is empty until the seed content lands (feature #12); favourites
+    /// persist across launches via `UserDefaults`.
     static func live() -> AppDependencies {
         #if DEBUG
             let telemetry = Telemetry.console
@@ -30,7 +30,7 @@ struct AppDependencies {
         return AppDependencies(
             telemetry: telemetry,
             catalog: MockCatalogService.returning(.empty),
-            favourites: InMemoryFavouritesService()
+            favourites: UserDefaultsFavouritesService()
         )
     }
 }
