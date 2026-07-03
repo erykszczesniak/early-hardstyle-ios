@@ -4,9 +4,9 @@ import SwiftUI
 /// The Set Detail screen: large artwork over a blurred backdrop, metadata, a
 /// full-width PLAY entry point, and a rail of related sets.
 struct SetDetailView: View {
+    @Environment(PlaybackController.self) private var playback
     @State private var viewModel: SetDetailViewModel
     @State private var selectedRelated: SetCardModel?
-    @State private var showPlayer = false
 
     init(viewModel: SetDetailViewModel) {
         _viewModel = State(initialValue: viewModel)
@@ -18,7 +18,7 @@ struct SetDetailView: View {
                 artwork
                 header
                 PillButton("Play", systemImage: "play.fill", role: .primary, fullWidth: true) {
-                    showPlayer = true
+                    playback.play(viewModel.makeQueue())
                 }
                 related
             }
@@ -30,9 +30,6 @@ struct SetDetailView: View {
         .navigationBarTitleDisplayMode(.inline)
         .navigationDestination(item: $selectedRelated) { card in
             detail(for: card)
-        }
-        .fullScreenCover(isPresented: $showPlayer) {
-            PlayerView(viewModel: viewModel.makePlayerViewModel())
         }
         .task { await viewModel.onAppear() }
     }

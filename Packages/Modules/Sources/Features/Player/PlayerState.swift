@@ -25,13 +25,20 @@ public enum PlaybackEvent: Equatable, Sendable {
 }
 
 /// The immutable "now playing" descriptor handed to the player.
-public struct NowPlaying: Equatable, Sendable {
+public struct NowPlaying: Equatable, Sendable, Identifiable {
+    /// The catalogue set id — used to reconcile favourites.
+    public let setID: String
     public let title: String
     public let subtitle: String
     public let artworkURL: URL?
     public let youtubeID: String
 
-    public init(title: String, subtitle: String, artworkURL: URL?, youtubeID: String) {
+    public var id: String {
+        setID
+    }
+
+    public init(setID: String, title: String, subtitle: String, artworkURL: URL?, youtubeID: String) {
+        self.setID = setID
         self.title = title
         self.subtitle = subtitle
         self.artworkURL = artworkURL
