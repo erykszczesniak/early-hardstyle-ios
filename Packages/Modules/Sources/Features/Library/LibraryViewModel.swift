@@ -131,11 +131,9 @@ public final class LibraryViewModel {
 
     /// Maps a catalogue into card models, newest first. Pure and testable.
     static func map(_ catalog: Catalog, favourites: Set<HardstyleSet.ID>) -> [SetCardModel] {
-        // BUG (DebuggingLab): ascending sort surfaces the OLDEST sets first, but
-        // the Library is meant to lead with the newest golden-era sets. Caught by
-        // LibraryViewModelTests.test_load_success_populatesNewestFirst. See
-        // DEBUGGING_LAB.md → "Reversed catalogue ordering".
-        let newestFirst = catalog.sets.sorted { $0.year < $1.year }
+        // FIX (DebuggingLab): sort descending so the newest golden-era sets lead.
+        // The comparator direction is the whole bug — `<` surfaced the oldest.
+        let newestFirst = catalog.sets.sorted { $0.year > $1.year }
         return SetPresenter.cards(newestFirst, in: catalog, favourites: favourites)
     }
 }
