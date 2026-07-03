@@ -46,8 +46,12 @@ public final class PlayerViewModel {
     }
 
     public var progress: Double {
-        guard duration > 0 else { return 0 }
-        return min(max(currentTime / duration, 0), 1)
+        // BUG (exercise log): no zero-duration guard. Before the video reports
+        // its duration, `currentTime / duration` is 0/0 = NaN; min/max propagate
+        // NaN, and feeding NaN to the progress track's frame width crashes
+        // SwiftUI. Caught by PlayerViewModelTests.test_progress_withZeroDuration_
+        // isNotScrubbable. See NOTES.md → "Player progress NaN".
+        min(max(currentTime / duration, 0), 1)
     }
 
     public var isBuffering: Bool {
