@@ -5,12 +5,16 @@ import SwiftUI
 /// hands the root scene its injected collaborators.
 @main
 struct EarlyHardstyleApp: App {
-    @State private var dependencies = AppDependencies.live()
+    private let dependencies = AppDependencies.live()
 
     var body: some Scene {
         WindowGroup {
-            AppRootView()
-                .preferredColorScheme(.dark)
+            AppRootView(
+                catalog: dependencies.catalog,
+                favourites: dependencies.favourites,
+                analytics: dependencies.telemetry.analytics
+            )
+            .preferredColorScheme(.dark)
         }
     }
 }
