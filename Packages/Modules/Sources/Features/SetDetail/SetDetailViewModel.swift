@@ -54,17 +54,25 @@ public final class SetDetailViewModel {
 
     /// The descriptor handed to the player.
     public var nowPlaying: NowPlaying {
-        NowPlaying(
-            title: hardstyleSet.title,
-            subtitle: metaLine,
-            artworkURL: card.thumbnailURL,
-            youtubeID: hardstyleSet.youtubeID
-        )
+        Self.nowPlaying(for: hardstyleSet, in: catalog)
     }
 
-    /// Builds a player ViewModel backed by the official YouTube engine.
-    public func makePlayerViewModel() -> PlayerViewModel {
-        PlayerViewModel(nowPlaying: nowPlaying, player: WebKitYouTubePlayer(), analytics: analytics)
+    /// The play queue starting with this set, followed by its related sets, so
+    /// autoplay flows naturally into similar sets.
+    public func makeQueue() -> [NowPlaying] {
+        ([hardstyleSet] + Self.related(to: hardstyleSet, in: catalog))
+            .map { Self.nowPlaying(for: $0, in: catalog) }
+    }
+
+    private static func nowPlaying(for set: HardstyleSet, in catalog: Catalog) -> NowPlaying {
+        let event = catalog.event(for: set)?.name ?? "Unknown event"
+        return NowPlaying(
+            setID: set.id,
+            title: set.title,
+            subtitle: "\(event) \(set.year)",
+            artworkURL: set.thumbnailURL,
+            youtubeID: set.youtubeID
+        )
     }
 
     public func onAppear() async {
