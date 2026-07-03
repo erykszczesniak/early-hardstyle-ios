@@ -25,8 +25,12 @@ public struct LibraryView: View {
                 .navigationBarTitleDisplayMode(.inline)
                 .toolbarBackground(Palette.base, for: .navigationBar)
                 .toolbar { filterToolbarItem }
-                .navigationDestination(item: $selectedSet) { set in
-                    SetPlaceholderView(model: set)
+                .navigationDestination(item: $selectedSet) { card in
+                    if let detail = viewModel.setDetailViewModel(for: card) {
+                        SetDetailView(viewModel: detail)
+                    } else {
+                        SetPlaceholderView(model: card)
+                    }
                 }
         }
         .tint(Palette.accentBlueBright)
