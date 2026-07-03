@@ -72,6 +72,13 @@ public final class LibraryViewModel {
         filter = LibraryFilter()
     }
 
+    /// Builds the Set Detail ViewModel for a tapped card from the loaded
+    /// catalogue — no second fetch.
+    public func setDetailViewModel(for card: SetCardModel) -> SetDetailViewModel? {
+        guard let set = catalogData.sets.first(where: { $0.id == card.id }) else { return nil }
+        return SetDetailViewModel(set: set, catalog: catalogData, favourites: favourites, analytics: analytics)
+    }
+
     /// The newest set, surfaced by the hero's "Play latest" action.
     public var latestSet: SetCardModel? {
         allSets.first

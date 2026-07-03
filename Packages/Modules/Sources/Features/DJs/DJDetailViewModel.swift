@@ -48,6 +48,12 @@ public final class DJDetailViewModel {
         rebuild()
     }
 
+    /// Builds the Set Detail ViewModel for a tapped set from the same catalogue.
+    public func setDetailViewModel(for card: SetCardModel) -> SetDetailViewModel? {
+        guard let set = catalog.sets.first(where: { $0.id == card.id }) else { return nil }
+        return SetDetailViewModel(set: set, catalog: catalog, favourites: favourites, analytics: analytics)
+    }
+
     private func rebuild() {
         sets = SetPresenter.cards(catalog.sets(byDJ: dj.id), in: catalog, favourites: favouriteIDs)
     }

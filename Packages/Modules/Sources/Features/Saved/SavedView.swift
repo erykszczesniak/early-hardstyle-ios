@@ -24,8 +24,12 @@ public struct SavedView: View {
                 .screenBackground()
                 .navigationTitle("Saved")
                 .navigationBarTitleDisplayMode(.large)
-                .navigationDestination(item: $selectedSet) { set in
-                    SetPlaceholderView(model: set)
+                .navigationDestination(item: $selectedSet) { card in
+                    if let detail = viewModel.setDetailViewModel(for: card) {
+                        SetDetailView(viewModel: detail)
+                    } else {
+                        SetPlaceholderView(model: card)
+                    }
                 }
         }
         .tint(Palette.accentBlueBright)

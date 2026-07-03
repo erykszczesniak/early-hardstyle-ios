@@ -30,8 +30,12 @@ struct DJDetailView: View {
         .foregroundStyle(Palette.textPrimary)
         .navigationTitle(viewModel.dj.name)
         .navigationBarTitleDisplayMode(.inline)
-        .navigationDestination(item: $selectedSet) { set in
-            SetPlaceholderView(model: set)
+        .navigationDestination(item: $selectedSet) { card in
+            if let detail = viewModel.setDetailViewModel(for: card) {
+                SetDetailView(viewModel: detail)
+            } else {
+                SetPlaceholderView(model: card)
+            }
         }
         .task { await viewModel.onAppear() }
     }
