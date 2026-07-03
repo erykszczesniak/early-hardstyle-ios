@@ -160,7 +160,7 @@ public struct StyleguideView: View {
                 .frame(height: 140)
                 .clipShape(RoundedRectangle(cornerRadius: Radius.card, style: .continuous))
 
-            Text("Tilt / pulse are shown on the cards above and honour Reduce Motion.")
+            Text("The now-playing pulse is shown on the cards above and honours Reduce Motion.")
                 .font(Typography.meta)
                 .foregroundStyle(Palette.textTertiary)
         }
