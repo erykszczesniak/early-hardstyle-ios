@@ -33,8 +33,10 @@ public struct AppRootView: View {
             )
             .tabItem { Label("Library", systemImage: "square.grid.2x2") }
 
-            placeholder(title: "DJs", systemImage: "person.2")
-                .tabItem { Label("DJs", systemImage: "person.2") }
+            DJsView(
+                viewModel: DJsViewModel(catalog: catalog, favourites: favourites, analytics: analytics)
+            )
+            .tabItem { Label("DJs", systemImage: "person.2") }
 
             placeholder(title: "Saved", systemImage: "heart")
                 .tabItem { Label("Saved", systemImage: "heart") }

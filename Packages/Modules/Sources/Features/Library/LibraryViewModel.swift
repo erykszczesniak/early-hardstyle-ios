@@ -124,19 +124,7 @@ public final class LibraryViewModel {
 
     /// Maps a catalogue into card models, newest first. Pure and testable.
     static func map(_ catalog: Catalog, favourites: Set<HardstyleSet.ID>) -> [SetCardModel] {
-        catalog.sets
-            .sorted { $0.year > $1.year }
-            .map { set in
-                SetCardModel(
-                    id: set.id,
-                    title: set.title,
-                    eventName: catalog.event(for: set)?.name ?? "Unknown event",
-                    year: set.year,
-                    durationSeconds: set.durationSeconds,
-                    genres: catalog.genres(for: set).map(\.name),
-                    thumbnailURL: set.thumbnailURL,
-                    isSaved: favourites.contains(set.id)
-                )
-            }
+        let newestFirst = catalog.sets.sorted { $0.year > $1.year }
+        return SetPresenter.cards(newestFirst, in: catalog, favourites: favourites)
     }
 }
