@@ -31,8 +31,8 @@ struct SetDetailView: View {
         .navigationDestination(item: $selectedRelated) { card in
             detail(for: card)
         }
-        .navigationDestination(isPresented: $showPlayer) {
-            SetPlaceholderView(model: viewModel.card)
+        .fullScreenCover(isPresented: $showPlayer) {
+            PlayerView(viewModel: viewModel.makePlayerViewModel())
         }
         .task { await viewModel.onAppear() }
     }
