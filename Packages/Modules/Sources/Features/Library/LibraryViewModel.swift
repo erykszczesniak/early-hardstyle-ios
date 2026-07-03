@@ -22,6 +22,8 @@ public final class LibraryViewModel {
 
     public private(set) var state: LibraryState = .loading
     public var searchQuery: String = ""
+    public var filter = LibraryFilter()
+    public private(set) var filterOptions: FilterOptions = .empty
 
     private var catalogData: Catalog = .empty
     private var favouriteIDs: Set<HardstyleSet.ID> = []
@@ -33,20 +35,41 @@ public final class LibraryViewModel {
         self.analytics = analytics
     }
 
-    /// Sets matching the current search query (case-insensitive over title and
-    /// event). Returns everything when the query is blank.
+    /// Sets matching the active filter and search query. The filter runs at the
+    /// domain level (year/event/genre/country); search is a case-insensitive
+    /// match over title and event.
     public var visibleSets: [SetCardModel] {
-        let query = searchQuery.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
-        guard !query.isEmpty else { return allSets }
-        return allSets.filter {
-            $0.title.lowercased().contains(query) || $0.eventName.lowercased().contains(query)
+        var result = allSets
+        if !filter.isEmpty {
+            let allowed = filter.matchingIDs(in: catalogData)
+            result = result.filter { allowed.contains($0.id) }
         }
+        let query = searchQuery.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+        if !query.isEmpty {
+            result = result.filter {
+                $0.title.lowercased().contains(query) || $0.eventName.lowercased().contains(query)
+            }
+        }
+        return result
     }
 
-    /// True when a non-empty search yields no matches on an otherwise-loaded
-    /// catalogue.
-    public var hasNoSearchResults: Bool {
+    /// True when the catalogue has sets but the active filter/search hide them all.
+    public var hasNoResults: Bool {
         state == .loaded && !allSets.isEmpty && visibleSets.isEmpty
+    }
+
+    /// Number of selected filter values, for the toolbar badge.
+    public var activeFilterCount: Int {
+        filter.activeCount
+    }
+
+    /// Whether any refining (filter or search) is currently applied.
+    public var isRefining: Bool {
+        !filter.isEmpty || !searchQuery.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+    }
+
+    public func clearFilters() {
+        filter = LibraryFilter()
     }
 
     /// The newest set, surfaced by the hero's "Play latest" action.
@@ -88,6 +111,7 @@ public final class LibraryViewModel {
             catalogData = loaded
             favouriteIDs = await favourites.favouriteIDs()
             allSets = Self.map(loaded, favourites: favouriteIDs)
+            filterOptions = FilterOptions.derive(from: loaded)
             state = allSets.isEmpty ? .empty : .loaded
         } catch {
             let catalogError = (error as? CatalogError) ?? .unknown
