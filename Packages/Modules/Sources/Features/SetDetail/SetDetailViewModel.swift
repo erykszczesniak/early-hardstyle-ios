@@ -52,6 +52,21 @@ public final class SetDetailViewModel {
         card.isSaved
     }
 
+    /// The descriptor handed to the player.
+    public var nowPlaying: NowPlaying {
+        NowPlaying(
+            title: hardstyleSet.title,
+            subtitle: metaLine,
+            artworkURL: card.thumbnailURL,
+            youtubeID: hardstyleSet.youtubeID
+        )
+    }
+
+    /// Builds a player ViewModel backed by the official YouTube engine.
+    public func makePlayerViewModel() -> PlayerViewModel {
+        PlayerViewModel(nowPlaying: nowPlaying, player: WebKitYouTubePlayer(), analytics: analytics)
+    }
+
     public func onAppear() async {
         analytics.trackScreenView("Set Detail")
         favouriteIDs = await favourites.favouriteIDs()
