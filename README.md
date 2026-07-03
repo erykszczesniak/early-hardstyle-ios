@@ -116,6 +116,29 @@ swiftlint lint --strict
 
 ---
 
+## Run on your iPhone (no simulator needed, incl. wirelessly)
+
+You only need **Xcode 16+** and a **free Apple ID** — no paid developer account.
+
+1. **Generate & open** the project:
+   ```bash
+   brew install xcodegen          # once
+   xcodegen generate
+   open EarlyHardstyle.xcodeproj
+   ```
+2. **Signing** (once): select the **EarlyHardstyle** target → **Signing & Capabilities** → set **Team** to your Apple ID. Add your Apple ID first under *Xcode ▸ Settings ▸ Accounts* if it isn't listed. Xcode uses *Automatic* signing, so it provisions the app for you.
+   - If it complains the bundle id is taken, change `PRODUCT_BUNDLE_IDENTIFIER` in `project.yml` to something unique (e.g. `com.yourname.EarlyHardstyle`), run `xcodegen generate`, and re-open.
+3. **Prepare the iPhone** (once): on the phone, *Settings ▸ Privacy & Security ▸ Developer Mode ▸ On* (it reboots). Connect the iPhone to the Mac by cable and tap **Trust** on the phone.
+4. **Enable wireless** (once): *Xcode ▸ Window ▸ Devices and Simulators ▸* select your iPhone *▸* tick **“Connect via network.”** You can now unplug the cable — the phone stays available over Wi‑Fi (same network as the Mac).
+5. **Run:** pick your iPhone (e.g. *iPhone 16 Pro Max*) in the run-destination menu and press **⌘R**. On first launch, on the phone: *Settings ▸ General ▸ VPN & Device Management ▸* trust your developer certificate, then reopen the app.
+
+Notes:
+- The app needs **internet** — set artwork comes from YouTube thumbnails and playback is the official YouTube player.
+- With a **free** Apple ID the signature expires after **7 days**; just rebuild from Xcode to renew. A paid Apple Developer account removes the limit.
+- Minimum iOS is **17.0**, so any modern iPhone works.
+
+---
+
 ## Testing
 
 120+ XCTest cases, focused where the logic lives:
