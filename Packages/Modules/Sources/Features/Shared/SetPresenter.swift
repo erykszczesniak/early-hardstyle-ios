@@ -1,0 +1,29 @@
+import Core
+import DesignSystem
+
+/// Maps domain sets onto the DesignSystem `SetCardModel`, resolving event and
+/// genre names against a catalogue. The single place this mapping lives, shared
+/// by every screen that shows set cards. Pure and testable.
+enum SetPresenter {
+    static func card(for set: HardstyleSet, in catalog: Catalog, isSaved: Bool) -> SetCardModel {
+        SetCardModel(
+            id: set.id,
+            title: set.title,
+            eventName: catalog.event(for: set)?.name ?? "Unknown event",
+            year: set.year,
+            durationSeconds: set.durationSeconds,
+            genres: catalog.genres(for: set).map(\.name),
+            thumbnailURL: set.thumbnailURL,
+            isSaved: isSaved
+        )
+    }
+
+    /// Maps the given sets, in order, resolving saved state from `favourites`.
+    static func cards(
+        _ sets: [HardstyleSet],
+        in catalog: Catalog,
+        favourites: Set<HardstyleSet.ID>
+    ) -> [SetCardModel] {
+        sets.map { card(for: $0, in: catalog, isSaved: favourites.contains($0.id)) }
+    }
+}
