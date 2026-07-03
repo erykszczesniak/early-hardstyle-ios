@@ -41,7 +41,7 @@ public final class SavedViewModel {
             loadedCatalog = true
             await refreshSaved()
         } catch {
-            let catalogError = (error as? CatalogError) ?? .unknown
+            let catalogError = CatalogError.from(error)
             state = .failed(
                 message: catalogError.errorDescription ?? "Something went wrong.",
                 retryable: catalogError.isRetryable
