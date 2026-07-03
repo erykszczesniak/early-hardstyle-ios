@@ -8,23 +8,29 @@ import Services
 /// wired together. Everything downstream (ViewModels, Features) receives its
 /// collaborators through initialiser injection from here — there are no hidden
 /// singletons in testable code.
-///
-/// As feature PRs land, their services (telemetry, catalog, favourites, player)
-/// are instantiated here and passed into `AppRootView`.
 @MainActor
 struct AppDependencies {
     /// Analytics + crash reporting, injected downstream to ViewModels.
     let telemetry: Telemetry
+    /// Catalogue loading.
+    let catalog: CatalogService
+    /// The saved-sets store.
+    let favourites: FavouritesService
 
     /// Builds the production dependency graph used by the live app. Telemetry
-    /// logs to the console in debug builds and stays inert in release until a
-    /// real backend is wired in.
+    /// logs to the console in debug builds and stays inert in release. The
+    /// catalogue is empty until the seed content lands (feature #12); the
+    /// favourites store is in-memory until persistence lands (feature #8).
     static func live() -> AppDependencies {
         #if DEBUG
             let telemetry = Telemetry.console
         #else
             let telemetry = Telemetry.noop
         #endif
-        return AppDependencies(telemetry: telemetry)
+        return AppDependencies(
+            telemetry: telemetry,
+            catalog: MockCatalogService.returning(.empty),
+            favourites: InMemoryFavouritesService()
+        )
     }
 }

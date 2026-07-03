@@ -12,39 +12,45 @@ public enum Features {
 }
 
 /// The app's root scene: a three-tab shell (Library · DJs · Saved) matching the
-/// navigation defined in `DESIGN.md`. The real screens replace these
-/// placeholders in their respective feature PRs; ViewModels and services are
-/// injected here from the composition root as they come online.
+/// navigation defined in `DESIGN.md`. Services arrive from the composition root
+/// and are handed to each screen's ViewModel. DJs and Saved land in their own
+/// feature PRs.
 public struct AppRootView: View {
-    public init() {}
+    private let catalog: CatalogService
+    private let favourites: FavouritesService
+    private let analytics: any Analytics
+
+    public init(catalog: CatalogService, favourites: FavouritesService, analytics: any Analytics) {
+        self.catalog = catalog
+        self.favourites = favourites
+        self.analytics = analytics
+    }
 
     public var body: some View {
         TabView {
-            placeholder(title: "Library")
-                .tabItem { Label("Library", systemImage: "square.grid.2x2") }
+            LibraryView(
+                viewModel: LibraryViewModel(catalog: catalog, favourites: favourites, analytics: analytics)
+            )
+            .tabItem { Label("Library", systemImage: "square.grid.2x2") }
 
-            placeholder(title: "DJs")
+            placeholder(title: "DJs", systemImage: "person.2")
                 .tabItem { Label("DJs", systemImage: "person.2") }
 
-            placeholder(title: "Saved")
+            placeholder(title: "Saved", systemImage: "heart")
                 .tabItem { Label("Saved", systemImage: "heart") }
         }
     }
 
-    private func placeholder(title: String) -> some View {
+    private func placeholder(title: String, systemImage: String) -> some View {
         NavigationStack {
-            VStack(spacing: 8) {
-                Text(title)
-                    .font(.largeTitle.bold())
-                Text("Coming soon")
-                    .foregroundStyle(.secondary)
-            }
+            EmptyState(
+                systemImage: systemImage,
+                title: title,
+                message: "Coming soon."
+            )
             .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .screenBackground()
             .navigationTitle(title)
         }
     }
-}
-
-#Preview {
-    AppRootView()
 }
