@@ -25,6 +25,29 @@ public enum CatalogError: Error, Equatable, Sendable {
         case .decodingFailed: false
         }
     }
+
+    /// Maps any thrown error into a typed `CatalogError`, so every failure —
+    /// transport, decoding or otherwise — surfaces as a designed, retryable-aware
+    /// state. Passes an existing `CatalogError` through unchanged.
+    public static func from(_ error: Error) -> CatalogError {
+        if let catalogError = error as? CatalogError {
+            return catalogError
+        }
+        if error is DecodingError {
+            return .decodingFailed(String(describing: error))
+        }
+        if let urlError = error as? URLError {
+            switch urlError.code {
+            case .notConnectedToInternet, .networkConnectionLost, .dataNotAllowed:
+                return .offline
+            case .timedOut:
+                return .timedOut
+            default:
+                return .unknown
+            }
+        }
+        return .unknown
+    }
 }
 
 extension CatalogError: LocalizedError {

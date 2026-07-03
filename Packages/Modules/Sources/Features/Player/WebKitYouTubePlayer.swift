@@ -9,7 +9,7 @@ import WebKit
 /// State and progress flow Swift-ward via a script message handler; commands
 /// flow JS-ward via `evaluateJavaScript`.
 @MainActor
-public final class WebKitYouTubePlayer: NSObject, YouTubePlayer, WKScriptMessageHandler {
+public final class WebKitYouTubePlayer: NSObject, YouTubePlayer, WKScriptMessageHandler, WKNavigationDelegate {
     public var onEvent: ((PlaybackEvent) -> Void)?
 
     public let webView: WKWebView
@@ -29,6 +29,7 @@ public final class WebKitYouTubePlayer: NSObject, YouTubePlayer, WKScriptMessage
         webView.backgroundColor = .black
         webView.scrollView.isScrollEnabled = false
         super.init()
+        webView.navigationDelegate = self
         controller.add(self, name: "yt")
     }
 
@@ -71,6 +72,25 @@ public final class WebKitYouTubePlayer: NSObject, YouTubePlayer, WKScriptMessage
             break
         }
     }
+
+    // MARK: WKNavigationDelegate
+
+    // Delegate signatures use WKNavigation! (Apple API); the IUO is unavoidable.
+    // swiftlint:disable implicitly_unwrapped_optional
+
+    public func webView(_: WKWebView, didFail _: WKNavigation!, withError _: Error) {
+        onEvent?(.failed("Couldn't load the player. Check your connection and try again."))
+    }
+
+    public func webView(
+        _: WKWebView,
+        didFailProvisionalNavigation _: WKNavigation!,
+        withError _: Error
+    ) {
+        onEvent?(.failed("Couldn't load the player. Check your connection and try again."))
+    }
+
+    // swiftlint:enable implicitly_unwrapped_optional
 
     // MARK: Embedded page
 

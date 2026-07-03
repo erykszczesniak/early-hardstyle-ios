@@ -57,6 +57,10 @@ public struct MiniPlayer: View {
             .frame(maxWidth: .infinity, alignment: .leading)
             .contentShape(Rectangle())
             .onTapGesture(perform: onOpen)
+            .accessibilityElement(children: .combine)
+            .accessibilityLabel("Now playing, \(model.title), \(model.subtitle)")
+            .accessibilityHint("Opens the player")
+            .accessibilityAddTraits(.isButton)
 
             Button(action: onPlayPause) {
                 Image(systemName: model.isPlaying ? "pause.fill" : "play.fill")
