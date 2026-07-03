@@ -58,6 +58,12 @@ public final class SavedViewModel {
         await refreshSaved()
     }
 
+    /// Builds the Set Detail ViewModel for a tapped card from the loaded catalogue.
+    public func setDetailViewModel(for card: SetCardModel) -> SetDetailViewModel? {
+        guard let set = catalogData.sets.first(where: { $0.id == card.id }) else { return nil }
+        return SetDetailViewModel(set: set, catalog: catalogData, favourites: favourites, analytics: analytics)
+    }
+
     /// Re-maps the saved sets from the shared favourites store, preserving
     /// most-recently-saved-first order.
     private func refreshSaved() async {
