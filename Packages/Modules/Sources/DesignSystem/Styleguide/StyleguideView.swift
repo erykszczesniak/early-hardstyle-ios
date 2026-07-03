@@ -12,6 +12,8 @@ public struct StyleguideView: View {
                 colors
                 typography
                 components
+                cards
+                motion
             }
             .padding(Spacing.gutter)
         }
@@ -90,6 +92,77 @@ public struct StyleguideView: View {
                 .cardSurface()
 
             ErrorInline(message: "Something went wrong. Please try again.") {}
+        }
+    }
+
+    private var sampleSet: SetCardModel {
+        SetCardModel(
+            id: "s1",
+            title: "Showtek at Defqon.1",
+            eventName: "Defqon.1",
+            year: 2007,
+            durationSeconds: 4125,
+            genres: ["Early Hardstyle", "Reverse"],
+            thumbnailURL: nil,
+            isSaved: true
+        )
+    }
+
+    private var cards: some View {
+        VStack(alignment: .leading, spacing: Spacing.lg) {
+            SectionHeader("Cards")
+
+            LazyVGrid(
+                columns: Array(repeating: GridItem(.flexible(), spacing: Spacing.cardGap), count: 2),
+                spacing: Spacing.cardGap
+            ) {
+                SetCard(model: sampleSet, isPlaying: true, onOpen: {}, onToggleSave: {})
+                SetCard(model: sampleSet, onOpen: {}, onToggleSave: {})
+            }
+
+            SetCardRow(model: sampleSet, onOpen: {}, onToggleSave: {})
+
+            DJCard(
+                model: DJCardModel(id: "showtek", name: "Showtek", country: "Netherlands", setCount: 2, imageURL: nil),
+                onOpen: {}
+            )
+            .frame(maxWidth: 180)
+
+            MiniPlayer(
+                model: MiniPlayerModel(
+                    title: "Technoboy",
+                    subtitle: "Sensation Black 2004",
+                    thumbnailURL: nil,
+                    isPlaying: true,
+                    isSaved: false
+                ),
+                onPlayPause: {},
+                onToggleSave: {},
+                onOpen: {}
+            )
+        }
+    }
+
+    private var motion: some View {
+        VStack(alignment: .leading, spacing: Spacing.lg) {
+            SectionHeader("Motion")
+
+            Text("Progress")
+                .font(Typography.meta)
+                .foregroundStyle(Palette.textSecondary)
+            ProgressBar(value: 0.35, onScrub: { _ in })
+            ProgressBar(value: 0, isBuffering: true)
+
+            Text("Hero mesh")
+                .font(Typography.meta)
+                .foregroundStyle(Palette.textSecondary)
+            HeroMesh()
+                .frame(height: 140)
+                .clipShape(RoundedRectangle(cornerRadius: Radius.card, style: .continuous))
+
+            Text("Tilt / pulse are shown on the cards above and honour Reduce Motion.")
+                .font(Typography.meta)
+                .foregroundStyle(Palette.textTertiary)
         }
     }
 }
