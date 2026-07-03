@@ -68,7 +68,7 @@ public final class DJsViewModel {
             allDJs = Self.map(loaded)
             state = allDJs.isEmpty ? .empty : .loaded
         } catch {
-            let catalogError = (error as? CatalogError) ?? .unknown
+            let catalogError = CatalogError.from(error)
             state = .failed(
                 message: catalogError.errorDescription ?? "Something went wrong.",
                 retryable: catalogError.isRetryable

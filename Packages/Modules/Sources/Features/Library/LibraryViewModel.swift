@@ -121,7 +121,7 @@ public final class LibraryViewModel {
             filterOptions = FilterOptions.derive(from: loaded)
             state = allSets.isEmpty ? .empty : .loaded
         } catch {
-            let catalogError = (error as? CatalogError) ?? .unknown
+            let catalogError = CatalogError.from(error)
             state = .failed(
                 message: catalogError.errorDescription ?? "Something went wrong.",
                 retryable: catalogError.isRetryable
