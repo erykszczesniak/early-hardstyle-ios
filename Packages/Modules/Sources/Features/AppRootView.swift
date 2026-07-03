@@ -13,12 +13,19 @@ public enum Features {
 
 /// The app's root scene: a three-tab shell (Library · DJs · Saved) matching the
 /// navigation defined in `the design spec`. Services arrive from the composition root
-/// and are handed to each screen's ViewModel. DJs and Saved land in their own
-/// feature PRs.
+/// and are handed to each screen's ViewModel.
 public struct AppRootView: View {
+    private enum Tab: Hashable {
+        case library
+        case djs
+        case saved
+    }
+
     private let catalog: CatalogService
     private let favourites: FavouritesService
     private let analytics: any Analytics
+
+    @State private var selection: Tab = .library
 
     public init(catalog: CatalogService, favourites: FavouritesService, analytics: any Analytics) {
         self.catalog = catalog
@@ -27,32 +34,25 @@ public struct AppRootView: View {
     }
 
     public var body: some View {
-        TabView {
+        TabView(selection: $selection) {
             LibraryView(
                 viewModel: LibraryViewModel(catalog: catalog, favourites: favourites, analytics: analytics)
             )
+            .tag(Tab.library)
             .tabItem { Label("Library", systemImage: "square.grid.2x2") }
 
             DJsView(
                 viewModel: DJsViewModel(catalog: catalog, favourites: favourites, analytics: analytics)
             )
+            .tag(Tab.djs)
             .tabItem { Label("DJs", systemImage: "person.2") }
 
-            placeholder(title: "Saved", systemImage: "heart")
-                .tabItem { Label("Saved", systemImage: "heart") }
-        }
-    }
-
-    private func placeholder(title: String, systemImage: String) -> some View {
-        NavigationStack {
-            EmptyState(
-                systemImage: systemImage,
-                title: title,
-                message: "Coming soon."
+            SavedView(
+                viewModel: SavedViewModel(catalog: catalog, favourites: favourites, analytics: analytics),
+                onBrowseLibrary: { selection = .library }
             )
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .screenBackground()
-            .navigationTitle(title)
+            .tag(Tab.saved)
+            .tabItem { Label("Saved", systemImage: "heart") }
         }
     }
 }
