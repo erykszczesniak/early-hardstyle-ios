@@ -1,0 +1,175 @@
+import Core
+import Foundation
+import Services
+
+/// One queued item. Identified by its set id (a set appears at most once).
+public struct QueueItem: Identifiable, Equatable, Sendable {
+    public let nowPlaying: NowPlaying
+    public var id: String {
+        nowPlaying.setID
+    }
+
+    public init(_ nowPlaying: NowPlaying) {
+        self.nowPlaying = nowPlaying
+    }
+}
+
+/// App-level playback: owns the queue and the current player, so the mini-player
+/// persists across tabs and the queue drives autoplay. Injected once from the
+/// composition root and shared via the SwiftUI environment.
+@MainActor
+@Observable
+public final class PlaybackController {
+    private let analytics: any Analytics
+    private let favourites: FavouritesService
+    private let makeEngine: @MainActor () -> YouTubePlayer
+
+    public private(set) var current: PlayerViewModel?
+    public private(set) var queue: [QueueItem] = []
+    public private(set) var index: Int = 0
+    public private(set) var currentIsSaved = false
+    public var autoplayNext = true
+    public var isExpanded = false
+
+    public init(
+        analytics: any Analytics,
+        favourites: FavouritesService,
+        makeEngine: @escaping @MainActor () -> YouTubePlayer
+    ) {
+        self.analytics = analytics
+        self.favourites = favourites
+        self.makeEngine = makeEngine
+    }
+
+    // MARK: Derived
+
+    public var hasCurrent: Bool {
+        current != nil
+    }
+
+    public var nowPlaying: NowPlaying? {
+        current?.nowPlaying
+    }
+
+    public var isPlaying: Bool {
+        current?.isPlaying ?? false
+    }
+
+    public var canGoNext: Bool {
+        index + 1 < queue.count
+    }
+
+    public var canGoPrevious: Bool {
+        index > 0
+    }
+
+    // MARK: Intent
+
+    /// Replaces the queue with `items` and starts playback at `startAt`.
+    public func play(_ items: [NowPlaying], startAt: Int = 0) {
+        guard !items.isEmpty else { return }
+        queue = items.map(QueueItem.init)
+        index = min(max(startAt, 0), queue.count - 1)
+        startCurrent()
+        isExpanded = true
+    }
+
+    /// Inserts an item to play right after the current one.
+    public func playNext(_ item: NowPlaying) {
+        guard !queue.isEmpty else { return play([item]) }
+        queue.removeAll { $0.id == item.setID }
+        queue.insert(QueueItem(item), at: min(index + 1, queue.count))
+    }
+
+    /// Appends an item to the end of the queue.
+    public func enqueue(_ item: NowPlaying) {
+        guard !queue.isEmpty else { return play([item]) }
+        guard !queue.contains(where: { $0.id == item.setID }) else { return }
+        queue.append(QueueItem(item))
+    }
+
+    public func advance() {
+        guard canGoNext else { return }
+        index += 1
+        startCurrent()
+    }
+
+    public func goPrevious() {
+        guard canGoPrevious else { return }
+        index -= 1
+        startCurrent()
+    }
+
+    public func play(at position: Int) {
+        guard queue.indices.contains(position) else { return }
+        index = position
+        startCurrent()
+    }
+
+    public func togglePlayPause() {
+        current?.togglePlayPause()
+    }
+
+    public func expand() {
+        guard hasCurrent else { return }
+        isExpanded = true
+    }
+
+    public func remove(_ item: QueueItem) {
+        guard let position = queue.firstIndex(where: { $0.id == item.id }) else { return }
+        // Removing the current item stops playback; removing an earlier item
+        // keeps the current index pointing at the same track.
+        queue.remove(at: position)
+        if position == index {
+            if queue.isEmpty {
+                current = nil
+                index = 0
+            } else {
+                index = min(index, queue.count - 1)
+                startCurrent()
+            }
+        } else if position < index {
+            index -= 1
+        }
+    }
+
+    public func move(fromOffsets: IndexSet, toOffset: Int) {
+        let currentID = queue.indices.contains(index) ? queue[index].id : nil
+        queue.move(fromOffsets: fromOffsets, toOffset: toOffset)
+        if let currentID, let newIndex = queue.firstIndex(where: { $0.id == currentID }) {
+            index = newIndex
+        }
+    }
+
+    public func toggleSaveCurrent() async {
+        guard let setID = nowPlaying?.setID else { return }
+        currentIsSaved = await favourites.toggle(setID)
+    }
+
+    // MARK: Internals
+
+    private func startCurrent() {
+        guard queue.indices.contains(index) else {
+            current = nil
+            return
+        }
+        let viewModel = PlayerViewModel(nowPlaying: queue[index].nowPlaying, player: makeEngine(), analytics: analytics)
+        viewModel.onPlaybackEnded = { [weak self] in
+            self?.handlePlaybackEnded()
+        }
+        current = viewModel
+        viewModel.start()
+        refreshCurrentSaved()
+    }
+
+    private func handlePlaybackEnded() {
+        if autoplayNext, canGoNext {
+            advance()
+        }
+    }
+
+    private func refreshCurrentSaved() {
+        guard let setID = nowPlaying?.setID else { return }
+        Task { currentIsSaved = await favourites.isFavourite(setID) }
+    }
+}

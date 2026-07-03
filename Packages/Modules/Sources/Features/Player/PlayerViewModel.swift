@@ -17,6 +17,10 @@ public final class PlayerViewModel {
     public private(set) var currentTime: Double = 0
     public private(set) var duration: Double = 0
 
+    /// Invoked when playback reaches the end — the queue uses this to autoplay
+    /// the next item.
+    public var onPlaybackEnded: (() -> Void)?
+
     public init(nowPlaying: NowPlaying, player: YouTubePlayer, analytics: any Analytics) {
         self.nowPlaying = nowPlaying
         self.player = player
@@ -99,6 +103,7 @@ public final class PlayerViewModel {
             state = .paused
         case .ended:
             state = .ended
+            onPlaybackEnded?()
         case let .failed(message):
             state = .failed(message: message)
         case let .progress(time, total):

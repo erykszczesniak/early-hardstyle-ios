@@ -5,6 +5,7 @@ import XCTest
 @MainActor
 final class PlayerViewModelTests: XCTestCase {
     private let nowPlaying = NowPlaying(
+        setID: "set-1",
         title: "Technoboy",
         subtitle: "Sensation 2004",
         artworkURL: nil,

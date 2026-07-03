@@ -2,14 +2,16 @@ import DesignSystem
 import SwiftUI
 
 /// The full-screen player: the embedded YouTube surface, metadata, a seekable
-/// progress track, transport controls and first-class buffering/error/ended
-/// states. Playback is via the official YouTube player (attribution required).
+/// progress track, transport controls (with queue prev/next) and first-class
+/// buffering/error/ended states. Bound to the app-level `PlaybackController` so
+/// it and the mini-player reflect one playback session.
 public struct PlayerView: View {
     @Environment(\.dismiss) private var dismiss
-    @State private var viewModel: PlayerViewModel
+    @Bindable private var controller: PlaybackController
+    @State private var showQueue = false
 
-    public init(viewModel: PlayerViewModel) {
-        _viewModel = State(initialValue: viewModel)
+    public init(controller: PlaybackController) {
+        self.controller = controller
     }
 
     public var body: some View {
@@ -26,7 +28,10 @@ public struct PlayerView: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .screenBackground()
         .foregroundStyle(Palette.textPrimary)
-        .task { viewModel.start() }
+        .sheet(isPresented: $showQueue) {
+            QueueView(controller: controller)
+                .presentationDetents([.medium, .large])
+        }
     }
 
     private var header: some View {
@@ -38,27 +43,36 @@ public struct PlayerView: View {
             }
             .accessibilityLabel("Close player")
             Spacer()
+            Button { showQueue = true } label: {
+                Image(systemName: "list.bullet")
+                    .font(.system(size: 18, weight: .semibold))
+                    .frame(width: 44, height: 44)
+            }
+            .accessibilityLabel("Queue")
         }
     }
 
+    @ViewBuilder
     private var media: some View {
-        viewModel.surface
-            .aspectRatio(16.0 / 9.0, contentMode: .fit)
-            .frame(maxWidth: .infinity)
-            .clipShape(RoundedRectangle(cornerRadius: Radius.card, style: .continuous))
-            .overlay(
-                RoundedRectangle(cornerRadius: Radius.card, style: .continuous)
-                    .strokeBorder(Palette.strokeSubtle, lineWidth: 1)
-            )
+        if let current = controller.current {
+            current.surface
+                .aspectRatio(16.0 / 9.0, contentMode: .fit)
+                .frame(maxWidth: .infinity)
+                .clipShape(RoundedRectangle(cornerRadius: Radius.card, style: .continuous))
+                .overlay(
+                    RoundedRectangle(cornerRadius: Radius.card, style: .continuous)
+                        .strokeBorder(Palette.strokeSubtle, lineWidth: 1)
+                )
+        }
     }
 
     private var metadata: some View {
         VStack(spacing: Spacing.xs) {
-            Text(viewModel.nowPlaying.title)
+            Text(controller.nowPlaying?.title ?? "")
                 .font(Typography.title)
                 .multilineTextAlignment(.center)
                 .lineLimit(2)
-            Text(viewModel.nowPlaying.subtitle)
+            Text(controller.nowPlaying?.subtitle ?? "")
                 .font(Typography.meta)
                 .foregroundStyle(Palette.textSecondary)
         }
@@ -66,33 +80,35 @@ public struct PlayerView: View {
 
     @ViewBuilder
     private var progressSection: some View {
-        if case let .failed(message) = viewModel.state {
-            ErrorInline(message: message) { viewModel.retry() }
-        } else {
-            VStack(spacing: Spacing.xs) {
-                ProgressBar(
-                    value: viewModel.progress,
-                    isBuffering: viewModel.isBuffering,
-                    onScrub: viewModel.canScrub ? { viewModel.seek(toFraction: $0) } : nil
-                )
-                HStack {
-                    Text(viewModel.currentTimeText)
-                    Spacer()
-                    Text(viewModel.durationText)
+        if let current = controller.current {
+            if case let .failed(message) = current.state {
+                ErrorInline(message: message) { current.retry() }
+            } else {
+                VStack(spacing: Spacing.xs) {
+                    ProgressBar(
+                        value: current.progress,
+                        isBuffering: current.isBuffering,
+                        onScrub: current.canScrub ? { current.seek(toFraction: $0) } : nil
+                    )
+                    HStack {
+                        Text(current.currentTimeText)
+                        Spacer()
+                        Text(current.durationText)
+                    }
+                    .font(Typography.meta)
+                    .foregroundStyle(Palette.textSecondary)
                 }
-                .font(Typography.meta)
-                .foregroundStyle(Palette.textSecondary)
             }
         }
     }
 
     private var controls: some View {
         HStack(spacing: Spacing.xxl) {
-            transportButton(system: "backward.fill", size: 28) {}
-                .disabled(true)
-                .opacity(0.35)
+            transportButton(system: "backward.fill", size: 28) { controller.goPrevious() }
+                .disabled(!controller.canGoPrevious)
+                .opacity(controller.canGoPrevious ? 1 : 0.35)
 
-            Button { viewModel.togglePlayPause() } label: {
+            Button { controller.togglePlayPause() } label: {
                 Image(systemName: primaryGlyph)
                     .font(.system(size: 30, weight: .heavy))
                     .foregroundStyle(.black)
@@ -101,9 +117,9 @@ public struct PlayerView: View {
             }
             .accessibilityLabel(playPauseLabel)
 
-            transportButton(system: "forward.fill", size: 28) {}
-                .disabled(true)
-                .opacity(0.35)
+            transportButton(system: "forward.fill", size: 28) { controller.advance() }
+                .disabled(!controller.canGoNext)
+                .opacity(controller.canGoNext ? 1 : 0.35)
         }
     }
 
@@ -124,7 +140,7 @@ public struct PlayerView: View {
     }
 
     private var primaryGlyph: String {
-        switch viewModel.state {
+        switch controller.current?.state {
         case .ended: "arrow.clockwise"
         case .playing: "pause.fill"
         default: "play.fill"
@@ -132,7 +148,7 @@ public struct PlayerView: View {
     }
 
     private var playPauseLabel: String {
-        switch viewModel.state {
+        switch controller.current?.state {
         case .ended: "Replay"
         case .playing: "Pause"
         default: "Play"
