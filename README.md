@@ -1,16 +1,29 @@
 # Early Hardstyle — iOS
 
-> Native iOS app cataloguing the golden era of early hardstyle (1999–2007): DJs, legendary sets and events, with browse/search, filters and a personal **Saved** library. Playback via the **official YouTube player**. Built to a production, senior-iOS standard with **MVVM**.
+> A native iOS app cataloguing the golden era of early hardstyle (1999–2007): DJs, legendary sets and events, with browse, search, filters, a personal **Saved** library, and full playback through the **official YouTube player**. Built to a production, senior-iOS standard with **MVVM**, strict module boundaries and dependency injection throughout.
 
-**Status:** 🚧 in active development — see the [feature roadmap](CLAUDE.md#4-feature-breakdown-one-branch--one-pr-per-item). This README is expanded in the final documentation PR.
+<p align="center">
+  <img src="docs/screenshots/library.png" alt="Library screen — animated hero over a grid of set cards with real YouTube artwork" width="300">
+</p>
 
-> Tribute project — not affiliated with any labels, events or artists.
+> Tribute project — not affiliated with any labels, events or artists. Playback happens inside YouTube's own embedded player; no media is ripped or self-hosted.
+
+---
+
+## Highlights
+
+- **Modular architecture** — a local Swift Package splits the app into `Core`, `Services`, `DesignSystem` and `Features`, with a strict dependency direction and features depending on **protocols, not concretions**.
+- **MVVM + DI** — dumb views, logic in `@Observable` ViewModels, all collaborators injected from a single composition root. No hidden singletons in testable code.
+- **Explicit state machines** — every screen models `loading / loaded / empty / failed(retryable)` explicitly; the player models `idle / loading / buffering / playing / paused / ended / failed`.
+- **Official YouTube playback** — the YouTube iframe player API in a `WKWebView`, behind a `YouTubePlayer` protocol so the state machine is unit-tested with a mock.
+- **App-level playback** — a `PlaybackController` owns the queue and current player, so a **persistent mini-player** rides above the tab bar and the **queue** drives autoplay across the whole app.
+- **Persistence** — favourites survive launches via a `UserDefaults`-backed store behind the `FavouritesService` protocol.
+- **Telemetry** — privacy-respecting `Analytics` + `CrashReporter` abstractions with no-op/console defaults, injected everywhere.
+- **Quality** — 120+ unit tests, SwiftLint (`--strict`) + SwiftFormat, and GitHub Actions CI (lint + build + test on a simulator) on every PR.
 
 ---
 
 ## Architecture
-
-MVVM with strict module boundaries, enforced by a local Swift Package (`Packages/Modules`) whose products are consumed by a thin app target:
 
 ```
 early-hardstyle-ios/
@@ -21,26 +34,60 @@ early-hardstyle-ios/
 ├── Packages/Modules/         local Swift Package — the app's real code
 │   └── Sources/
 │       ├── Core/             models, telemetry protocols, typed errors (no UI)
-│       ├── Services/         catalog/favourites/player services (protocols + impls + mocks)
-│       ├── DesignSystem/     tokens, components, motion modifiers
-│       └── Features/         screen View + ViewModel pairs
+│       ├── Services/         catalog/favourites services (protocols + impls + mocks) + seed
+│       ├── DesignSystem/     tokens, components, 3D/motion modifiers, styleguide
+│       └── Features/         screen View + ViewModel pairs, and app-level playback
 ├── .github/workflows/ci.yml  lint + build + test on every PR
-├── .swiftlint.yml / .swiftformat
 ├── CLAUDE.md                 engineering operating manual
 └── DESIGN.md                 UI/UX single source of truth
 ```
 
-**Dependency direction:** `Features → DesignSystem / Services / Core`. Features depend on **protocols**, never concretions. Concrete implementations are constructed in exactly one place — `App/Sources/AppDependencies.swift`, the composition root — and injected downstream via initialisers. No hidden singletons in testable code.
+**Dependency direction:** `Features → DesignSystem / Services / Core`. Features and screens depend on **protocols** (`CatalogService`, `FavouritesService`, `YouTubePlayer`, `Analytics`, `CrashReporter`); concrete implementations are constructed in exactly one place — `App/Sources/AppDependencies.swift` — and injected downstream via initialisers. Every module runs under the **Swift 6 language mode**.
 
 ### Why a generated project
 
 The `.xcodeproj` is produced by [XcodeGen](https://github.com/yonaskolb/XcodeGen) from `project.yml` and is **git-ignored**. This keeps the repo free of merge-conflict-prone project files and makes the build configuration reviewable as plain YAML.
 
+### Playback design
+
+```
+PlaybackController (app-level, @Observable)
+  ├─ owns the queue + current PlayerViewModel, drives autoplay
+  ├─ shared via the SwiftUI environment (mini-player persists across tabs)
+  └─ PlayerViewModel ── depends on ──▶ YouTubePlayer (protocol)
+                                         ├─ WebKitYouTubePlayer  (iframe API in WKWebView)
+                                         └─ MockYouTubePlayer    (drives tests)
+```
+
+The engine reports state/progress via a script message handler; commands go out via `evaluateJavaScript`. Because the ViewModel only knows the protocol, the entire play/pause/seek/buffering/ended/error/autoplay logic is exercised without WebKit.
+
+---
+
+## Features
+
+| # | Feature | What it does |
+|---|---------|--------------|
+| 1 | Project scaffold | XcodeGen, SPM modules, SwiftLint/SwiftFormat, CI, DI root |
+| 2 | Telemetry | `Analytics` + `CrashReporter` abstractions, wired first |
+| 3 | Models & services | Codable domain models, `CatalogService`/`FavouritesService`, typed errors |
+| 4 | Design system | Tokens, components, 3D/motion (tilt/pulse/mesh), debug styleguide |
+| 5 | Library | Set-card grid, animated hero, search, explicit states |
+| 6 | Library filters | Year / event / genre / country facets |
+| 7 | DJs | Grid + DJ detail with the DJ's sets |
+| 8 | Saved | Persistent favourites + designed empty state |
+| 9 | Set detail | Metadata, related sets, play entry point |
+| 10 | YouTube player | Official iframe player + full state machine |
+| 11 | Mini-player + queue | Persistent mini-player, queue, autoplay |
+| 12 | Seed content | Real DJs/sets with official YouTube ids |
+| 13 | Hardening | Typed error mapping, player load-failure states, a11y |
+
+Design tokens, screen maps and the motion language live in [`DESIGN.md`](DESIGN.md): minimalist **black / white / electric blue**, with 3D used as depth and motion — never as gimmick, and always degrading gracefully under Reduce Motion.
+
 ---
 
 ## Getting started
 
-Requirements: **Xcode 16+** (developed on Xcode 26), and the tools below.
+Requirements: **Xcode 16+** (developed on Xcode 26) and the tools below.
 
 ```bash
 # one-time: install tooling
@@ -48,8 +95,6 @@ brew install xcodegen swiftlint swiftformat
 
 # generate the Xcode project (whenever project.yml or the file tree changes)
 xcodegen generate
-
-# open in Xcode
 open EarlyHardstyle.xcodeproj
 ```
 
@@ -71,12 +116,35 @@ swiftlint lint --strict
 
 ---
 
-## Quality gates
+## Testing
 
-Every PR runs [`CI`](.github/workflows/ci.yml): **SwiftFormat** (lint mode) + **SwiftLint** (`--strict`), an app build, and the full module test suite on an iOS simulator. Green CI is required to merge.
+120+ XCTest cases, focused where the logic lives:
+
+- **ViewModels** — happy / empty / error(retryable + non-retryable) / recovery paths, search, filtering, favourites, analytics (Library, DJs, DJ detail, Saved, Set detail).
+- **Player & queue** — the full player state machine via a mock engine; queue lifecycle, autoplay on/off, bounds, reorder/remove index-preservation, current-save persistence.
+- **Services** — favourites persistence across instances, catalogue decoding (incl. malformed input + Codable round-trip), typed-error mapping, and seed integrity (unique/valid ids, references, artwork).
+- **Design system** — the hex colour parser and spoken-duration/label helpers.
+
+Test doubles (`MockCatalogService`, `InMemoryFavouritesService`, `MockYouTubePlayer`) ship with the modules so ViewModels are trivially isolatable. Concurrency follows Swift 6 discipline (`@MainActor` ViewModels, actor-backed stores, lock-guarded spies).
 
 ---
 
-## Design & brand
+## Quality gates & CI
 
-Minimalist, modern: **black / white / electric blue**, with 3D used as depth and motion — never as gimmick. The full design system, tokens, screen maps and motion language live in [`DESIGN.md`](DESIGN.md).
+Every PR runs [`CI`](.github/workflows/ci.yml): **SwiftFormat** (lint mode) + **SwiftLint** (`--strict`), an app build, and the full module test suite on an iOS simulator. Green CI is required to merge; every feature ships as its own branch and squash-merged PR.
+
+---
+
+## Accessibility & performance
+
+- Dynamic Type throughout (type tokens map to text styles); VoiceOver labels on cards, badges, controls and the mini-player.
+- Reduce Motion disables tilt/parallax/mesh-drift and the now-playing pulse, falling back to opacity/scale.
+- Lazy grids/stacks, `visualEffect`-friendly motion, and URL-derived artwork with branded placeholders keep scrolling smooth.
+
+---
+
+## Roadmap / follow-ups
+
+- **DebuggingLab** — a set of theme-matched `lab/broken-*` → `lab/fix-*` PR pairs documenting subtle bugs and their fixes (planned).
+- A networked `CatalogService` behind the existing protocol (the typed-error mapping already anticipates it).
+- Optional Metal audio-reactive visualizer behind the player artwork (extended scope; see `DESIGN.md` §3.8).
