@@ -1,14 +1,18 @@
 import Core
 import Foundation
-import SwiftUI
 
 /// Drives the full-screen player: owns the explicit `PlayerState` machine,
 /// forwards user intent to the injected `YouTubePlayer` engine, and reflects the
-/// engine's events back as state and progress.
+/// engine's events back as state and progress. Deliberately UI-free — the view
+/// layer obtains the video surface from the engine directly (see
+/// `VideoSurfaceProviding`).
 @MainActor
 @Observable
 public final class PlayerViewModel {
-    private let player: YouTubePlayer
+    /// The playback engine. Exposed so the *view* can ask it for a video
+    /// surface (`VideoSurfaceProviding`); the ViewModel itself only uses the
+    /// UI-free `YouTubePlayer` contract.
+    public let engine: YouTubePlayer
     private let analytics: any Analytics
 
     public let nowPlaying: NowPlaying
@@ -23,7 +27,7 @@ public final class PlayerViewModel {
 
     public init(nowPlaying: NowPlaying, player: YouTubePlayer, analytics: any Analytics) {
         self.nowPlaying = nowPlaying
-        self.player = player
+        engine = player
         self.analytics = analytics
         player.onEvent = { [weak self] event in
             self?.handle(event)
@@ -38,11 +42,6 @@ public final class PlayerViewModel {
 
     public var canScrub: Bool {
         duration > 0
-    }
-
-    /// The engine's video surface, embedded by the Player screen.
-    public var surface: AnyView {
-        player.surface
     }
 
     public var progress: Double {
@@ -67,21 +66,21 @@ public final class PlayerViewModel {
     public func start() {
         analytics.trackScreenView("Player")
         state = .loading
-        player.load(videoID: nowPlaying.youtubeID)
+        engine.load(videoID: nowPlaying.youtubeID)
     }
 
     public func togglePlayPause() {
         if state == .playing {
-            player.pause()
+            engine.pause()
         } else {
-            player.play()
+            engine.play()
         }
     }
 
     public func seek(toFraction fraction: Double) {
         let clamped = min(max(fraction, 0), 1)
         currentTime = clamped * duration
-        player.seek(toFraction: clamped)
+        engine.seek(toFraction: clamped)
     }
 
     public func retry() {
@@ -94,7 +93,7 @@ public final class PlayerViewModel {
         switch event {
         case .ready:
             // Autoplay once the video is ready.
-            player.play()
+            engine.play()
         case .buffering:
             state = .buffering
         case .playing:
