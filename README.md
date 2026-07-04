@@ -166,8 +166,16 @@ Every PR runs [`CI`](.github/workflows/ci.yml): **SwiftFormat** (lint mode) + **
 
 ---
 
-## Roadmap / follow-ups
+## Debugging Lab
 
-- **DebuggingLab** — a set of theme-matched `lab/broken-*` → `lab/fix-*` PR pairs documenting subtle bugs and their fixes (planned).
+A record of deliberately introduced, theme-matched bugs, each paired with a fix and the test that catches it — see [`DEBUGGING_LAB.md`](DEBUGGING_LAB.md).
+
+| Bug | Caught by | Broken | Fix |
+|---|---|---|---|
+| Reversed catalogue ordering | `test_load_success_populatesNewestFirst` | `lab/broken-reverse-ordering` | `lab/fix-reverse-ordering` |
+| Player progress NaN | `test_progress_withZeroDuration_isNotScrubbable` | `lab/broken-player-progress-nan` | `lab/fix-player-progress-nan` |
+
+## Follow-ups
+
 - A networked `CatalogService` behind the existing protocol (the typed-error mapping already anticipates it).
 - Optional Metal audio-reactive visualizer behind the player artwork (extended scope; see `DESIGN.md` §3.8).
