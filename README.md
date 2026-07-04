@@ -118,6 +118,8 @@ swiftlint lint --strict
 
 ## Run on your iPhone (no simulator needed, incl. wirelessly)
 
+> ⚠️ **Playback needs a real device.** YouTube video does **not** play in the iOS Simulator — its WebKit lacks the media capabilities YouTube requires, so the embed shows "video unavailable" regardless of the code. Everything else (browse, search, filters, saved, mini-player, queue) works on the simulator; to actually **hear a set, run on an iPhone**.
+
 You only need **Xcode 16+** and a **free Apple ID** — no paid developer account.
 
 1. **Generate & open** the project:
