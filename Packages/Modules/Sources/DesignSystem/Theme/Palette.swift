@@ -46,4 +46,9 @@ public enum Palette {
 
     /// Inner top highlight applied over card surfaces.
     public static let innerHighlight = Color.white.opacity(0.04)
+
+    /// Dark scrim behind badges sitting on artwork (year/duration chips).
+    public static let scrimStrong = Color.black.opacity(0.55)
+    /// Lighter scrim behind interactive overlays on artwork (save heart).
+    public static let scrimSoft = Color.black.opacity(0.35)
 }

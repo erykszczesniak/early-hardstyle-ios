@@ -17,7 +17,7 @@ public struct YearBadge: View {
             .foregroundStyle(Palette.textPrimary)
             .padding(.horizontal, Spacing.sm)
             .padding(.vertical, Spacing.xs)
-            .background(.black.opacity(0.55), in: Capsule())
+            .background(Palette.scrimStrong, in: Capsule())
             .accessibilityLabel("Year \(year)")
     }
 }
@@ -40,7 +40,7 @@ public struct DurationBadge: View {
         .foregroundStyle(Palette.textPrimary)
         .padding(.horizontal, Spacing.sm)
         .padding(.vertical, Spacing.xs)
-        .background(.black.opacity(0.55), in: Capsule())
+        .background(Palette.scrimStrong, in: Capsule())
         .accessibilityLabel(Self.accessibleDuration(seconds: seconds))
     }
 
