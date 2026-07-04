@@ -121,7 +121,11 @@ public final class WebKitYouTubePlayer: NSObject, YouTubePlayer, WKScriptMessage
         function onYouTubeIframeAPIReady() {
           player = new YT.Player('player', {
             videoId: '__VIDEO_ID__',
-            playerVars: { playsinline: 1, controls: 0, rel: 0, modestbranding: 1 },
+            host: 'https://www.youtube.com',
+            playerVars: {
+              playsinline: 1, controls: 0, rel: 0, modestbranding: 1,
+              enablejsapi: 1, origin: 'https://www.youtube.com'
+            },
             events: {
               onReady: function() {
                 post({ type: 'ready' });
