@@ -97,3 +97,23 @@ A `YouTubePlayer` protocol already exists with `WebKitYouTubePlayer` (live) and 
 3. **4.1 — favourites single source of truth.**
 
 **Awaiting Eryk's approval of this audit before opening any refactor PR.**
+
+---
+
+## Resolution status (post-refactor)
+
+| Finding | Status |
+|---|---|
+| 2.1 retain cycle (blocker) | ✅ **Fixed** — weak `ScriptMessageProxy` (PR #25); superseded by the official helper engine (PR #27), whose delegate is weak; dealloc regression test kept. |
+| 1.1 WebKit inside Features | ✅ **Resolved** — `Features` no longer imports WebKit; the engine is Google's `youtube-ios-player-helper` behind the protocol (PR #27). |
+| 1.2 / 3.2 / 3.5 engine leaks UI | ✅ **Fixed** — `YouTubePlayer` is control/events only; `VideoSurfaceProviding` is a separate, view-layer concern; the mock no longer fakes a surface (PR #28). |
+| 2.2 closure → AsyncStream | ⏸ **Deferred with rationale** — the `onEvent` closure is single-consumer, `[weak self]`-captured and pinned by characterization tests; a stream adds task-lifecycle complexity without functional gain at this size. |
+| 2.4 engine translation tests | ✅ **Covered** — `OfficialYouTubePlayerTests` (dealloc + error-message mapping); the JS bridge itself is now Google's maintained code. |
+| 3.1 controller does favourites | ✅ **Fixed** — favourites moved out of `PlaybackController` into the store (PR #29). |
+| 3.3 ISP | ✅ **Satisfied** — services were already narrow; the controller slimming completed it. |
+| 4.1 favourites single source | ✅ **Fixed** — observable `FavouritesStore`, live cross-screen propagation pinned by a test (PR #29). |
+| 4.2 re-render trap | ✅ **Verified by analysis** — progress ticks mutate only `PlayerViewModel.currentTime/duration`; `@Observable` tracks per-property access, and neither `AppRootView` nor the mini-player reads those (they read `nowPlaying`/`isPlaying`/store ids), so ticks re-render only the player's progress section. Instruments pass not run (headless environment) — noted honestly. |
+| 4.3 unstructured Tasks | ⏸ **Deferred with rationale** — remaining `Task { }` uses are SwiftUI button actions (the idiomatic way to call async work from a sync action) on short-lived toggles; the controller's fire-and-forget save task was removed with 3.1. |
+| 5.2 scrim literals | ✅ **Fixed** — `Palette.scrimStrong`/`scrimSoft` tokens (this PR). |
+| 5.3 stale tilt comment | ✅ **Fixed** (this PR). |
+| 7 coverage map | ✅ — store tests + cross-screen propagation added; engine translation covered; UI smoke tests (scroll, detail, tabs, real playback) run non-blocking in CI and locally. |

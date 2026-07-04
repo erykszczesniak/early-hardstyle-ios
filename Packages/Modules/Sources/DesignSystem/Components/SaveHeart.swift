@@ -20,7 +20,7 @@ public struct SaveHeart: View {
                 .font(.system(size: 16, weight: .semibold))
                 .foregroundStyle(isSaved ? Palette.accentBlue : Palette.textPrimary)
                 .frame(width: 44, height: 44)
-                .background(.black.opacity(0.35), in: Circle())
+                .background(Palette.scrimSoft, in: Circle())
                 .rotation3DEffect(
                     .degrees(reduceMotion ? 0 : (isSaved ? 180 : 0)),
                     axis: (x: 0, y: 1, z: 0)

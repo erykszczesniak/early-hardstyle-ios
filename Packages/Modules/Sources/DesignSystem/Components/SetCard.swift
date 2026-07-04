@@ -48,7 +48,7 @@ public struct SetCardModel: Identifiable, Hashable, Sendable {
 }
 
 /// The signature grid set card: artwork with year/duration/save overlays, title,
-/// meta and up to two genre chips. Tilts on press and pulses when playing.
+/// meta and up to two genre chips. Pulses when playing.
 public struct SetCard: View {
     private let model: SetCardModel
     private let isPlaying: Bool
