@@ -23,13 +23,10 @@ final class PlaybackControllerTests: XCTestCase {
         NowPlaying(setID: id, title: id.uppercased(), subtitle: "sub", artworkURL: nil, youtubeID: "yt-\(id)")
     }
 
-    private func makeSUT(
-        favourites: FavouritesService = InMemoryFavouritesService()
-    ) -> (PlaybackController, Engines) {
+    private func makeSUT() -> (PlaybackController, Engines) {
         let engines = Engines()
         let controller = PlaybackController(
             analytics: SpyAnalytics(),
-            favourites: favourites,
             makeEngine: engines.make
         )
         return (controller, engines)
@@ -135,18 +132,6 @@ final class PlaybackControllerTests: XCTestCase {
 
         XCTAssertEqual(controller.queue.map(\.id), ["b", "c", "a"])
         XCTAssertEqual(controller.nowPlaying?.setID, "b")
-    }
-
-    func test_toggleSaveCurrent_persists() async {
-        let favourites = InMemoryFavouritesService()
-        let (controller, _) = makeSUT(favourites: favourites)
-        controller.play([item("a")])
-
-        await controller.toggleSaveCurrent()
-
-        XCTAssertTrue(controller.currentIsSaved)
-        let stored = await favourites.isFavourite("a")
-        XCTAssertTrue(stored)
     }
 
     func test_emptyQueue_hasNoCurrent() {

@@ -10,7 +10,7 @@ import Services
 @Observable
 public final class SavedViewModel {
     private let catalog: CatalogService
-    private let favourites: FavouritesService
+    private let favourites: FavouritesStore
     private let analytics: any Analytics
 
     public private(set) var state: ScreenState = .loading
@@ -19,7 +19,7 @@ public final class SavedViewModel {
     private var catalogData: Catalog = .empty
     private var loadedCatalog = false
 
-    public init(catalog: CatalogService, favourites: FavouritesService, analytics: any Analytics) {
+    public init(catalog: CatalogService, favourites: FavouritesStore, analytics: any Analytics) {
         self.catalog = catalog
         self.favourites = favourites
         self.analytics = analytics
@@ -67,7 +67,7 @@ public final class SavedViewModel {
     /// Re-maps the saved sets from the shared favourites store, preserving
     /// most-recently-saved-first order.
     private func refreshSaved() async {
-        let favourited = await favourites.all()
+        let favourited = await favourites.orderedFavourites()
         let ids = Set(favourited.map(\.setID))
         let rank = Dictionary(uniqueKeysWithValues: favourited.enumerated().map { ($1.setID, $0) })
 

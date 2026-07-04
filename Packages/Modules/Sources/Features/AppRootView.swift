@@ -23,19 +23,20 @@ public struct AppRootView: View {
     }
 
     private let catalog: CatalogService
-    private let favourites: FavouritesService
     private let analytics: any Analytics
 
     @State private var selection: Tab = .library
     @State private var playback: PlaybackController
+    /// The single observable source of truth for saved sets, shared by every
+    /// screen and the mini-player.
+    @State private var favourites: FavouritesStore
 
     public init(catalog: CatalogService, favourites: FavouritesService, analytics: any Analytics) {
         self.catalog = catalog
-        self.favourites = favourites
         self.analytics = analytics
+        _favourites = State(initialValue: FavouritesStore(service: favourites))
         _playback = State(initialValue: PlaybackController(
             analytics: analytics,
-            favourites: favourites,
             makeEngine: { OfficialYouTubePlayer() }
         ))
     }
@@ -68,6 +69,7 @@ public struct AppRootView: View {
         .fullScreenCover(isPresented: $playback.isExpanded) {
             PlayerView(controller: playback)
         }
+        .task { await favourites.load() }
         .onAppear(perform: startPlaybackProbeIfRequested)
     }
 
@@ -92,10 +94,10 @@ public struct AppRootView: View {
                     subtitle: nowPlaying.subtitle,
                     thumbnailURL: nowPlaying.artworkURL,
                     isPlaying: playback.isPlaying,
-                    isSaved: playback.currentIsSaved
+                    isSaved: favourites.isFavourite(nowPlaying.setID)
                 ),
                 onPlayPause: { playback.togglePlayPause() },
-                onToggleSave: { Task { await playback.toggleSaveCurrent() } },
+                onToggleSave: { Task { await favourites.toggle(nowPlaying.setID) } },
                 onOpen: { playback.expand() }
             )
             .padding(.horizontal, Spacing.md)

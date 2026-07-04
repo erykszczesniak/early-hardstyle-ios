@@ -35,7 +35,12 @@ final class DJDetailViewModelTests: XCTestCase {
     }
 
     private func makeSUT(favourites: FavouritesService = InMemoryFavouritesService()) -> DJDetailViewModel {
-        DJDetailViewModel(dj: showtek, catalog: catalog(), favourites: favourites, analytics: SpyAnalytics())
+        DJDetailViewModel(
+            dj: showtek,
+            catalog: catalog(),
+            favourites: FavouritesStore(service: favourites),
+            analytics: SpyAnalytics()
+        )
     }
 
     func test_onAppear_showsOnlyThisDJsSetsNewestFirst() async {
@@ -75,7 +80,7 @@ final class DJDetailViewModelTests: XCTestCase {
         let sut = DJDetailViewModel(
             dj: showtek,
             catalog: catalog(),
-            favourites: InMemoryFavouritesService(),
+            favourites: FavouritesStore(service: InMemoryFavouritesService()),
             analytics: analytics
         )
 

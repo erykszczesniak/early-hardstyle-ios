@@ -51,7 +51,12 @@ final class SetDetailViewModelTests: XCTestCase {
     }
 
     private func makeSUT(favourites: FavouritesService = InMemoryFavouritesService()) -> SetDetailViewModel {
-        SetDetailViewModel(set: primary, catalog: catalog(), favourites: favourites, analytics: SpyAnalytics())
+        SetDetailViewModel(
+            set: primary,
+            catalog: catalog(),
+            favourites: FavouritesStore(service: favourites),
+            analytics: SpyAnalytics()
+        )
     }
 
     func test_related_sameEventOrDJ_excludingSelf_newestFirst() {
@@ -73,7 +78,7 @@ final class SetDetailViewModelTests: XCTestCase {
         let sut = SetDetailViewModel(
             set: primary,
             catalog: catalog(),
-            favourites: InMemoryFavouritesService(),
+            favourites: FavouritesStore(service: InMemoryFavouritesService()),
             analytics: analytics
         )
 

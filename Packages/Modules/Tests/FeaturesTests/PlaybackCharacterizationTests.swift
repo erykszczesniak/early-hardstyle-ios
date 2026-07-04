@@ -82,7 +82,6 @@ final class PlaybackCharacterizationTests: XCTestCase {
         let engines = Engines()
         let controller = PlaybackController(
             analytics: SpyAnalytics(),
-            favourites: InMemoryFavouritesService(),
             makeEngine: engines.make
         )
 
@@ -103,7 +102,6 @@ final class PlaybackCharacterizationTests: XCTestCase {
         let engines = Engines()
         let controller = PlaybackController(
             analytics: SpyAnalytics(),
-            favourites: InMemoryFavouritesService(),
             makeEngine: engines.make
         )
         controller.play([item("a"), item("b")])

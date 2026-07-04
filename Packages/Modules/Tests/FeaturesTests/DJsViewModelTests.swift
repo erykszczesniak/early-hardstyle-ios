@@ -42,7 +42,7 @@ final class DJsViewModelTests: XCTestCase {
         favourites: FavouritesService = InMemoryFavouritesService(),
         analytics: SpyAnalytics = SpyAnalytics()
     ) -> DJsViewModel {
-        DJsViewModel(catalog: catalog, favourites: favourites, analytics: analytics)
+        DJsViewModel(catalog: catalog, favourites: FavouritesStore(service: favourites), analytics: analytics)
     }
 
     func test_load_success_buildsCardsAlphabeticallyWithCounts() async {
