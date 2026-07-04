@@ -32,6 +32,28 @@ public struct PlayerView: View {
             QueueView(controller: controller)
                 .presentationDetents([.medium, .large])
         }
+        .overlay(alignment: .topLeading) { stateMarker }
+    }
+
+    /// An invisible marker whose identifier tracks the player state, so UI
+    /// tests can assert on real playback (e.g. `player-state-playing`).
+    private var stateMarker: some View {
+        Color.clear
+            .frame(width: 1, height: 1)
+            .accessibilityElement()
+            .accessibilityIdentifier("player-state-\(stateSlug)")
+    }
+
+    private var stateSlug: String {
+        switch controller.current?.state {
+        case .playing: "playing"
+        case .buffering: "buffering"
+        case .paused: "paused"
+        case .ended: "ended"
+        case .loading: "loading"
+        case .failed: "failed"
+        case .idle, nil: "idle"
+        }
     }
 
     private var header: some View {
