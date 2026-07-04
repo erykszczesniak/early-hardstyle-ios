@@ -126,7 +126,7 @@ public final class LibraryViewModel {
         } catch {
             let catalogError = CatalogError.from(error)
             state = .failed(
-                message: catalogError.errorDescription ?? "Something went wrong.",
+                message: catalogError.errorDescription ?? L10n.Common.genericError,
                 retryable: catalogError.isRetryable
             )
         }

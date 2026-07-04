@@ -42,8 +42,8 @@ public struct ProgressBar: View {
         }
         .frame(height: 24)
         .accessibilityElement()
-        .accessibilityLabel("Playback position")
-        .accessibilityValue("\(Int(Self.clamp(value) * 100)) percent")
+        .accessibilityLabel(L10n.playbackPosition)
+        .accessibilityValue(L10n.progressValue(percent: Int(Self.clamp(value) * 100)))
     }
 
     private func bufferingShimmer(width: CGFloat) -> some View {

@@ -19,14 +19,14 @@ public struct DJsView: View {
         NavigationStack {
             content
                 .screenBackground()
-                .navigationTitle("DJs")
+                .navigationTitle(L10n.DJs.title)
                 .navigationBarTitleDisplayMode(.large)
                 .navigationDestination(item: $selectedDJ) { card in
                     detail(for: card)
                 }
         }
         .tint(Palette.accentBlueBright)
-        .searchable(text: $viewModel.searchQuery, prompt: "Search DJs")
+        .searchable(text: $viewModel.searchQuery, prompt: Text(L10n.DJs.searchPrompt))
         .task { await viewModel.onAppear() }
     }
 
@@ -43,8 +43,8 @@ public struct DJsView: View {
         case .empty:
             EmptyState(
                 systemImage: "person.2",
-                title: "No DJs yet",
-                message: "The catalogue is empty right now. Pull to refresh."
+                title: L10n.DJs.emptyTitle,
+                message: L10n.Common.catalogueEmptyMessage
             )
         case .loaded:
             grid
@@ -56,8 +56,8 @@ public struct DJsView: View {
             if viewModel.hasNoResults {
                 EmptyState(
                     systemImage: "magnifyingglass",
-                    title: "No results",
-                    message: "No DJs match “\(viewModel.searchQuery)”."
+                    title: L10n.DJs.noResultsTitle,
+                    message: L10n.DJs.noResultsMessage(viewModel.searchQuery)
                 )
                 .padding(.top, Spacing.xxl)
             } else {
@@ -77,7 +77,7 @@ public struct DJsView: View {
         if let detailViewModel = viewModel.detailViewModel(for: card) {
             DJDetailView(viewModel: detailViewModel)
         } else {
-            EmptyState(systemImage: "person.crop.circle.badge.exclamationmark", title: "DJ unavailable")
+            EmptyState(systemImage: "person.crop.circle.badge.exclamationmark", title: L10n.DJs.unavailable)
                 .screenBackground()
         }
     }
