@@ -166,8 +166,16 @@ Every PR runs [`CI`](.github/workflows/ci.yml): **SwiftFormat** (lint mode) + **
 
 ---
 
-## Roadmap / follow-ups
+## exercise log
 
-- **exercise log** — a set of theme-matched `archive/*` → `archive/*` PR pairs documenting subtle bugs and their fixes (planned).
+A record of deliberately introduced, theme-matched bugs, each paired with a fix and the test that catches it — see [`NOTES.md`](NOTES.md).
+
+| Bug | Caught by | Broken | Fix |
+|---|---|---|---|
+| Reversed catalogue ordering | `test_load_success_populatesNewestFirst` | `archive/ordering-experiment` | `archive/ordering-restore` |
+| Player progress NaN | `test_progress_withZeroDuration_isNotScrubbable` | `archive/progress-experiment` | `archive/progress-guard` |
+
+## Follow-ups
+
 - A networked `CatalogService` behind the existing protocol (the typed-error mapping already anticipates it).
 - Optional Metal audio-reactive visualizer behind the player artwork (extended scope; see `the design spec` §3.8).
