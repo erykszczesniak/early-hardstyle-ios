@@ -15,6 +15,12 @@ let package = Package(
         .library(name: "DesignSystem", targets: ["DesignSystem"]),
         .library(name: "Features", targets: ["Features"])
     ],
+    dependencies: [
+        // Google's official wrapper around the YouTube iframe player — handles
+        // the embedder verification (origin/referer) that a hand-rolled
+        // WKWebView embed fails (YouTube error 152).
+        .package(url: "https://github.com/youtube/youtube-ios-player-helper", from: "1.0.4")
+    ],
     targets: [
         // MARK: Core — models, telemetry protocols, shared primitives.
 
@@ -43,7 +49,12 @@ let package = Package(
 
         .target(
             name: "Features",
-            dependencies: ["Core", "Services", "DesignSystem"],
+            dependencies: [
+                "Core",
+                "Services",
+                "DesignSystem",
+                .product(name: "YouTubeiOSPlayerHelper", package: "youtube-ios-player-helper")
+            ],
             swiftSettings: [.swiftLanguageMode(.v6)]
         ),
 

@@ -36,7 +36,7 @@ public struct AppRootView: View {
         _playback = State(initialValue: PlaybackController(
             analytics: analytics,
             favourites: favourites,
-            makeEngine: { WebKitYouTubePlayer() }
+            makeEngine: { OfficialYouTubePlayer() }
         ))
     }
 
@@ -68,6 +68,19 @@ public struct AppRootView: View {
         .fullScreenCover(isPresented: $playback.isExpanded) {
             PlayerView(controller: playback)
         }
+        .onAppear(perform: startPlaybackProbeIfRequested)
+    }
+
+    /// DEBUG-only test seam: when `PROBE_VIDEO_ID` is set in the launch
+    /// environment, launch straight into the player for that video so UI tests
+    /// can verify real playback end-to-end. No effect in release builds.
+    private func startPlaybackProbeIfRequested() {
+        #if DEBUG
+            guard let id = ProcessInfo.processInfo.environment["PROBE_VIDEO_ID"], !id.isEmpty else { return }
+            playback.play([
+                NowPlaying(setID: "probe", title: id, subtitle: "probe", artworkURL: nil, youtubeID: id)
+            ])
+        #endif
     }
 
     @ViewBuilder

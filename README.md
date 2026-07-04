@@ -15,7 +15,7 @@
 - **Modular architecture** — a local Swift Package splits the app into `Core`, `Services`, `DesignSystem` and `Features`, with a strict dependency direction and features depending on **protocols, not concretions**.
 - **MVVM + DI** — dumb views, logic in `@Observable` ViewModels, all collaborators injected from a single composition root. No hidden singletons in testable code.
 - **Explicit state machines** — every screen models `loading / loaded / empty / failed(retryable)` explicitly; the player models `idle / loading / buffering / playing / paused / ended / failed`.
-- **Official YouTube playback** — the YouTube iframe player API in a `WKWebView`, behind a `YouTubePlayer` protocol so the state machine is unit-tested with a mock.
+- **Official YouTube playback** — Google's official `youtube-ios-player-helper` (the maintained iframe-player wrapper), behind a `YouTubePlayer` protocol so the state machine is unit-tested with a mock.
 - **App-level playback** — a `PlaybackController` owns the queue and current player, so a **persistent mini-player** rides above the tab bar and the **queue** drives autoplay across the whole app.
 - **Persistence** — favourites survive launches via a `UserDefaults`-backed store behind the `FavouritesService` protocol.
 - **Telemetry** — privacy-respecting `Analytics` + `CrashReporter` abstractions with no-op/console defaults, injected everywhere.
@@ -55,11 +55,11 @@ PlaybackController (app-level, @Observable)
   ├─ owns the queue + current PlayerViewModel, drives autoplay
   ├─ shared via the SwiftUI environment (mini-player persists across tabs)
   └─ PlayerViewModel ── depends on ──▶ YouTubePlayer (protocol)
-                                         ├─ WebKitYouTubePlayer  (iframe API in WKWebView)
+                                         ├─ OfficialYouTubePlayer (Google's youtube-ios-player-helper)
                                          └─ MockYouTubePlayer    (drives tests)
 ```
 
-The engine reports state/progress via a script message handler; commands go out via `evaluateJavaScript`. Because the ViewModel only knows the protocol, the entire play/pause/seek/buffering/ended/error/autoplay logic is exercised without WebKit.
+The engine adapts `YTPlayerView`'s delegate callbacks into `PlaybackEvent`s. Because the ViewModel only knows the protocol, the entire play/pause/seek/buffering/ended/error/autoplay logic is exercised without any web view.
 
 ---
 
@@ -118,9 +118,7 @@ swiftlint lint --strict
 
 ## Run on your iPhone (no simulator needed, incl. wirelessly)
 
-> ⚠️ **Playback needs a real device.** YouTube video does **not** play in the iOS Simulator — its WebKit lacks the media capabilities YouTube requires, so the embed shows "video unavailable" regardless of the code. Everything else (browse, search, filters, saved, mini-player, queue) works on the simulator; to actually **hear a set, run on an iPhone**.
-
-You only need **Xcode 16+** and a **free Apple ID** — no paid developer account.
+You only need **Xcode 16+** and a **free Apple ID** — no paid developer account. (Playback also works on the simulator; a device just sounds better. 🎧)
 
 1. **Generate & open** the project:
    ```bash
