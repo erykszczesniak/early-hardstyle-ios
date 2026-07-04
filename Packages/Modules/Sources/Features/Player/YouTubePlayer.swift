@@ -1,16 +1,17 @@
 import Foundation
 import SwiftUI
 
-/// Engine abstraction over the official YouTube iframe player. The Player
-/// ViewModel depends on this protocol, never on WebKit, so playback logic is
+/// Engine abstraction over the official YouTube player. The Player ViewModel
+/// depends on this protocol, never on a web view, so playback logic is
 /// unit-testable with a mock and the real engine is swappable.
+///
+/// Deliberately **UI-free**: engines that render video additionally conform to
+/// ``VideoSurfaceProviding``; the mock doesn't have to fake a view (the Liskov
+/// smell flagged in the architecture audit).
 @MainActor
 public protocol YouTubePlayer: AnyObject {
     /// Callback the engine invokes as playback state/progress changes.
     var onEvent: ((PlaybackEvent) -> Void)? { get set }
-
-    /// The SwiftUI surface that renders the video (the embedded player).
-    var surface: AnyView { get }
 
     /// Loads (and prepares) the given video.
     func load(videoID: String)
@@ -20,11 +21,12 @@ public protocol YouTubePlayer: AnyObject {
     func seek(toFraction fraction: Double)
 }
 
-public extension YouTubePlayer {
-    /// Default surface for engines without a visible view (e.g. the test mock).
-    var surface: AnyView {
-        AnyView(Color.black)
-    }
+/// Conformed to by engines that render video. The **view layer** (not the
+/// ViewModel) asks for the surface, keeping UI out of the engine contract.
+@MainActor
+public protocol VideoSurfaceProviding: AnyObject {
+    /// The SwiftUI surface that renders the video (the embedded player).
+    var surface: AnyView { get }
 }
 
 /// A test double that records commands and lets tests drive playback events.
