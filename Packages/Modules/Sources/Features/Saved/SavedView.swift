@@ -22,7 +22,7 @@ public struct SavedView: View {
         NavigationStack {
             content
                 .screenBackground()
-                .navigationTitle("Saved")
+                .navigationTitle(L10n.Saved.title)
                 .navigationBarTitleDisplayMode(.large)
                 .navigationDestination(item: $selectedSet) { card in
                     if let detail = viewModel.setDetailViewModel(for: card) {
@@ -56,9 +56,9 @@ public struct SavedView: View {
     private var emptyState: some View {
         EmptyState(
             systemImage: "heart",
-            title: "Nothing saved yet",
-            message: "Tap ♥ on any set to keep it here.",
-            actionTitle: "Browse Library",
+            title: L10n.Saved.emptyTitle,
+            message: L10n.Saved.emptyMessage,
+            actionTitle: L10n.Saved.browseLibrary,
             action: onBrowseLibrary
         )
         .frame(maxWidth: .infinity, maxHeight: .infinity)

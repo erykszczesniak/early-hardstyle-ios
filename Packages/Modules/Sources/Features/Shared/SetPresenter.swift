@@ -9,7 +9,7 @@ enum SetPresenter {
         SetCardModel(
             id: set.id,
             title: set.title,
-            eventName: catalog.event(for: set)?.name ?? "Unknown event",
+            eventName: catalog.event(for: set)?.name ?? L10n.Common.unknownEvent,
             year: set.year,
             durationSeconds: set.durationSeconds,
             genres: catalog.genres(for: set).map(\.name),

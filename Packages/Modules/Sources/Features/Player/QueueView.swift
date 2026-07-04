@@ -11,12 +11,12 @@ struct QueueView: View {
         NavigationStack {
             List {
                 Section {
-                    Toggle("Autoplay next", isOn: $controller.autoplayNext)
+                    Toggle(L10n.Queue.autoplayNext, isOn: $controller.autoplayNext)
                         .tint(Palette.accentBlue)
                         .listRowBackground(Palette.elevated)
                 }
 
-                Section("Up next") {
+                Section(L10n.Queue.upNext) {
                     ForEach(controller.queue) { item in
                         row(for: item)
                             .listRowBackground(Palette.elevated)
@@ -28,12 +28,12 @@ struct QueueView: View {
             .listStyle(.insetGrouped)
             .scrollContentBackground(.hidden)
             .screenBackground()
-            .navigationTitle("Queue")
+            .navigationTitle(L10n.Queue.title)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) { EditButton().tint(Palette.accentBlueBright) }
                 ToolbarItem(placement: .topBarTrailing) {
-                    Button("Done") { dismiss() }.tint(Palette.accentBlueBright)
+                    Button(L10n.Queue.done) { dismiss() }.tint(Palette.accentBlueBright)
                 }
             }
         }

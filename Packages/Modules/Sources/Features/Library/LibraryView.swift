@@ -21,7 +21,7 @@ public struct LibraryView: View {
         NavigationStack {
             content
                 .screenBackground()
-                .navigationTitle("EARLYHS")
+                .navigationTitle(L10n.Library.title)
                 .navigationBarTitleDisplayMode(.inline)
                 .toolbarBackground(Palette.base, for: .navigationBar)
                 .toolbar { filterToolbarItem }
@@ -34,7 +34,7 @@ public struct LibraryView: View {
                 }
         }
         .tint(Palette.accentBlueBright)
-        .searchable(text: $viewModel.searchQuery, prompt: "Search sets, DJs, events")
+        .searchable(text: $viewModel.searchQuery, prompt: Text(L10n.Library.searchPrompt))
         .sheet(isPresented: $showFilters) {
             LibraryFiltersView(viewModel: viewModel)
                 .presentationDetents([.medium, .large])
@@ -53,8 +53,8 @@ public struct LibraryView: View {
                 }
                 .accessibilityLabel(
                     viewModel.activeFilterCount > 0
-                        ? "Filters, \(viewModel.activeFilterCount) active"
-                        : "Filters"
+                        ? L10n.Library.filtersActiveA11y(viewModel.activeFilterCount)
+                        : L10n.Library.filtersA11y
                 )
             }
         }
@@ -70,8 +70,8 @@ public struct LibraryView: View {
         case .empty:
             EmptyState(
                 systemImage: "square.grid.2x2",
-                title: "No sets yet",
-                message: "The catalogue is empty right now. Pull to refresh."
+                title: L10n.Library.emptyTitle,
+                message: L10n.Common.catalogueEmptyMessage
             )
         case .loaded:
             grid
@@ -95,9 +95,9 @@ public struct LibraryView: View {
                 if viewModel.hasNoResults {
                     EmptyState(
                         systemImage: "magnifyingglass",
-                        title: "No results",
-                        message: "No sets match your search or filters.",
-                        actionTitle: "Clear filters",
+                        title: L10n.Library.noResultsTitle,
+                        message: L10n.Library.noResultsMessage,
+                        actionTitle: L10n.Library.clearFilters,
                         action: viewModel.activeFilterCount > 0 ? { viewModel.clearFilters() } : nil
                     )
                     .padding(.top, Spacing.xxl)
@@ -123,18 +123,18 @@ public struct LibraryView: View {
         ZStack(alignment: .bottomLeading) {
             HeroMesh()
             VStack(alignment: .leading, spacing: Spacing.sm) {
-                Text("THE GOLDEN ERA")
+                Text(L10n.Library.heroEyebrow)
                     .font(Typography.badge)
                     .tracking(1.2)
                     .foregroundStyle(Palette.textSecondary)
                 (Text("Early ").foregroundStyle(Palette.textPrimary)
                     + Text("Hardstyle").foregroundStyle(Palette.accentBlueBright))
                     .font(Typography.hero)
-                Text("1999–2007 · raw power")
+                Text(L10n.Library.heroMeta)
                     .font(Typography.meta)
                     .foregroundStyle(Palette.textSecondary)
                 if let latest = viewModel.latestSet {
-                    PillButton("Play latest", systemImage: "play.fill", role: .primary) {
+                    PillButton(L10n.Library.heroPlay, systemImage: "play.fill", role: .primary) {
                         selectedSet = latest
                     }
                     .padding(.top, Spacing.xs)
@@ -162,7 +162,7 @@ struct SetPlaceholderView: View {
             Text(model.metaLine)
                 .font(Typography.meta)
                 .foregroundStyle(Palette.textSecondary)
-            Text("Player coming soon")
+            Text(L10n.SetDetail.playerComingSoon)
                 .font(Typography.meta)
                 .foregroundStyle(Palette.textTertiary)
         }

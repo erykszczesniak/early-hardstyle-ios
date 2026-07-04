@@ -19,6 +19,7 @@
 - **App-level playback** — a `PlaybackController` owns the queue and current player, so a **persistent mini-player** rides above the tab bar and the **queue** drives autoplay across the whole app.
 - **Persistence** — favourites survive launches via a `UserDefaults`-backed store behind the `FavouritesService` protocol.
 - **Telemetry** — privacy-respecting `Analytics` + `CrashReporter` abstractions with no-op/console defaults, injected everywhere.
+- **i18n-ready** — user-facing copy lives in **String Catalogs** (`.xcstrings`) behind typed `L10n` accessors per module; the app ships English-only, and adding a language is a catalog-only change.
 - **Quality** — 120+ unit tests, SwiftLint (`--strict`) + SwiftFormat, and GitHub Actions CI (lint + build + test on a simulator) on every PR.
 
 ---

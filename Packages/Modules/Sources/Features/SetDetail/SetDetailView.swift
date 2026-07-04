@@ -17,7 +17,7 @@ struct SetDetailView: View {
             VStack(alignment: .leading, spacing: Spacing.xl) {
                 artwork
                 header
-                PillButton("Play", systemImage: "play.fill", role: .primary, fullWidth: true) {
+                PillButton(L10n.SetDetail.play, systemImage: "play.fill", role: .primary, fullWidth: true) {
                     playback.play(viewModel.makeQueue())
                 }
                 related
@@ -70,7 +70,7 @@ struct SetDetailView: View {
     private var related: some View {
         if !viewModel.related.isEmpty {
             VStack(alignment: .leading, spacing: Spacing.md) {
-                SectionHeader("Related sets")
+                SectionHeader(L10n.SetDetail.related)
                 ScrollView(.horizontal, showsIndicators: false) {
                     HStack(spacing: Spacing.cardGap) {
                         ForEach(viewModel.related) { card in
