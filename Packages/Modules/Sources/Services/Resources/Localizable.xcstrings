@@ -1,0 +1,61 @@
+{
+  "sourceLanguage": "en",
+  "strings": {
+    "error.decoding": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "We couldn't read the catalogue (%@)."
+          }
+        }
+      }
+    },
+    "error.offline": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "You're offline. Check your connection and try again."
+          }
+        }
+      }
+    },
+    "error.server": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The server returned an error (%lld). Please try again."
+          }
+        }
+      }
+    },
+    "error.timedOut": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The request timed out. Please try again."
+          }
+        }
+      }
+    },
+    "error.unknown": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Something went wrong. Please try again."
+          }
+        }
+      }
+    }
+  },
+  "version": "1.0"
+}

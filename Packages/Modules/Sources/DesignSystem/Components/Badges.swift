@@ -18,7 +18,7 @@ public struct YearBadge: View {
             .padding(.horizontal, Spacing.sm)
             .padding(.vertical, Spacing.xs)
             .background(Palette.scrimStrong, in: Capsule())
-            .accessibilityLabel("Year \(year)")
+            .accessibilityLabel(L10n.year(year))
     }
 }
 

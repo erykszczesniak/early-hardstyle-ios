@@ -22,7 +22,7 @@ public final class SetDetailViewModel {
         self.catalog = catalog
         self.favourites = favourites
         self.analytics = analytics
-        djName = catalog.dj(for: set)?.name ?? "Unknown DJ"
+        djName = catalog.dj(for: set)?.name ?? L10n.Common.unknownDJ
         genres = catalog.genres(for: set).map(\.name)
     }
 
@@ -70,7 +70,7 @@ public final class SetDetailViewModel {
     }
 
     private static func nowPlaying(for set: HardstyleSet, in catalog: Catalog) -> NowPlaying {
-        let event = catalog.event(for: set)?.name ?? "Unknown event"
+        let event = catalog.event(for: set)?.name ?? L10n.Common.unknownEvent
         return NowPlaying(
             setID: set.id,
             title: set.title,

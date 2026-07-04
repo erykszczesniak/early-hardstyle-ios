@@ -6,6 +6,7 @@ import PackageDescription
 /// DesignSystem/Services/Core, and everything depends on protocols, not concretions.
 let package = Package(
     name: "EarlyHardstyleKit",
+    defaultLocalization: "en",
     platforms: [
         .iOS(.v17)
     ],
@@ -34,6 +35,7 @@ let package = Package(
         .target(
             name: "Services",
             dependencies: ["Core"],
+            resources: [.process("Resources")],
             swiftSettings: [.swiftLanguageMode(.v6)]
         ),
 
@@ -42,6 +44,7 @@ let package = Package(
         .target(
             name: "DesignSystem",
             dependencies: ["Core"],
+            resources: [.process("Resources")],
             swiftSettings: [.swiftLanguageMode(.v6)]
         ),
 
@@ -55,6 +58,7 @@ let package = Package(
                 "DesignSystem",
                 .product(name: "YouTubeiOSPlayerHelper", package: "youtube-ios-player-helper")
             ],
+            resources: [.process("Resources")],
             swiftSettings: [.swiftLanguageMode(.v6)]
         ),
 

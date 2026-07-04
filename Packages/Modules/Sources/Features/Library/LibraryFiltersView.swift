@@ -14,28 +14,28 @@ struct LibraryFiltersView: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: Spacing.xl) {
                     if !viewModel.filterOptions.years.isEmpty {
-                        facet("Year", values: viewModel.filterOptions.years.map { ($0, String($0)) }) {
+                        facet(L10n.Filters.year, values: viewModel.filterOptions.years.map { ($0, String($0)) }) {
                             toggle(&viewModel.filter.years, $0)
                         } isSelected: {
                             viewModel.filter.years.contains($0)
                         }
                     }
                     if !viewModel.filterOptions.events.isEmpty {
-                        facet("Event", values: viewModel.filterOptions.events.map { ($0.id, $0.name) }) {
+                        facet(L10n.Filters.event, values: viewModel.filterOptions.events.map { ($0.id, $0.name) }) {
                             toggle(&viewModel.filter.eventIDs, $0)
                         } isSelected: {
                             viewModel.filter.eventIDs.contains($0)
                         }
                     }
                     if !viewModel.filterOptions.genres.isEmpty {
-                        facet("Genre", values: viewModel.filterOptions.genres.map { ($0.id, $0.name) }) {
+                        facet(L10n.Filters.genre, values: viewModel.filterOptions.genres.map { ($0.id, $0.name) }) {
                             toggle(&viewModel.filter.genreIDs, $0)
                         } isSelected: {
                             viewModel.filter.genreIDs.contains($0)
                         }
                     }
                     if !viewModel.filterOptions.countries.isEmpty {
-                        facet("Country", values: viewModel.filterOptions.countries.map { ($0, $0) }) {
+                        facet(L10n.Filters.country, values: viewModel.filterOptions.countries.map { ($0, $0) }) {
                             toggle(&viewModel.filter.countries, $0)
                         } isSelected: {
                             viewModel.filter.countries.contains($0)
@@ -45,16 +45,16 @@ struct LibraryFiltersView: View {
                 .padding(Spacing.gutter)
             }
             .screenBackground()
-            .navigationTitle("Filters")
+            .navigationTitle(L10n.Filters.title)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
-                    Button("Clear", action: viewModel.clearFilters)
+                    Button(L10n.Filters.clear, action: viewModel.clearFilters)
                         .disabled(viewModel.filter.isEmpty)
                         .tint(Palette.accentBlueBright)
                 }
                 ToolbarItem(placement: .topBarTrailing) {
-                    Button("Done") { dismiss() }
+                    Button(L10n.Filters.done) { dismiss() }
                         .tint(Palette.accentBlueBright)
                 }
             }

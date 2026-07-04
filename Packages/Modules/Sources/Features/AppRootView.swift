@@ -49,20 +49,20 @@ public struct AppRootView: View {
                 viewModel: LibraryViewModel(catalog: catalog, favourites: favourites, analytics: analytics)
             )
             .tag(Tab.library)
-            .tabItem { Label("Library", systemImage: "square.grid.2x2") }
+            .tabItem { Label(L10n.Tab.library, systemImage: "square.grid.2x2") }
 
             DJsView(
                 viewModel: DJsViewModel(catalog: catalog, favourites: favourites, analytics: analytics)
             )
             .tag(Tab.djs)
-            .tabItem { Label("DJs", systemImage: "person.2") }
+            .tabItem { Label(L10n.Tab.djs, systemImage: "person.2") }
 
             SavedView(
                 viewModel: SavedViewModel(catalog: catalog, favourites: favourites, analytics: analytics),
                 onBrowseLibrary: { selection = .library }
             )
             .tag(Tab.saved)
-            .tabItem { Label("Saved", systemImage: "heart") }
+            .tabItem { Label(L10n.Tab.saved, systemImage: "heart") }
         }
         .environment(playback)
         .safeAreaInset(edge: .bottom, spacing: 0) { miniPlayer }
