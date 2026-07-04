@@ -14,20 +14,23 @@ final class LibrarySmokeUITests: XCTestCase {
         let app = XCUIApplication()
         app.launch()
 
-        // The app launched into the Library.
-        XCTAssertTrue(app.staticTexts["EARLYHS"].waitForExistence(timeout: 15))
+        // The app launched into the Library with seed content.
+        XCTAssertTrue(app.staticTexts["EARLYHS"].waitForExistence(timeout: 20))
+        let scroll = app.scrollViews.firstMatch
+        XCTAssertTrue(scroll.waitForExistence(timeout: 10))
 
-        // The hero is on screen at the top of the scroll content.
-        let hero = app.staticTexts["THE GOLDEN ERA"]
-        XCTAssertTrue(hero.waitForExistence(timeout: 5))
-        XCTAssertTrue(hero.isHittable, "hero should be visible before scrolling")
+        // A set near the bottom of the grid — a LazyVGrid only renders it once
+        // scrolled near, so if a card gesture were blocking the ScrollView it
+        // would never appear. Scrolling until it becomes hittable is robust
+        // against swipe-distance differences between the simulator and CI.
+        let deepCard = app.buttons.matching(NSPredicate(format: "label CONTAINS 'A-lusion'")).firstMatch
+        var attempts = 0
+        while !deepCard.isHittable, attempts < 15 {
+            scroll.swipeUp()
+            attempts += 1
+        }
 
-        // Scroll the grid: if a card gesture were blocking the ScrollView, the
-        // content would not move and the hero would stay put.
-        app.swipeUp()
-        app.swipeUp()
-
-        XCTAssertFalse(hero.isHittable, "hero should scroll off-screen — the grid must be scrollable")
+        XCTAssertTrue(deepCard.isHittable, "scrolling must reveal sets below the fold — the grid must be scrollable")
     }
 
     @MainActor
