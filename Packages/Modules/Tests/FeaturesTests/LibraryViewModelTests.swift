@@ -41,7 +41,7 @@ final class LibraryViewModelTests: XCTestCase {
         favourites: FavouritesService = InMemoryFavouritesService(),
         analytics: SpyAnalytics = SpyAnalytics()
     ) -> LibraryViewModel {
-        LibraryViewModel(catalog: catalog, favourites: favourites, analytics: analytics)
+        LibraryViewModel(catalog: catalog, favourites: FavouritesStore(service: favourites), analytics: analytics)
     }
 
     // MARK: Loading

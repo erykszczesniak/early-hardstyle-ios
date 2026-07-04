@@ -21,23 +21,19 @@ public struct QueueItem: Identifiable, Equatable, Sendable {
 @Observable
 public final class PlaybackController {
     private let analytics: any Analytics
-    private let favourites: FavouritesService
     private let makeEngine: @MainActor () -> YouTubePlayer
 
     public private(set) var current: PlayerViewModel?
     public private(set) var queue: [QueueItem] = []
     public private(set) var index: Int = 0
-    public private(set) var currentIsSaved = false
     public var autoplayNext = true
     public var isExpanded = false
 
     public init(
         analytics: any Analytics,
-        favourites: FavouritesService,
         makeEngine: @escaping @MainActor () -> YouTubePlayer
     ) {
         self.analytics = analytics
-        self.favourites = favourites
         self.makeEngine = makeEngine
     }
 
@@ -141,11 +137,6 @@ public final class PlaybackController {
         }
     }
 
-    public func toggleSaveCurrent() async {
-        guard let setID = nowPlaying?.setID else { return }
-        currentIsSaved = await favourites.toggle(setID)
-    }
-
     // MARK: Internals
 
     private func startCurrent() {
@@ -159,17 +150,11 @@ public final class PlaybackController {
         }
         current = viewModel
         viewModel.start()
-        refreshCurrentSaved()
     }
 
     private func handlePlaybackEnded() {
         if autoplayNext, canGoNext {
             advance()
         }
-    }
-
-    private func refreshCurrentSaved() {
-        guard let setID = nowPlaying?.setID else { return }
-        Task { currentIsSaved = await favourites.isFavourite(setID) }
     }
 }

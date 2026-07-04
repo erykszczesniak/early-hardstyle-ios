@@ -17,7 +17,7 @@ public enum LibraryState: Equatable {
 @Observable
 public final class LibraryViewModel {
     private let catalog: CatalogService
-    private let favourites: FavouritesService
+    private let favourites: FavouritesStore
     private let analytics: any Analytics
 
     public private(set) var state: LibraryState = .loading
@@ -26,13 +26,19 @@ public final class LibraryViewModel {
     public private(set) var filterOptions: FilterOptions = .empty
 
     private var catalogData: Catalog = .empty
-    private var favouriteIDs: Set<HardstyleSet.ID> = []
-    private var allSets: [SetCardModel] = []
+    /// Newest-first domain sets; cards derive from these + the favourites store,
+    /// so saved state is always live (single source of truth).
+    private var sortedSets: [HardstyleSet] = []
 
-    public init(catalog: CatalogService, favourites: FavouritesService, analytics: any Analytics) {
+    public init(catalog: CatalogService, favourites: FavouritesStore, analytics: any Analytics) {
         self.catalog = catalog
         self.favourites = favourites
         self.analytics = analytics
+    }
+
+    /// All cards, newest first, with saved state read live from the store.
+    private var allSets: [SetCardModel] {
+        SetPresenter.cards(sortedSets, in: catalogData, favourites: favourites.ids)
     }
 
     /// Sets matching the active filter and search query. The filter runs at the
@@ -103,23 +109,20 @@ public final class LibraryViewModel {
     }
 
     public func toggleSave(_ id: HardstyleSet.ID) async {
-        let nowSaved = await favourites.toggle(id)
-        if nowSaved {
-            favouriteIDs.insert(id)
-        } else {
-            favouriteIDs.remove(id)
-        }
-        allSets = Self.map(catalogData, favourites: favouriteIDs)
+        await favourites.toggle(id)
+        // Cards derive from the store, so no local reconciliation is needed.
     }
 
     private func fetch() async {
         do {
             let loaded = try await catalog.loadCatalog()
             catalogData = loaded
-            favouriteIDs = await favourites.favouriteIDs()
-            allSets = Self.map(loaded, favourites: favouriteIDs)
+            await favourites.load()
+            // FIX (exercise log history): descending sort so the newest
+            // golden-era sets lead.
+            sortedSets = loaded.sets.sorted { $0.year > $1.year }
             filterOptions = FilterOptions.derive(from: loaded)
-            state = allSets.isEmpty ? .empty : .loaded
+            state = sortedSets.isEmpty ? .empty : .loaded
         } catch {
             let catalogError = CatalogError.from(error)
             state = .failed(
@@ -127,11 +130,5 @@ public final class LibraryViewModel {
                 retryable: catalogError.isRetryable
             )
         }
-    }
-
-    /// Maps a catalogue into card models, newest first. Pure and testable.
-    static func map(_ catalog: Catalog, favourites: Set<HardstyleSet.ID>) -> [SetCardModel] {
-        let newestFirst = catalog.sets.sorted { $0.year > $1.year }
-        return SetPresenter.cards(newestFirst, in: catalog, favourites: favourites)
     }
 }
