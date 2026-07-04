@@ -9,7 +9,7 @@ import Services
 @Observable
 public final class DJsViewModel {
     private let catalog: CatalogService
-    private let favourites: FavouritesService
+    private let favourites: FavouritesStore
     private let analytics: any Analytics
 
     public private(set) var state: ScreenState = .loading
@@ -18,7 +18,7 @@ public final class DJsViewModel {
     private var catalogData: Catalog = .empty
     private var allDJs: [DJCardModel] = []
 
-    public init(catalog: CatalogService, favourites: FavouritesService, analytics: any Analytics) {
+    public init(catalog: CatalogService, favourites: FavouritesStore, analytics: any Analytics) {
         self.catalog = catalog
         self.favourites = favourites
         self.analytics = analytics
