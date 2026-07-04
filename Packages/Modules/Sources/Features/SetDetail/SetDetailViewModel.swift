@@ -5,30 +5,35 @@ import Services
 
 /// Drives the Set Detail screen: the primary set, its metadata and related
 /// sets, backed by the already-loaded catalogue. The PLAY action is the entry
-/// point the player screen (#10) hooks into.
+/// point the player screen hooks into.
 @MainActor
 @Observable
 public final class SetDetailViewModel {
     private let hardstyleSet: HardstyleSet
     private let catalog: Catalog
-    private let favourites: FavouritesService
+    private let favourites: FavouritesStore
     private let analytics: any Analytics
-    private var favouriteIDs: Set<HardstyleSet.ID> = []
-
-    public private(set) var card: SetCardModel
-    public private(set) var related: [SetCardModel] = []
 
     public let djName: String
     public let genres: [String]
 
-    public init(set: HardstyleSet, catalog: Catalog, favourites: FavouritesService, analytics: any Analytics) {
+    public init(set: HardstyleSet, catalog: Catalog, favourites: FavouritesStore, analytics: any Analytics) {
         hardstyleSet = set
         self.catalog = catalog
         self.favourites = favourites
         self.analytics = analytics
         djName = catalog.dj(for: set)?.name ?? "Unknown DJ"
         genres = catalog.genres(for: set).map(\.name)
-        card = SetPresenter.card(for: set, in: catalog, isSaved: false)
+    }
+
+    /// The primary set's card, with saved state read live from the shared store.
+    public var card: SetCardModel {
+        SetPresenter.card(for: hardstyleSet, in: catalog, isSaved: favourites.isFavourite(hardstyleSet.id))
+    }
+
+    /// Related sets, with saved state read live from the shared store.
+    public var related: [SetCardModel] {
+        SetPresenter.cards(Self.related(to: hardstyleSet, in: catalog), in: catalog, favourites: favourites.ids)
     }
 
     public var title: String {
@@ -49,7 +54,7 @@ public final class SetDetailViewModel {
     }
 
     public var isSaved: Bool {
-        card.isSaved
+        favourites.isFavourite(hardstyleSet.id)
     }
 
     /// The descriptor handed to the player.
@@ -77,18 +82,11 @@ public final class SetDetailViewModel {
 
     public func onAppear() async {
         analytics.trackScreenView("Set Detail")
-        favouriteIDs = await favourites.favouriteIDs()
-        rebuild()
+        await favourites.load()
     }
 
     public func toggleSave(_ id: HardstyleSet.ID) async {
-        let nowSaved = await favourites.toggle(id)
-        if nowSaved {
-            favouriteIDs.insert(id)
-        } else {
-            favouriteIDs.remove(id)
-        }
-        rebuild()
+        await favourites.toggle(id)
     }
 
     public func toggleSavePrimary() async {
@@ -100,15 +98,6 @@ public final class SetDetailViewModel {
     public func detailViewModel(for relatedCard: SetCardModel) -> SetDetailViewModel? {
         guard let relatedSet = catalog.sets.first(where: { $0.id == relatedCard.id }) else { return nil }
         return SetDetailViewModel(set: relatedSet, catalog: catalog, favourites: favourites, analytics: analytics)
-    }
-
-    private func rebuild() {
-        card = SetPresenter.card(for: hardstyleSet, in: catalog, isSaved: favouriteIDs.contains(hardstyleSet.id))
-        related = SetPresenter.cards(
-            Self.related(to: hardstyleSet, in: catalog),
-            in: catalog,
-            favourites: favouriteIDs
-        )
     }
 
     /// Related sets: same event or same DJ, excluding this one, newest first.

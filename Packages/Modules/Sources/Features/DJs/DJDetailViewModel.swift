@@ -11,17 +11,20 @@ public final class DJDetailViewModel {
     public let dj: Dj
 
     private let catalog: Catalog
-    private let favourites: FavouritesService
+    private let favourites: FavouritesStore
     private let analytics: any Analytics
-    private var favouriteIDs: Set<HardstyleSet.ID> = []
 
-    public private(set) var sets: [SetCardModel] = []
-
-    public init(dj: Dj, catalog: Catalog, favourites: FavouritesService, analytics: any Analytics) {
+    public init(dj: Dj, catalog: Catalog, favourites: FavouritesStore, analytics: any Analytics) {
         self.dj = dj
         self.catalog = catalog
         self.favourites = favourites
         self.analytics = analytics
+    }
+
+    /// The DJ's sets, newest first, with saved state read live from the shared
+    /// favourites store.
+    public var sets: [SetCardModel] {
+        SetPresenter.cards(catalog.sets(byDJ: dj.id), in: catalog, favourites: favourites.ids)
     }
 
     public var setCount: Int {
@@ -34,27 +37,16 @@ public final class DJDetailViewModel {
 
     public func onAppear() async {
         analytics.trackScreenView("DJ Detail")
-        favouriteIDs = await favourites.favouriteIDs()
-        rebuild()
+        await favourites.load()
     }
 
     public func toggleSave(_ id: HardstyleSet.ID) async {
-        let nowSaved = await favourites.toggle(id)
-        if nowSaved {
-            favouriteIDs.insert(id)
-        } else {
-            favouriteIDs.remove(id)
-        }
-        rebuild()
+        await favourites.toggle(id)
     }
 
     /// Builds the Set Detail ViewModel for a tapped set from the same catalogue.
     public func setDetailViewModel(for card: SetCardModel) -> SetDetailViewModel? {
         guard let set = catalog.sets.first(where: { $0.id == card.id }) else { return nil }
         return SetDetailViewModel(set: set, catalog: catalog, favourites: favourites, analytics: analytics)
-    }
-
-    private func rebuild() {
-        sets = SetPresenter.cards(catalog.sets(byDJ: dj.id), in: catalog, favourites: favouriteIDs)
     }
 }

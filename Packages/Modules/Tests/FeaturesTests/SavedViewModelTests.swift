@@ -36,7 +36,7 @@ final class SavedViewModelTests: XCTestCase {
         catalog: CatalogService,
         favourites: FavouritesService
     ) -> SavedViewModel {
-        SavedViewModel(catalog: catalog, favourites: favourites, analytics: SpyAnalytics())
+        SavedViewModel(catalog: catalog, favourites: FavouritesStore(service: favourites), analytics: SpyAnalytics())
     }
 
     func test_load_showsOnlyFavouritedSets() async {
@@ -102,7 +102,7 @@ final class SavedViewModelTests: XCTestCase {
         let analytics = SpyAnalytics()
         let sut = SavedViewModel(
             catalog: MockCatalogService.returning(catalog()),
-            favourites: InMemoryFavouritesService(),
+            favourites: FavouritesStore(service: InMemoryFavouritesService()),
             analytics: analytics
         )
 
