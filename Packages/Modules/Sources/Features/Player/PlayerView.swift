@@ -76,8 +76,10 @@ public struct PlayerView: View {
 
     @ViewBuilder
     private var media: some View {
-        if let current = controller.current {
-            current.surface
+        // The surface is a view-layer concern: engines that render video conform
+        // to VideoSurfaceProviding; the ViewModel's engine contract stays UI-free.
+        if let provider = controller.current?.engine as? VideoSurfaceProviding {
+            provider.surface
                 .aspectRatio(16.0 / 9.0, contentMode: .fit)
                 .frame(maxWidth: .infinity)
                 .clipShape(RoundedRectangle(cornerRadius: Radius.card, style: .continuous))

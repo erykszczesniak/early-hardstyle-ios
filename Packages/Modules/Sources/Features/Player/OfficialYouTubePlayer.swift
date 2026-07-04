@@ -11,7 +11,7 @@ import YouTubeiOSPlayerHelper
 /// Playback still happens inside YouTube's own embedded player — no media is
 /// ripped or self-hosted, per project rules.
 @MainActor
-public final class OfficialYouTubePlayer: NSObject, YouTubePlayer, YTPlayerViewDelegate {
+public final class OfficialYouTubePlayer: NSObject, YouTubePlayer, VideoSurfaceProviding, YTPlayerViewDelegate {
     public var onEvent: ((PlaybackEvent) -> Void)?
 
     private let playerView = YTPlayerView()
