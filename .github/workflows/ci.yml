@@ -47,10 +47,10 @@ jobs:
           echo "Using simulator $UDID"
           echo "udid=$UDID" >> "$GITHUB_OUTPUT"
 
-      - name: Build app
+      - name: Build & UI-test app
         run: |
           set -o pipefail
-          xcodebuild build \
+          xcodebuild test \
             -project EarlyHardstyle.xcodeproj \
             -scheme EarlyHardstyle \
             -destination "platform=iOS Simulator,id=${{ steps.sim.outputs.udid }}" \
