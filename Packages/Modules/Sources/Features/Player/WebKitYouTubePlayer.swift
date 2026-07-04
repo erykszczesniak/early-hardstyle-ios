@@ -30,7 +30,12 @@ public final class WebKitYouTubePlayer: NSObject, YouTubePlayer, WKScriptMessage
         webView.scrollView.isScrollEnabled = false
         super.init()
         webView.navigationDelegate = self
-        controller.add(self, name: "yt")
+        // A WKUserContentController retains its script-message handler STRONGLY.
+        // Registering `self` directly would form a retain cycle
+        // (self → webView → configuration → controller → self), so the engine
+        // and its WKWebView would never deallocate when the player closes.
+        // Register a weak proxy instead so the cycle is broken.
+        controller.add(ScriptMessageProxy(self), name: "yt")
     }
 
     public func load(videoID: String) {
@@ -145,6 +150,21 @@ public final class WebKitYouTubePlayer: NSObject, YouTubePlayer, WKScriptMessage
     </body>
     </html>
     """
+}
+
+/// Weak forwarder so a `WKUserContentController` can reference the real script
+/// message handler without retaining it — the fix for the engine retain cycle.
+@MainActor
+private final class ScriptMessageProxy: NSObject, WKScriptMessageHandler {
+    private weak var target: WKScriptMessageHandler?
+
+    init(_ target: WKScriptMessageHandler) {
+        self.target = target
+    }
+
+    func userContentController(_ controller: WKUserContentController, didReceive message: WKScriptMessage) {
+        target?.userContentController(controller, didReceive: message)
+    }
 }
 
 /// Bridges the engine's `WKWebView` into SwiftUI.
