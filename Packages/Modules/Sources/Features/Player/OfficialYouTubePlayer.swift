@@ -111,11 +111,11 @@ public final class OfficialYouTubePlayer: NSObject, YouTubePlayer, VideoSurfaceP
     nonisolated static func message(for error: YTPlayerError) -> String {
         switch error {
         case .notEmbeddable:
-            "The video's owner doesn't allow it to play inside apps. Try another set."
+            L10n.Player.errorNotEmbeddable
         case .videoNotFound, .invalidParam:
-            "This video is unavailable."
+            L10n.Player.errorUnavailable
         default:
-            "Playback failed. Please try again."
+            L10n.Player.errorGeneric
         }
     }
 }

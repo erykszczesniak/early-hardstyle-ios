@@ -54,15 +54,15 @@ extension CatalogError: LocalizedError {
     public var errorDescription: String? {
         switch self {
         case .offline:
-            "You're offline. Check your connection and try again."
+            L10n.errorOffline
         case .timedOut:
-            "The request timed out. Please try again."
+            L10n.errorTimedOut
         case let .decodingFailed(detail):
-            "We couldn't read the catalogue (\(detail))."
+            L10n.errorDecoding(detail)
         case let .server(statusCode):
-            "The server returned an error (\(statusCode)). Please try again."
+            L10n.errorServer(statusCode: statusCode)
         case .unknown:
-            "Something went wrong. Please try again."
+            L10n.errorUnknown
         }
     }
 }

@@ -63,14 +63,14 @@ public struct PlayerView: View {
                     .font(.system(size: 18, weight: .semibold))
                     .frame(width: 44, height: 44)
             }
-            .accessibilityLabel("Close player")
+            .accessibilityLabel(L10n.Player.close)
             Spacer()
             Button { showQueue = true } label: {
                 Image(systemName: "list.bullet")
                     .font(.system(size: 18, weight: .semibold))
                     .frame(width: 44, height: 44)
             }
-            .accessibilityLabel("Queue")
+            .accessibilityLabel(L10n.Player.queue)
         }
     }
 
@@ -157,7 +157,7 @@ public struct PlayerView: View {
     }
 
     private var attribution: some View {
-        Text("Video played via the official YouTube player")
+        Text(L10n.Player.attribution)
             .font(Typography.meta)
             .foregroundStyle(Palette.textTertiary)
             .multilineTextAlignment(.center)
@@ -173,9 +173,9 @@ public struct PlayerView: View {
 
     private var playPauseLabel: String {
         switch controller.current?.state {
-        case .ended: "Replay"
-        case .playing: "Pause"
-        default: "Play"
+        case .ended: L10n.Player.replay
+        case .playing: L10n.Player.pause
+        default: L10n.Player.play
         }
     }
 }

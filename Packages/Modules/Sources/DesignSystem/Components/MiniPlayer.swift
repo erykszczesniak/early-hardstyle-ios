@@ -58,8 +58,8 @@ public struct MiniPlayer: View {
             .contentShape(Rectangle())
             .onTapGesture(perform: onOpen)
             .accessibilityElement(children: .combine)
-            .accessibilityLabel("Now playing, \(model.title), \(model.subtitle)")
-            .accessibilityHint("Opens the player")
+            .accessibilityLabel(L10n.nowPlaying(title: model.title, subtitle: model.subtitle))
+            .accessibilityHint(L10n.opensPlayer)
             .accessibilityAddTraits(.isButton)
 
             Button(action: onPlayPause) {
@@ -69,7 +69,7 @@ public struct MiniPlayer: View {
                     .frame(width: 44, height: 44)
             }
             .buttonStyle(.plain)
-            .accessibilityLabel(model.isPlaying ? "Pause" : "Play")
+            .accessibilityLabel(model.isPlaying ? L10n.pause : L10n.play)
 
             SaveHeart(isSaved: model.isSaved, action: onToggleSave)
         }

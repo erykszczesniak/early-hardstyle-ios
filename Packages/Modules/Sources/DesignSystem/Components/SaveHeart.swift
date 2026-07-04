@@ -28,7 +28,7 @@ public struct SaveHeart: View {
                 .animation(reduceMotion ? nil : .spring(response: 0.35, dampingFraction: 0.7), value: isSaved)
         }
         .buttonStyle(.plain)
-        .accessibilityLabel(isSaved ? "Saved" : "Save")
+        .accessibilityLabel(isSaved ? L10n.saved : L10n.save)
         .accessibilityAddTraits(isSaved ? [.isSelected] : [])
     }
 }

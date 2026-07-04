@@ -7,9 +7,11 @@ public struct ErrorInline: View {
     private let retryTitle: String
     private let retry: (() -> Void)?
 
-    public init(message: String, retryTitle: String = "Retry", retry: (() -> Void)? = nil) {
+    /// `retryTitle` defaults to the localized "Retry" (resolved internally —
+    /// an internal symbol can't appear in a public default argument).
+    public init(message: String, retryTitle: String? = nil, retry: (() -> Void)? = nil) {
         self.message = message
-        self.retryTitle = retryTitle
+        self.retryTitle = retryTitle ?? L10n.retry
         self.retry = retry
     }
 
