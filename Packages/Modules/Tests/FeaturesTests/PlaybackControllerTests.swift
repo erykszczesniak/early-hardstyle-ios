@@ -27,10 +27,13 @@ final class PlaybackControllerTests: XCTestCase {
         NowPlaying(setID: id, title: id.uppercased(), subtitle: "sub", artworkURL: nil, youtubeID: "yt-\(id)")
     }
 
-    private func makeSUT() -> (PlaybackController, Engines) {
+    private func makeSUT(
+        progress: PlaybackProgressStoring = SpyProgressStore()
+    ) -> (PlaybackController, Engines) {
         let engines = Engines()
         let controller = PlaybackController(
             analytics: SpyAnalytics(),
+            progress: progress,
             makeEngine: engines.make
         )
         return (controller, engines)
@@ -193,9 +196,67 @@ final class PlaybackControllerTests: XCTestCase {
         XCTAssertEqual(engines.current?.playCount, playsBefore, "a user pause must survive the round trip")
     }
 
+    func test_start_resumesFromStoredPosition() {
+        let store = SpyProgressStore()
+        store.save(seconds: 600, duration: 3600, for: "a")
+        let (controller, engines) = makeSUT(progress: store)
+
+        controller.play([item("a"), item("b")])
+
+        XCTAssertEqual(engines.current?.loadedStartAt, 600, "playback must resume from the stored position")
+
+        controller.advance()
+        XCTAssertNil(engines.current?.loadedStartAt, "tracks without a stored position start from the top")
+    }
+
+    func test_progressTicks_arePersisted() {
+        let store = SpyProgressStore()
+        let (controller, engines) = makeSUT(progress: store)
+        controller.play([item("a")])
+
+        engines.current?.emit(.progress(time: 125, duration: 3600))
+
+        XCTAssertEqual(store.position(for: "a")?.seconds, 125)
+        XCTAssertEqual(store.position(for: "a")?.duration, 3600)
+    }
+
+    func test_finishingATrack_clearsItsResumePoint() {
+        let store = SpyProgressStore()
+        store.save(seconds: 600, duration: 3600, for: "a")
+        let (controller, engines) = makeSUT(progress: store)
+        controller.play([item("a")])
+
+        engines.current?.emit(.ended)
+
+        XCTAssertNil(store.position(for: "a"), "a finished set restarts from the top next time")
+    }
+
     func test_emptyQueue_hasNoCurrent() {
         let (controller, _) = makeSUT()
         controller.play([])
         XCTAssertFalse(controller.hasCurrent)
+    }
+}
+
+/// In-memory progress store for tests: no resume-semantics filtering (unit
+/// tests for those live in PlaybackProgressStoreTests) — just records calls.
+final class SpyProgressStore: PlaybackProgressStoring, @unchecked Sendable {
+    private let lock = NSLock()
+    private var storage: [String: PlaybackPosition] = [:]
+
+    func position(for id: String) -> PlaybackPosition? {
+        lock.withLock { storage[id] }
+    }
+
+    func save(seconds: Int, duration: Int, for id: String) {
+        lock.withLock { storage[id] = PlaybackPosition(seconds: seconds, duration: duration, updatedAt: .distantPast) }
+    }
+
+    func clear(for id: String) {
+        lock.withLock { storage[id] = nil }
+    }
+
+    func recent(limit: Int) -> [(id: String, position: PlaybackPosition)] {
+        lock.withLock { Array(storage.map { (id: $0.key, position: $0.value) }.prefix(limit)) }
     }
 }
