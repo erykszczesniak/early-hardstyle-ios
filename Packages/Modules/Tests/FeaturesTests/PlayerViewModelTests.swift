@@ -9,18 +9,18 @@ final class PlayerViewModelTests: XCTestCase {
         title: "Technoboy",
         subtitle: "Sensation 2004",
         artworkURL: nil,
-        youtubeID: "abc123"
+        source: .youtube(id: "abc123")
     )
 
     private func makeSUT(
-        player: MockYouTubePlayer,
+        player: MockPlaybackEngine,
         analytics: SpyAnalytics = SpyAnalytics()
     ) -> PlayerViewModel {
         PlayerViewModel(nowPlaying: nowPlaying, player: player, analytics: analytics)
     }
 
     func test_start_loadsVideoAndEntersLoadingAndTracks() {
-        let player = MockYouTubePlayer()
+        let player = MockPlaybackEngine()
         let analytics = SpyAnalytics()
         let sut = makeSUT(player: player, analytics: analytics)
 
@@ -32,7 +32,7 @@ final class PlayerViewModelTests: XCTestCase {
     }
 
     func test_ready_triggersAutoplay() {
-        let player = MockYouTubePlayer()
+        let player = MockPlaybackEngine()
         let sut = makeSUT(player: player)
 
         player.emit(.ready)
@@ -42,7 +42,7 @@ final class PlayerViewModelTests: XCTestCase {
     }
 
     func test_stateEvents_mapToState() {
-        let player = MockYouTubePlayer()
+        let player = MockPlaybackEngine()
         let sut = makeSUT(player: player)
 
         player.emit(.buffering)
@@ -61,7 +61,7 @@ final class PlayerViewModelTests: XCTestCase {
     }
 
     func test_failedEvent_yieldsFailedState() {
-        let player = MockYouTubePlayer()
+        let player = MockPlaybackEngine()
         let sut = makeSUT(player: player)
 
         player.emit(.failed("boom"))
@@ -70,7 +70,7 @@ final class PlayerViewModelTests: XCTestCase {
     }
 
     func test_progress_updatesTimesAndFraction() {
-        let player = MockYouTubePlayer()
+        let player = MockPlaybackEngine()
         let sut = makeSUT(player: player)
 
         player.emit(.progress(time: 30, duration: 120))
@@ -83,7 +83,7 @@ final class PlayerViewModelTests: XCTestCase {
     }
 
     func test_togglePlayPause_pausesWhenPlaying_playsOtherwise() {
-        let player = MockYouTubePlayer()
+        let player = MockPlaybackEngine()
         let sut = makeSUT(player: player)
 
         player.emit(.playing)
@@ -96,7 +96,7 @@ final class PlayerViewModelTests: XCTestCase {
     }
 
     func test_seek_clampsAndForwardsAndUpdatesTime() {
-        let player = MockYouTubePlayer()
+        let player = MockPlaybackEngine()
         let sut = makeSUT(player: player)
         player.emit(.progress(time: 0, duration: 100))
 
@@ -107,7 +107,7 @@ final class PlayerViewModelTests: XCTestCase {
     }
 
     func test_retry_reloads() {
-        let player = MockYouTubePlayer()
+        let player = MockPlaybackEngine()
         let sut = makeSUT(player: player)
         player.emit(.failed("x"))
 
@@ -118,7 +118,7 @@ final class PlayerViewModelTests: XCTestCase {
     }
 
     func test_progress_withZeroDuration_isNotScrubbable() {
-        let player = MockYouTubePlayer()
+        let player = MockPlaybackEngine()
         let sut = makeSUT(player: player)
 
         XCTAssertFalse(sut.canScrub)

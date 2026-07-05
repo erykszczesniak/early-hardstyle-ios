@@ -11,7 +11,7 @@ public enum PlayerState: Equatable, Sendable {
     case failed(message: String)
 }
 
-/// Events emitted by a `YouTubePlayer` engine, mapped from the YouTube iframe
+/// Events emitted by a `PlaybackEngine`, mapped from the backend's
 /// player's own state/progress callbacks. The single vocabulary the ViewModel
 /// reacts to — engine-agnostic so a mock can drive it in tests.
 public enum PlaybackEvent: Equatable, Sendable {
@@ -24,6 +24,15 @@ public enum PlaybackEvent: Equatable, Sendable {
     case progress(time: Double, duration: Double)
 }
 
+/// Where a track's media comes from. The controller routes each source kind to
+/// the engine that can play it.
+public enum PlaybackSource: Equatable, Sendable {
+    /// The official YouTube embed.
+    case youtube(id: String)
+    /// A directly-playable (licensed) audio URL — local file or stream.
+    case audio(url: URL)
+}
+
 /// The immutable "now playing" descriptor handed to the player.
 public struct NowPlaying: Equatable, Sendable, Identifiable {
     /// The catalogue set id — used to reconcile favourites.
@@ -31,17 +40,17 @@ public struct NowPlaying: Equatable, Sendable, Identifiable {
     public let title: String
     public let subtitle: String
     public let artworkURL: URL?
-    public let youtubeID: String
+    public let source: PlaybackSource
 
     public var id: String {
         setID
     }
 
-    public init(setID: String, title: String, subtitle: String, artworkURL: URL?, youtubeID: String) {
+    public init(setID: String, title: String, subtitle: String, artworkURL: URL?, source: PlaybackSource) {
         self.setID = setID
         self.title = title
         self.subtitle = subtitle
         self.artworkURL = artworkURL
-        self.youtubeID = youtubeID
+        self.source = source
     }
 }

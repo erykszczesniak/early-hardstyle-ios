@@ -2,7 +2,7 @@ import Core
 import Foundation
 
 /// Drives the full-screen player: owns the explicit `PlayerState` machine,
-/// forwards user intent to the injected `YouTubePlayer` engine, and reflects the
+/// forwards user intent to the injected `PlaybackEngine`, and reflects the
 /// engine's events back as state and progress. Deliberately UI-free — the view
 /// layer obtains the video surface from the engine directly (see
 /// `VideoSurfaceProviding`).
@@ -11,8 +11,8 @@ import Foundation
 public final class PlayerViewModel {
     /// The playback engine. Exposed so the *view* can ask it for a video
     /// surface (`VideoSurfaceProviding`); the ViewModel itself only uses the
-    /// UI-free `YouTubePlayer` contract.
-    public let engine: YouTubePlayer
+    /// UI-free `PlaybackEngine` contract.
+    public let engine: PlaybackEngine
     private let analytics: any Analytics
 
     public let nowPlaying: NowPlaying
@@ -32,7 +32,7 @@ public final class PlayerViewModel {
 
     public init(
         nowPlaying: NowPlaying,
-        player: YouTubePlayer,
+        player: PlaybackEngine,
         analytics: any Analytics,
         resumeFrom: Int? = nil
     ) {
@@ -77,7 +77,7 @@ public final class PlayerViewModel {
     public func start() {
         analytics.trackScreenView(.player)
         state = .loading
-        engine.load(videoID: nowPlaying.youtubeID, startAt: resumeFrom)
+        engine.load(nowPlaying.source, startAt: resumeFrom)
     }
 
     public func togglePlayPause() {
