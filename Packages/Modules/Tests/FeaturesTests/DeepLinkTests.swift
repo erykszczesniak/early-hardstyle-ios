@@ -1,6 +1,6 @@
+import Core
 import Foundation
 import XCTest
-@testable import Features
 
 final class DeepLinkTests: XCTestCase {
     func test_parsesPlaySet() throws {
