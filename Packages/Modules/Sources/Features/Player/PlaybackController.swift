@@ -21,6 +21,7 @@ public struct QueueItem: Identifiable, Equatable, Sendable {
 @Observable
 public final class PlaybackController {
     private let analytics: any Analytics
+    private let progress: PlaybackProgressStoring
     private let makeEngine: @MainActor () -> YouTubePlayer
     /// The single playback engine, created lazily and **reused for every
     /// track**. One engine = one video surface, so switching tracks loads the
@@ -37,9 +38,11 @@ public final class PlaybackController {
 
     public init(
         analytics: any Analytics,
+        progress: PlaybackProgressStoring,
         makeEngine: @escaping @MainActor () -> YouTubePlayer
     ) {
         self.analytics = analytics
+        self.progress = progress
         self.makeEngine = makeEngine
     }
 
@@ -178,9 +181,19 @@ public final class PlaybackController {
         }
         let engine = engine ?? makeEngine()
         self.engine = engine
-        let viewModel = PlayerViewModel(nowPlaying: queue[index].nowPlaying, player: engine, analytics: analytics)
+        let item = queue[index].nowPlaying
+        let viewModel = PlayerViewModel(
+            nowPlaying: item,
+            player: engine,
+            analytics: analytics,
+            resumeFrom: progress.position(for: item.setID)?.seconds
+        )
         viewModel.onPlaybackEnded = { [weak self] in
+            self?.progress.clear(for: item.setID) // finished → restart from the top next time
             self?.handlePlaybackEnded()
+        }
+        viewModel.onProgress = { [weak self] time, duration in
+            self?.progress.save(seconds: Int(time), duration: Int(duration), for: item.setID)
         }
         current = viewModel
         viewModel.start()
