@@ -22,6 +22,7 @@ enum L10n {
         defaultValue: "Playback position",
         bundle: .module
     )
+    static let bpmCaption = String(localized: "bpm.caption", defaultValue: "BPM", bundle: .module)
 
     static func nowPlaying(title: String, subtitle: String) -> String {
         String(localized: "miniPlayer.nowPlaying", defaultValue: "Now playing, \(title), \(subtitle)", bundle: .module)

@@ -11,6 +11,7 @@ enum L10n {
         static let library = String(localized: "tab.library", defaultValue: "Library", bundle: .module)
         static let djs = String(localized: "tab.djs", defaultValue: "DJs", bundle: .module)
         static let saved = String(localized: "tab.saved", defaultValue: "Saved", bundle: .module)
+        static let tracks = String(localized: "tab.tracks", defaultValue: "Tracks", bundle: .module)
     }
 
     enum Library {
@@ -74,6 +75,17 @@ enum L10n {
         static func noResultsMessage(_ query: String) -> String {
             String(localized: "djs.noResults.message", defaultValue: "No DJs match “\(query)”.", bundle: .module)
         }
+    }
+
+    enum Tracks {
+        static let title = String(localized: "tracks.title", defaultValue: "Tracks", bundle: .module)
+        static let emptyTitle = String(localized: "tracks.empty.title", defaultValue: "No tracks yet", bundle: .module)
+        static let sortLabel = String(localized: "tracks.sort.label", defaultValue: "Sort", bundle: .module)
+        static let sortBPM = String(localized: "tracks.sort.bpm", defaultValue: "BPM", bundle: .module)
+        static let sortNewest = String(localized: "tracks.sort.newest", defaultValue: "Newest", bundle: .module)
+        static let sortAlphabetical = String(
+            localized: "tracks.sort.alphabetical", defaultValue: "A–Z", bundle: .module
+        )
     }
 
     enum Saved {
