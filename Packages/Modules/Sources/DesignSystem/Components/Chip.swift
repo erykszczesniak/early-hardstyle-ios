@@ -26,6 +26,7 @@ public struct Chip: View {
             Text(text)
         }
         .font(Typography.meta.weight(.medium))
+        .lineLimit(1)
         .foregroundStyle(foreground)
         .padding(.horizontal, Spacing.md)
         .padding(.vertical, Spacing.sm)
