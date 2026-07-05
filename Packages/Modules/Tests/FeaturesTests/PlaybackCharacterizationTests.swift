@@ -15,26 +15,32 @@ final class PlaybackCharacterizationTests: XCTestCase {
     /// the main-actor mock.
     @MainActor
     private final class Engines {
-        var list: [MockYouTubePlayer] = []
-        func make() -> YouTubePlayer {
-            let engine = MockYouTubePlayer()
+        var list: [MockPlaybackEngine] = []
+        func make() -> PlaybackEngine {
+            let engine = MockPlaybackEngine()
             list.append(engine)
             return engine
         }
 
-        var current: MockYouTubePlayer? {
+        var current: MockPlaybackEngine? {
             list.last
         }
     }
 
     private func item(_ id: String) -> NowPlaying {
-        NowPlaying(setID: id, title: id.uppercased(), subtitle: "sub", artworkURL: nil, youtubeID: "yt-\(id)")
+        NowPlaying(
+            setID: id,
+            title: id.uppercased(),
+            subtitle: "sub",
+            artworkURL: nil,
+            source: .youtube(id: "yt-\(id)")
+        )
     }
 
     // MARK: Player lifecycle
 
     func test_characterize_playerLifecycle_readyAutoplaysThenTracksToEnded() {
-        let player = MockYouTubePlayer()
+        let player = MockPlaybackEngine()
         var endedCalls = 0
         let sut = PlayerViewModel(
             nowPlaying: item("a"),
@@ -65,7 +71,7 @@ final class PlaybackCharacterizationTests: XCTestCase {
     }
 
     func test_characterize_playerFailure_isRetryable() {
-        let player = MockYouTubePlayer()
+        let player = MockPlaybackEngine()
         let sut = PlayerViewModel(nowPlaying: item("a"), player: player, analytics: SpyAnalytics())
 
         player.emit(.failed("boom"))

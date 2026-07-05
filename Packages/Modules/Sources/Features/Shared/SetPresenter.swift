@@ -27,7 +27,7 @@ enum SetPresenter {
             title: set.title,
             subtitle: "\(event) \(set.year)",
             artworkURL: set.thumbnailURL,
-            youtubeID: set.youtubeID
+            source: .youtube(id: set.youtubeID)
         )
     }
 

@@ -22,13 +22,13 @@ public struct QueueItem: Identifiable, Equatable, Sendable {
 public final class PlaybackController {
     private let analytics: any Analytics
     private let progress: PlaybackProgressStoring
-    private let makeEngine: @MainActor () -> YouTubePlayer
+    private let makeEngine: @MainActor () -> PlaybackEngine
     /// The single playback engine, created lazily and **reused for every
     /// track**. One engine = one video surface, so switching tracks loads the
     /// new video into the surface that is already on screen. (Creating an
     /// engine per track left the new engine's web view outside the view
     /// hierarchy — the UI kept showing, and hearing, the old one.)
-    private var engine: YouTubePlayer?
+    private var engine: PlaybackEngine?
 
     public private(set) var current: PlayerViewModel?
     public private(set) var queue: [QueueItem] = []
@@ -39,7 +39,7 @@ public final class PlaybackController {
     public init(
         analytics: any Analytics,
         progress: PlaybackProgressStoring,
-        makeEngine: @escaping @MainActor () -> YouTubePlayer
+        makeEngine: @escaping @MainActor () -> PlaybackEngine
     ) {
         self.analytics = analytics
         self.progress = progress
