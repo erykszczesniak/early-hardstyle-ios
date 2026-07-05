@@ -107,7 +107,8 @@ public enum SeedCatalog {
         _ year: Int,
         _ seconds: Int,
         _ youtube: String,
-        _ genres: [String]
+        _ genres: [String],
+        bpm: Int
     ) -> HardstyleSet {
         HardstyleSet(
             id: id,
@@ -117,7 +118,8 @@ public enum SeedCatalog {
             year: year,
             durationSeconds: seconds,
             youtubeID: youtube,
-            genreIDs: genres
+            genreIDs: genres,
+            bpm: bpm
         )
     }
 
@@ -132,7 +134,8 @@ public enum SeedCatalog {
             2007,
             3720,
             "GMZ2fqCFe2Q",
-            ["early-hardstyle"]
+            ["early-hardstyle"],
+            bpm: 150
         ),
         set(
             "hh-hws",
@@ -142,9 +145,20 @@ public enum SeedCatalog {
             2007,
             3600,
             "d5YuAzUbqe8",
-            ["nu-style"]
+            ["nu-style"],
+            bpm: 150
         ),
-        set("hh-destiny", "Headhunterz — Destiny", "headhunterz", "qlimax", 2007, 3480, "e6NaYcpmREQ", ["nu-style"]),
+        set(
+            "hh-destiny",
+            "Headhunterz — Destiny",
+            "headhunterz",
+            "qlimax",
+            2007,
+            3480,
+            "e6NaYcpmREQ",
+            ["nu-style"],
+            bpm: 150
+        ),
         set(
             "hh-down",
             "Headhunterz & Wildstylez — Down With The Bassdrum",
@@ -153,7 +167,8 @@ public enum SeedCatalog {
             2007,
             3300,
             "eb8D5u0vp2o",
-            ["nu-style"]
+            ["nu-style"],
+            bpm: 150
         ),
         set(
             "stk-early",
@@ -163,7 +178,8 @@ public enum SeedCatalog {
             2004,
             3900,
             "poSBsazzVSw",
-            ["early-hardstyle"]
+            ["early-hardstyle"],
+            bpm: 145
         ),
         set(
             "stk-old",
@@ -173,9 +189,20 @@ public enum SeedCatalog {
             2003,
             3600,
             "W_wQYwb0SVM",
-            ["early-hardstyle", "reverse-bass"]
+            ["early-hardstyle", "reverse-bass"],
+            bpm: 140
         ),
-        set("stk-dear", "Showtek — Dear Hardstyle", "showtek", "defqon-1", 2007, 3200, "ELI83k5WBwM", ["nu-style"]),
+        set(
+            "stk-dear",
+            "Showtek — Dear Hardstyle",
+            "showtek",
+            "defqon-1",
+            2007,
+            3200,
+            "ELI83k5WBwM",
+            ["nu-style"],
+            bpm: 150
+        ),
         set(
             "stk-hardcore",
             "Showtek — Do You Like It Hardcore",
@@ -184,9 +211,10 @@ public enum SeedCatalog {
             2005,
             3000,
             "DtSdAgByKIM",
-            ["raw", "early-hardstyle"]
+            ["raw", "early-hardstyle"],
+            bpm: 148
         ),
-        set("tb-rage", "Technoboy — Rage", "technoboy", "qlimax", 2007, 3300, "f3UGKYFv4dE", ["nu-style"]),
+        set("tb-rage", "Technoboy — Rage", "technoboy", "qlimax", 2007, 3300, "f3UGKYFv4dE", ["nu-style"], bpm: 150),
         set(
             "ktrx-hardventure-technoboy-remix",
             "K-Traxx - Hardventure (Technoboy Remix)",
@@ -195,7 +223,8 @@ public enum SeedCatalog {
             2002,
             3300,
             "WeASJbEZ5n8",
-            ["nu-style"]
+            ["nu-style"],
+            bpm: 140
         ),
         set(
             "tb-rage-live",
@@ -205,7 +234,8 @@ public enum SeedCatalog {
             2006,
             3300,
             "z66TQo8ThOI",
-            ["nu-style"]
+            ["nu-style"],
+            bpm: 150
         ),
         set(
             "tp-classics",
@@ -215,7 +245,8 @@ public enum SeedCatalog {
             2005,
             3600,
             "FgRunZqWjf0",
-            ["early-hardstyle"]
+            ["early-hardstyle"],
+            bpm: 140
         ),
         set(
             "tp-back",
@@ -225,7 +256,8 @@ public enum SeedCatalog {
             2004,
             3400,
             "jHedfB7n6wQ",
-            ["early-hardstyle", "reverse-bass"]
+            ["early-hardstyle", "reverse-bass"],
+            bpm: 142
         ),
         set(
             "tp-listen",
@@ -235,7 +267,8 @@ public enum SeedCatalog {
             2006,
             3200,
             "wZEtCpIzU3E",
-            ["nu-style"]
+            ["nu-style"],
+            bpm: 148
         ),
         set(
             "tp-creatures",
@@ -245,7 +278,8 @@ public enum SeedCatalog {
             2005,
             3100,
             "nzlwjwI0tVY",
-            ["raw"]
+            ["raw"],
+            bpm: 145
         ),
         set(
             "bh-lose",
@@ -255,7 +289,8 @@ public enum SeedCatalog {
             2007,
             3000,
             "Q0r0pu8A6Z0",
-            ["nu-style"]
+            ["nu-style"],
+            bpm: 150
         ),
         set(
             "wsz-summer",
@@ -265,9 +300,20 @@ public enum SeedCatalog {
             2007,
             3200,
             "WA0t6ErCtus",
-            ["nu-style"]
+            ["nu-style"],
+            bpm: 150
         ),
-        set("alu-voodoo", "A-lusion — Voodoo", "a-lusion", "decibel", 2006, 3400, "NihtG2OeZPs", ["early-hardstyle"])
+        set(
+            "alu-voodoo",
+            "A-lusion — Voodoo",
+            "a-lusion",
+            "decibel",
+            2006,
+            3400,
+            "NihtG2OeZPs",
+            ["early-hardstyle"],
+            bpm: 148
+        )
     ]
 }
 

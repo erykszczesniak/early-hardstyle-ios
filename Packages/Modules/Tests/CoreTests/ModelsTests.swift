@@ -97,6 +97,28 @@ final class ModelsTests: XCTestCase {
         XCTAssertEqual(catalog.sets(byDJ: "showtek").map(\.id), ["b", "a"])
     }
 
+    func test_set_decodesWithoutBPM_asNil() throws {
+        // Older payloads have no bpm key — decoding must not break.
+        let set = try XCTUnwrap(decodeCatalog().sets.first)
+        XCTAssertNil(set.bpm)
+    }
+
+    func test_set_roundTripsBPM() throws {
+        let set = HardstyleSet(
+            id: "x",
+            title: "X",
+            djID: "d",
+            eventID: "e",
+            year: 2004,
+            durationSeconds: 60,
+            youtubeID: "y",
+            bpm: 150
+        )
+        let data = try JSONEncoder().encode(set)
+        let restored = try JSONDecoder().decode(HardstyleSet.self, from: data)
+        XCTAssertEqual(restored.bpm, 150)
+    }
+
     func test_youtubeThumbnail_buildsBothQualities() {
         XCTAssertEqual(
             YouTubeThumbnail.url(videoID: "abc123XYZ_-"),
