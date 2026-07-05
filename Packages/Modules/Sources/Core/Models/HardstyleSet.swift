@@ -23,6 +23,9 @@ public struct HardstyleSet: Identifiable, Hashable, Codable, Sendable {
     public let youtubeID: String
     /// Genre tags applied to the set.
     public let genreIDs: [Genre.ID]
+    /// Dominant tempo in beats per minute (approximate for mixed sets).
+    /// Optional so older catalogue payloads keep decoding.
+    public let bpm: Int?
 
     public init(
         id: String,
@@ -32,7 +35,8 @@ public struct HardstyleSet: Identifiable, Hashable, Codable, Sendable {
         year: Int,
         durationSeconds: Int,
         youtubeID: String,
-        genreIDs: [Genre.ID] = []
+        genreIDs: [Genre.ID] = [],
+        bpm: Int? = nil
     ) {
         self.id = id
         self.title = title
@@ -42,6 +46,7 @@ public struct HardstyleSet: Identifiable, Hashable, Codable, Sendable {
         self.durationSeconds = durationSeconds
         self.youtubeID = youtubeID
         self.genreIDs = genreIDs
+        self.bpm = bpm
     }
 
     /// Artwork URL derived from the YouTube video id — we never copy or

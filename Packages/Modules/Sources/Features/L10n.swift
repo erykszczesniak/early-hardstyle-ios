@@ -99,6 +99,10 @@ enum L10n {
         static let playerComingSoon = String(
             localized: "setDetail.playerComingSoon", defaultValue: "Player coming soon", bundle: .module
         )
+
+        static func bpm(_ value: Int) -> String {
+            String(localized: "setDetail.bpm", defaultValue: "\(value) BPM", bundle: .module)
+        }
     }
 
     enum Player {
