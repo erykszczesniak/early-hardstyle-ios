@@ -47,7 +47,7 @@ public struct HardstyleSet: Identifiable, Hashable, Codable, Sendable {
     /// Artwork URL derived from the YouTube video id — we never copy or
     /// self-host artwork, per project rules.
     public var thumbnailURL: URL? {
-        URL(string: "https://i.ytimg.com/vi/\(youtubeID)/hqdefault.jpg")
+        YouTubeThumbnail.url(videoID: youtubeID)
     }
 
     /// Human-readable runtime, e.g. `1:08:45` or `58:20`.

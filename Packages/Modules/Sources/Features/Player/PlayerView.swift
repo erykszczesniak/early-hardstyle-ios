@@ -40,7 +40,7 @@ public struct PlayerView: View {
         Color.clear
             .frame(width: 1, height: 1)
             .accessibilityElement()
-            .accessibilityIdentifier("player-state-\(stateSlug)")
+            .accessibilityIdentifier(A11yID.playerState(stateSlug))
     }
 
     private var stateSlug: String {
