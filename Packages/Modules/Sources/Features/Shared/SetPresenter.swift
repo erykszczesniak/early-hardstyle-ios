@@ -19,6 +19,18 @@ enum SetPresenter {
         )
     }
 
+    /// The playback descriptor for a set.
+    static func nowPlaying(for set: HardstyleSet, in catalog: Catalog) -> NowPlaying {
+        let event = catalog.event(for: set)?.name ?? L10n.Common.unknownEvent
+        return NowPlaying(
+            setID: set.id,
+            title: set.title,
+            subtitle: "\(event) \(set.year)",
+            artworkURL: set.thumbnailURL,
+            youtubeID: set.youtubeID
+        )
+    }
+
     /// Maps the given sets, in order, resolving saved state from `favourites`.
     static func cards(
         _ sets: [HardstyleSet],

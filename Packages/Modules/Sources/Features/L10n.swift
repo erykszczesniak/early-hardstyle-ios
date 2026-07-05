@@ -45,6 +45,7 @@ enum L10n {
             bundle: .module
         )
         static let filtersA11y = String(localized: "library.filters.a11y", defaultValue: "Filters", bundle: .module)
+        static let jumpBackIn = String(localized: "library.jumpBackIn", defaultValue: "Jump back in", bundle: .module)
 
         static func filtersActiveA11y(_ count: Int) -> String {
             String(localized: "library.filters.a11y.active", defaultValue: "Filters, \(count) active", bundle: .module)

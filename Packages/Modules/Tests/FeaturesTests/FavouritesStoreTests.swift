@@ -68,6 +68,7 @@ final class FavouritesStoreTests: XCTestCase {
         let library = LibraryViewModel(
             catalog: MockCatalogService.returning(catalog),
             favourites: store,
+            progress: SpyProgressStore(),
             analytics: SpyAnalytics()
         )
         let djDetail = DJDetailViewModel(
