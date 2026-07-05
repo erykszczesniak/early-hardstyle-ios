@@ -15,47 +15,62 @@ public enum SeedCatalog {
         sets: sets
     )
 
+    /// Official YouTube thumbnail for one of the DJ's own seeded uploads —
+    /// avatars follow the same "official thumbnails only" rule as set artwork.
+    private static func avatar(_ youtubeID: String) -> URL? {
+        // mqdefault is natively 16:9 (no letterbox bars), so it fills the
+        // circular avatar crop cleanly.
+        URL(string: "https://i.ytimg.com/vi/\(youtubeID)/mqdefault.jpg")
+    }
+
     private static let djs: [Dj] = [
         Dj(
             id: "headhunterz",
             name: "Headhunterz",
             country: "Netherlands",
+            imageURL: avatar("GMZ2fqCFe2Q"),
             bio: "Willem Rebergen — a defining voice of late-golden-era hardstyle."
         ),
         Dj(
             id: "showtek",
             name: "Showtek",
             country: "Netherlands",
+            imageURL: avatar("W_wQYwb0SVM"),
             bio: "The Janssen brothers from Eindhoven; architects of the raw early sound."
         ),
         Dj(
             id: "technoboy",
             name: "Technoboy",
             country: "Italy",
+            imageURL: avatar("f3UGKYFv4dE"),
             bio: "Italy's hardstyle pioneer, known for anthemic energy."
         ),
         Dj(
             id: "the-prophet",
             name: "The Prophet",
             country: "Netherlands",
+            imageURL: avatar("wZEtCpIzU3E"),
             bio: "Dov Elkabas — Scantraxx founder and a forefather of the genre."
         ),
         Dj(
             id: "brennan-heart",
             name: "Brennan Heart",
             country: "Netherlands",
+            imageURL: avatar("Q0r0pu8A6Z0"),
             bio: "Fabian Bohn — melodic hardstyle craftsman."
         ),
         Dj(
             id: "wildstylez",
             name: "Wildstylez",
             country: "Netherlands",
+            imageURL: avatar("WA0t6ErCtus"),
             bio: "Joram Metekohy — a leading nu-style voice from 2007 onward."
         ),
         Dj(
             id: "a-lusion",
             name: "A-lusion",
             country: "Netherlands",
+            imageURL: avatar("NihtG2OeZPs"),
             bio: "Manuel Berk — a long-standing Dutch hardstyle producer."
         )
     ]
