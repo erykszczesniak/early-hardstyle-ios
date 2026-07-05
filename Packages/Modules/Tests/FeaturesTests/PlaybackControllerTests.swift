@@ -12,7 +12,7 @@ final class PlaybackControllerTests: XCTestCase {
     @MainActor
     private final class Engines {
         var list: [MockPlaybackEngine] = []
-        func make() -> PlaybackEngine {
+        func make(_: PlaybackSource) -> PlaybackEngine {
             let engine = MockPlaybackEngine()
             list.append(engine)
             return engine
@@ -21,6 +21,16 @@ final class PlaybackControllerTests: XCTestCase {
         var current: MockPlaybackEngine? {
             list.last
         }
+    }
+
+    private func audioItem(_ id: String) -> NowPlaying {
+        NowPlaying(
+            setID: id,
+            title: id.uppercased(),
+            subtitle: "sub",
+            artworkURL: nil,
+            source: .audio(url: URL(fileURLWithPath: "/tmp/\(id).caf"))
+        )
     }
 
     private func item(_ id: String) -> NowPlaying {
@@ -235,6 +245,21 @@ final class PlaybackControllerTests: XCTestCase {
         engines.current?.emit(.ended)
 
         XCTAssertNil(store.position(for: "a"), "a finished set restarts from the top next time")
+    }
+
+    func test_engines_areRoutedAndCachedPerSourceKind() {
+        let (controller, engines) = makeSUT()
+
+        controller.play([item("a"), audioItem("b"), item("c")])
+        XCTAssertEqual(engines.list.count, 1, "youtube engine created for the first track")
+
+        controller.advance() // → audio source: second engine kind
+        XCTAssertEqual(engines.list.count, 2, "a different source kind gets its own engine")
+        XCTAssertEqual(engines.list.first?.pauseCount, 1, "switching backends silences the old engine")
+
+        controller.advance() // → youtube again: cached engine reused
+        XCTAssertEqual(engines.list.count, 2, "engines are cached per kind, not per track")
+        XCTAssertEqual(engines.list.first?.loadedVideoID, "yt-c")
     }
 
     func test_emptyQueue_hasNoCurrent() {
