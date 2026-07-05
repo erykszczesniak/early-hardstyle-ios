@@ -13,6 +13,7 @@ struct EarlyHardstyleApp: App {
                 catalog: dependencies.catalog,
                 favourites: dependencies.favourites,
                 playbackProgress: dependencies.playbackProgress,
+                recentSearches: dependencies.recentSearches,
                 analytics: dependencies.telemetry.analytics
             )
             .preferredColorScheme(.dark)

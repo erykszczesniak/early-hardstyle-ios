@@ -25,6 +25,7 @@ public struct AppRootView: View {
 
     private let catalog: CatalogService
     private let playbackProgress: PlaybackProgressStoring
+    private let recentSearches: RecentSearchesStoring
     private let analytics: any Analytics
 
     @Environment(\.scenePhase) private var scenePhase
@@ -38,10 +39,12 @@ public struct AppRootView: View {
         catalog: CatalogService,
         favourites: FavouritesService,
         playbackProgress: PlaybackProgressStoring,
+        recentSearches: RecentSearchesStoring,
         analytics: any Analytics
     ) {
         self.catalog = catalog
         self.playbackProgress = playbackProgress
+        self.recentSearches = recentSearches
         self.analytics = analytics
         _favourites = State(initialValue: FavouritesStore(service: favourites))
         _playback = State(initialValue: PlaybackController(
@@ -64,6 +67,7 @@ public struct AppRootView: View {
                         catalog: catalog,
                         favourites: favourites,
                         progress: playbackProgress,
+                        recents: recentSearches,
                         analytics: analytics
                     )
                 )

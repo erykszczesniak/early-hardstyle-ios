@@ -44,6 +44,7 @@ public enum AnalyticsScreen: String, Sendable {
     case setDetail = "Set Detail"
     case player = "Player"
     case tracks = "Tracks"
+    case search = "Search"
 }
 
 public extension AnalyticsEvent {
