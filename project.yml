@@ -26,6 +26,13 @@ targets:
   EarlyHardstyle:
     type: application
     platform: iOS
+    # Generated at `xcodegen generate` time and merged with the
+    # INFOPLIST_KEY_* build settings. Needed for keys that have no
+    # INFOPLIST_KEY_ equivalent (UIBackgroundModes).
+    info:
+      path: App/Resources/Info.plist
+      properties:
+        UIBackgroundModes: [audio]
     sources:
       - path: App/Sources
       - path: App/Resources
