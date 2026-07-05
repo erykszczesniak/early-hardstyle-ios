@@ -2,7 +2,7 @@ import Foundation
 import SwiftUI
 import YouTubeiOSPlayerHelper
 
-/// The production `YouTubePlayer`, backed by **Google's official
+/// The production `PlaybackEngine` for YouTube sources, backed by **Google's official
 /// `youtube-ios-player-helper`** (`YTPlayerView`) — the maintained wrapper
 /// around the YouTube iframe player API. It performs the embedder verification
 /// (origin/referer) that a hand-rolled `loadHTMLString` embed fails, which
@@ -11,7 +11,7 @@ import YouTubeiOSPlayerHelper
 /// Playback still happens inside YouTube's own embedded player — no media is
 /// ripped or self-hosted, per project rules.
 @MainActor
-public final class OfficialYouTubePlayer: NSObject, YouTubePlayer, VideoSurfaceProviding, YTPlayerViewDelegate {
+public final class OfficialYouTubePlayer: NSObject, PlaybackEngine, VideoSurfaceProviding, YTPlayerViewDelegate {
     public var onEvent: ((PlaybackEvent) -> Void)?
 
     private let playerView = YTPlayerView()
@@ -29,7 +29,11 @@ public final class OfficialYouTubePlayer: NSObject, YouTubePlayer, VideoSurfaceP
         playerView.backgroundColor = .black
     }
 
-    public func load(videoID: String, startAt seconds: Int?) {
+    public func load(_ source: PlaybackSource, startAt seconds: Int?) {
+        guard case let .youtube(videoID) = source else {
+            onEvent?(.failed(L10n.Player.errorGeneric))
+            return
+        }
         cachedDuration = 0
         var vars: [String: Any] = [
             "playsinline": 1,
