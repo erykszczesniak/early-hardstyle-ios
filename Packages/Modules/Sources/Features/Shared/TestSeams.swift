@@ -4,6 +4,7 @@ import Foundation
 /// bundle, so they repeat these literals — this is the app-side single source.
 enum A11yID {
     static let miniPlayer = "mini-player"
+    static let searchButton = "search-button"
 
     static func playerState(_ slug: String) -> String {
         "player-state-\(slug)"
