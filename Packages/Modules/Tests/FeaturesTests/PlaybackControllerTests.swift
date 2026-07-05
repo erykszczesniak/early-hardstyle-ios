@@ -168,6 +168,31 @@ final class PlaybackControllerTests: XCTestCase {
         XCTAssertTrue(controller.hasCurrent, "collapsing must not stop playback")
     }
 
+    func test_backgroundRoundTrip_resumesPlaybackOnReturn() {
+        let (controller, engines) = makeSUT()
+        controller.play([item("a")])
+        engines.current?.emit(.playing)
+        let playsBefore = engines.current?.playCount ?? 0
+
+        controller.appDidEnterBackground()
+        engines.current?.emit(.paused) // the system suspends the web player
+        controller.appDidBecomeActive()
+
+        XCTAssertEqual(engines.current?.playCount, playsBefore + 1, "returning must resume playback")
+    }
+
+    func test_backgroundRoundTrip_staysPausedWhenUserHadPaused() {
+        let (controller, engines) = makeSUT()
+        controller.play([item("a")])
+        engines.current?.emit(.paused) // user paused before backgrounding
+        let playsBefore = engines.current?.playCount ?? 0
+
+        controller.appDidEnterBackground()
+        controller.appDidBecomeActive()
+
+        XCTAssertEqual(engines.current?.playCount, playsBefore, "a user pause must survive the round trip")
+    }
+
     func test_emptyQueue_hasNoCurrent() {
         let (controller, _) = makeSUT()
         controller.play([])

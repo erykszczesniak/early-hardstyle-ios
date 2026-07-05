@@ -25,6 +25,7 @@ public struct AppRootView: View {
     private let catalog: CatalogService
     private let analytics: any Analytics
 
+    @Environment(\.scenePhase) private var scenePhase
     @State private var selection: Tab = .library
     @State private var playback: PlaybackController
     /// The single observable source of truth for saved sets, shared by every
@@ -71,6 +72,16 @@ public struct AppRootView: View {
         }
         .environment(playback)
         .task { await favourites.load() }
+        .onChange(of: scenePhase) { _, phase in
+            switch phase {
+            case .background:
+                playback.appDidEnterBackground()
+            case .active:
+                playback.appDidBecomeActive()
+            default:
+                break
+            }
+        }
         .onAppear(perform: startPlaybackProbeIfRequested)
     }
 

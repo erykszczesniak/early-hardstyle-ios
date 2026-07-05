@@ -70,6 +70,7 @@ public final class PlaybackController {
     /// Replaces the queue with `items` and starts playback at `startAt`.
     public func play(_ items: [NowPlaying], startAt: Int = 0) {
         guard !items.isEmpty else { return }
+        AudioSession.activatePlayback()
         queue = items.map(QueueItem.init)
         index = min(max(startAt, 0), queue.count - 1)
         startCurrent()
@@ -122,6 +123,24 @@ public final class PlaybackController {
     /// the view hierarchy.
     public func collapse() {
         isExpanded = false
+    }
+
+    /// Whether playback was active when the app last left the foreground.
+    private var wasPlayingWhenBackgrounded = false
+
+    /// WebKit suspends embedded video when the app is backgrounded (background
+    /// audio for YouTube embeds is gated by YouTube itself), so remember that we
+    /// were playing…
+    public func appDidEnterBackground() {
+        wasPlayingWhenBackgrounded = isPlaying
+    }
+
+    /// …and resume automatically when the app returns, instead of leaving the
+    /// user on a silently-paused player.
+    public func appDidBecomeActive() {
+        guard wasPlayingWhenBackgrounded else { return }
+        wasPlayingWhenBackgrounded = false
+        engine?.play()
     }
 
     public func remove(_ item: QueueItem) {
