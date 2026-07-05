@@ -69,6 +69,7 @@ final class FavouritesStoreTests: XCTestCase {
             catalog: MockCatalogService.returning(catalog),
             favourites: store,
             progress: SpyProgressStore(),
+            recents: UserDefaultsRecentSearchesStore(key: "test.recents.cross"),
             analytics: SpyAnalytics()
         )
         let djDetail = DJDetailViewModel(
