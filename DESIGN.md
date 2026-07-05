@@ -104,6 +104,9 @@ Navigation: bottom **tab bar** (3 tabs) + persistent **mini-player** docked abov
 ### 4.6 Queue (sheet over Player)
 - `.ultraThinMaterial` sheet, drag indicator, list rows: 48pt art, title, duration; current row has the pulse glow; swipe to remove; drag to reorder. "Autoplay next" toggle at top (blue).
 
+### 4.7a Tracks (fourth tab)
+- Utility list of every track with its **tempo as the trailing hero** (large numerals in `accent.blueBright` + "BPM" caption), sortable via a segmented control: **BPM (hardest first) · Newest · A–Z**. Rows: 56pt artwork, title, event · year; tap → Set Detail. Tab icon: metronome.
+
 ### 4.7 Search (modal from top bar)
 - Full-screen cover, huge input (28pt) on black, results grouped: **Sets / DJs / Events** with the same card/row components. Recent searches as ghost chips. Cancel top-right.
 

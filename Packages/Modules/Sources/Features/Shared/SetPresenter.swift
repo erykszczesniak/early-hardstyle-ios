@@ -14,7 +14,8 @@ enum SetPresenter {
             durationSeconds: set.durationSeconds,
             genres: catalog.genres(for: set).map(\.name),
             thumbnailURL: set.thumbnailURL,
-            isSaved: isSaved
+            isSaved: isSaved,
+            bpm: set.bpm
         )
     }
 

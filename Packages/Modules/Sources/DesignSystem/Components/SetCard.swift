@@ -12,6 +12,8 @@ public struct SetCardModel: Identifiable, Hashable, Sendable {
     public let genres: [String]
     public let thumbnailURL: URL?
     public let isSaved: Bool
+    /// Dominant tempo, when known — surfaced by the Tracks screen.
+    public let bpm: Int?
 
     public init(
         id: String,
@@ -21,7 +23,8 @@ public struct SetCardModel: Identifiable, Hashable, Sendable {
         durationSeconds: Int,
         genres: [String],
         thumbnailURL: URL?,
-        isSaved: Bool
+        isSaved: Bool,
+        bpm: Int? = nil
     ) {
         self.id = id
         self.title = title
@@ -31,6 +34,7 @@ public struct SetCardModel: Identifiable, Hashable, Sendable {
         self.genres = genres
         self.thumbnailURL = thumbnailURL
         self.isSaved = isSaved
+        self.bpm = bpm
     }
 
     /// Secondary meta line, e.g. "Defqon.1 · 2007".

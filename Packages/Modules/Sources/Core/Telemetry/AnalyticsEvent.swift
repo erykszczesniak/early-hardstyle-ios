@@ -43,6 +43,7 @@ public enum AnalyticsScreen: String, Sendable {
     case saved = "Saved"
     case setDetail = "Set Detail"
     case player = "Player"
+    case tracks = "Tracks"
 }
 
 public extension AnalyticsEvent {
