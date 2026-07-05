@@ -22,6 +22,12 @@ public struct QueueItem: Identifiable, Equatable, Sendable {
 public final class PlaybackController {
     private let analytics: any Analytics
     private let makeEngine: @MainActor () -> YouTubePlayer
+    /// The single playback engine, created lazily and **reused for every
+    /// track**. One engine = one video surface, so switching tracks loads the
+    /// new video into the surface that is already on screen. (Creating an
+    /// engine per track left the new engine's web view outside the view
+    /// hierarchy — the UI kept showing, and hearing, the old one.)
+    private var engine: YouTubePlayer?
 
     public private(set) var current: PlayerViewModel?
     public private(set) var queue: [QueueItem] = []
@@ -111,6 +117,13 @@ public final class PlaybackController {
         isExpanded = true
     }
 
+    /// Collapses the full player back to the mini-player. Playback continues —
+    /// the player stays mounted (hidden), so the engine's surface never leaves
+    /// the view hierarchy.
+    public func collapse() {
+        isExpanded = false
+    }
+
     public func remove(_ item: QueueItem) {
         guard let position = queue.firstIndex(where: { $0.id == item.id }) else { return }
         // Removing the current item stops playback; removing an earlier item
@@ -144,7 +157,9 @@ public final class PlaybackController {
             current = nil
             return
         }
-        let viewModel = PlayerViewModel(nowPlaying: queue[index].nowPlaying, player: makeEngine(), analytics: analytics)
+        let engine = engine ?? makeEngine()
+        self.engine = engine
+        let viewModel = PlayerViewModel(nowPlaying: queue[index].nowPlaying, player: engine, analytics: analytics)
         viewModel.onPlaybackEnded = { [weak self] in
             self?.handlePlaybackEnded()
         }
