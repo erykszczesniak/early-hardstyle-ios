@@ -19,6 +19,7 @@ public struct AppRootView: View {
     private enum Tab: Hashable {
         case library
         case djs
+        case tracks
         case saved
     }
 
@@ -58,6 +59,13 @@ public struct AppRootView: View {
                 .safeAreaInset(edge: .bottom, spacing: 0) { miniPlayer }
                 .tag(Tab.djs)
                 .tabItem { Label(L10n.Tab.djs, systemImage: "person.2") }
+
+                TracksView(
+                    viewModel: TracksViewModel(catalog: catalog, favourites: favourites, analytics: analytics)
+                )
+                .safeAreaInset(edge: .bottom, spacing: 0) { miniPlayer }
+                .tag(Tab.tracks)
+                .tabItem { Label(L10n.Tab.tracks, systemImage: "metronome") }
 
                 SavedView(
                     viewModel: SavedViewModel(catalog: catalog, favourites: favourites, analytics: analytics),
