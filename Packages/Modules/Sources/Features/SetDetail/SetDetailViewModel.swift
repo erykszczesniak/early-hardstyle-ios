@@ -63,25 +63,14 @@ public final class SetDetailViewModel {
 
     /// The descriptor handed to the player.
     public var nowPlaying: NowPlaying {
-        Self.nowPlaying(for: hardstyleSet, in: catalog)
+        SetPresenter.nowPlaying(for: hardstyleSet, in: catalog)
     }
 
     /// The play queue starting with this set, followed by its related sets, so
     /// autoplay flows naturally into similar sets.
     public func makeQueue() -> [NowPlaying] {
         ([hardstyleSet] + Self.related(to: hardstyleSet, in: catalog))
-            .map { Self.nowPlaying(for: $0, in: catalog) }
-    }
-
-    private static func nowPlaying(for set: HardstyleSet, in catalog: Catalog) -> NowPlaying {
-        let event = catalog.event(for: set)?.name ?? L10n.Common.unknownEvent
-        return NowPlaying(
-            setID: set.id,
-            title: set.title,
-            subtitle: "\(event) \(set.year)",
-            artworkURL: set.thumbnailURL,
-            youtubeID: set.youtubeID
-        )
+            .map { SetPresenter.nowPlaying(for: $0, in: catalog) }
     }
 
     public func onAppear() async {

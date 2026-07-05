@@ -18,6 +18,7 @@ public enum LibraryState: Equatable {
 public final class LibraryViewModel {
     private let catalog: CatalogService
     private let favourites: FavouritesStore
+    private let progress: PlaybackProgressStoring
     private let analytics: any Analytics
 
     public private(set) var state: LibraryState = .loading
@@ -30,9 +31,15 @@ public final class LibraryViewModel {
     /// so saved state is always live (single source of truth).
     private var sortedSets: [HardstyleSet] = []
 
-    public init(catalog: CatalogService, favourites: FavouritesStore, analytics: any Analytics) {
+    public init(
+        catalog: CatalogService,
+        favourites: FavouritesStore,
+        progress: PlaybackProgressStoring,
+        analytics: any Analytics
+    ) {
         self.catalog = catalog
         self.favourites = favourites
+        self.progress = progress
         self.analytics = analytics
     }
 
@@ -83,6 +90,29 @@ public final class LibraryViewModel {
     public func setDetailViewModel(for card: SetCardModel) -> SetDetailViewModel? {
         guard let set = catalogData.sets.first(where: { $0.id == card.id }) else { return nil }
         return SetDetailViewModel(set: set, catalog: catalogData, favourites: favourites, analytics: analytics)
+    }
+
+    /// One partially-listened set on the "Jump back in" rail.
+    public struct ResumeEntry: Identifiable {
+        public let card: SetCardModel
+        public let fraction: Double
+        public let nowPlaying: NowPlaying
+
+        public var id: String {
+            card.id
+        }
+    }
+
+    /// Partially-listened sets, most recent first — the "Jump back in" rail.
+    public var jumpBackIn: [ResumeEntry] {
+        progress.recent(limit: 6).compactMap { entry in
+            guard let set = catalogData.sets.first(where: { $0.id == entry.id }) else { return nil }
+            return ResumeEntry(
+                card: SetPresenter.card(for: set, in: catalogData, isSaved: favourites.isFavourite(set.id)),
+                fraction: entry.position.fraction,
+                nowPlaying: SetPresenter.nowPlaying(for: set, in: catalogData)
+            )
+        }
     }
 
     /// The newest set, surfaced by the hero's "Play latest" action.

@@ -4,6 +4,7 @@ import SwiftUI
 /// The Library screen: an animated hero over a grid of set cards, with search,
 /// pull-to-refresh and designed loading/empty/error states.
 public struct LibraryView: View {
+    @Environment(PlaybackController.self) private var playback
     @State private var viewModel: LibraryViewModel
     @State private var selectedSet: SetCardModel?
     @State private var showFilters = false
@@ -90,6 +91,7 @@ public struct LibraryView: View {
             VStack(spacing: Spacing.xl) {
                 if !viewModel.isRefining {
                     hero
+                    jumpBackIn
                 }
 
                 if viewModel.hasNoResults {
@@ -117,6 +119,27 @@ public struct LibraryView: View {
             .padding(.bottom, Spacing.xxl)
         }
         .refreshable { await viewModel.refresh() }
+    }
+
+    /// Partially-listened sets — tap to resume right where you left off.
+    @ViewBuilder
+    private var jumpBackIn: some View {
+        let entries = viewModel.jumpBackIn
+        if !entries.isEmpty {
+            VStack(alignment: .leading, spacing: Spacing.md) {
+                SectionHeader(L10n.Library.jumpBackIn)
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(alignment: .top, spacing: Spacing.cardGap) {
+                        ForEach(entries) { entry in
+                            ContinueCard(model: entry.card, fraction: entry.fraction) {
+                                playback.play([entry.nowPlaying])
+                            }
+                        }
+                    }
+                }
+            }
+            .padding(.horizontal, Spacing.gutter)
+        }
     }
 
     private var hero: some View {

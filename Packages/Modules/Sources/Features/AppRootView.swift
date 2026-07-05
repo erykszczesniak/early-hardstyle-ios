@@ -24,6 +24,7 @@ public struct AppRootView: View {
     }
 
     private let catalog: CatalogService
+    private let playbackProgress: PlaybackProgressStoring
     private let analytics: any Analytics
 
     @Environment(\.scenePhase) private var scenePhase
@@ -40,6 +41,7 @@ public struct AppRootView: View {
         analytics: any Analytics
     ) {
         self.catalog = catalog
+        self.playbackProgress = playbackProgress
         self.analytics = analytics
         _favourites = State(initialValue: FavouritesStore(service: favourites))
         _playback = State(initialValue: PlaybackController(
@@ -53,7 +55,12 @@ public struct AppRootView: View {
         ZStack {
             TabView(selection: $selection) {
                 LibraryView(
-                    viewModel: LibraryViewModel(catalog: catalog, favourites: favourites, analytics: analytics)
+                    viewModel: LibraryViewModel(
+                        catalog: catalog,
+                        favourites: favourites,
+                        progress: playbackProgress,
+                        analytics: analytics
+                    )
                 )
                 .safeAreaInset(edge: .bottom, spacing: 0) { miniPlayer }
                 .tag(Tab.library)
@@ -122,6 +129,15 @@ public struct AppRootView: View {
     /// track switching — end-to-end. No effect in release builds.
     private func startPlaybackProbeIfRequested() {
         #if DEBUG
+            if let seed = ProcessInfo.processInfo.environment[LaunchEnvironment.seedProgress] {
+                for triple in seed.split(separator: ",") {
+                    let parts = triple.split(separator: ":").compactMap { Int($0) == nil ? nil : Int($0) }
+                    let id = triple.split(separator: ":").first.map(String.init) ?? ""
+                    if parts.count >= 2, !id.isEmpty {
+                        playbackProgress.save(seconds: parts[0], duration: parts[1], for: id)
+                    }
+                }
+            }
             guard let raw = ProcessInfo.processInfo.environment[LaunchEnvironment.probeVideoID],
                   !raw.isEmpty else { return }
             let items = raw.split(separator: ",").map(String.init).map { id in
