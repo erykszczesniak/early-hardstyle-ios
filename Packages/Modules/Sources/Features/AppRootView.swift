@@ -143,6 +143,18 @@ public struct AppRootView: View {
                     }
                 }
             }
+            if ProcessInfo.processInfo.environment[LaunchEnvironment.probeDemoAudio] != nil,
+               let demo = Bundle.module.url(forResource: "DemoLoop", withExtension: "m4a")
+            {
+                playback.play([NowPlaying(
+                    setID: "demo-loop",
+                    title: "EARLYHS — Demo Loop",
+                    subtitle: "150 BPM · native audio",
+                    artworkURL: nil,
+                    source: .audio(url: demo)
+                )])
+                return
+            }
             guard let raw = ProcessInfo.processInfo.environment[LaunchEnvironment.probeVideoID],
                   !raw.isEmpty else { return }
             let items = raw.split(separator: ",").map(String.init).map { id in
