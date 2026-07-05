@@ -16,7 +16,7 @@ final class PlaybackCharacterizationTests: XCTestCase {
     @MainActor
     private final class Engines {
         var list: [MockPlaybackEngine] = []
-        func make() -> PlaybackEngine {
+        func make(_: PlaybackSource) -> PlaybackEngine {
             let engine = MockPlaybackEngine()
             list.append(engine)
             return engine

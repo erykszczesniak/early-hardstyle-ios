@@ -47,7 +47,12 @@ public struct AppRootView: View {
         _playback = State(initialValue: PlaybackController(
             analytics: analytics,
             progress: playbackProgress,
-            makeEngine: { OfficialYouTubePlayer() }
+            makeEngine: { source in
+                switch source {
+                case .youtube: OfficialYouTubePlayer()
+                case .audio: AVPlayerAudioEngine()
+                }
+            }
         ))
     }
 

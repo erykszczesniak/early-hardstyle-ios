@@ -86,6 +86,11 @@ public struct PlayerView: View {
                     RoundedRectangle(cornerRadius: Radius.card, style: .continuous)
                         .strokeBorder(Palette.strokeSubtle, lineWidth: 1)
                 )
+        } else {
+            // Audio-only engines have no video surface — show the artwork.
+            Artwork(url: controller.nowPlaying?.artworkURL, cornerRadius: Radius.card)
+                .aspectRatio(16.0 / 9.0, contentMode: .fit)
+                .frame(maxWidth: .infinity)
         }
     }
 
