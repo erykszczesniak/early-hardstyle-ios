@@ -33,6 +33,9 @@ targets:
       path: App/Resources/Info.plist
       properties:
         UIBackgroundModes: [audio]
+        CFBundleURLTypes:
+          - CFBundleURLName: com.erykszczesniak.EarlyHardstyle
+            CFBundleURLSchemes: [earlyhs]
     sources:
       - path: App/Sources
       - path: App/Resources
