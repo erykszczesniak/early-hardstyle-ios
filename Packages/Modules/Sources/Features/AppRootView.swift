@@ -113,6 +113,26 @@ public struct AppRootView: View {
             }
         }
         .onAppear(perform: startPlaybackProbeIfRequested)
+        .onOpenURL { url in
+            guard let link = DeepLink.parse(url) else { return }
+            Task { await handle(link) }
+        }
+    }
+
+    /// Resolves a deep link against the catalogue and starts playback (the set
+    /// plus its related queue, same as tapping PLAY in Set Detail).
+    private func handle(_ link: DeepLink) async {
+        guard let loaded = try? await catalog.loadCatalog() else { return }
+        let target: HardstyleSet? = switch link {
+        case let .play(setID):
+            loaded.sets.first { $0.id == setID }
+        case .playLatest:
+            loaded.sets.max { $0.year < $1.year }
+        }
+        guard let target else { return }
+        let queue = ([target] + SetDetailViewModel.related(to: target, in: loaded))
+            .map { SetPresenter.nowPlaying(for: $0, in: loaded) }
+        playback.play(queue)
     }
 
     /// The full player as a persistent overlay (not a presented cover): while a
