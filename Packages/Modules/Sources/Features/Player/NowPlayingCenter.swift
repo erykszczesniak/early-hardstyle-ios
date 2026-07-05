@@ -75,8 +75,13 @@ final class NowPlayingCenter {
     }
 
     private func mergeArtwork(_ image: UIImage) {
+        // MediaPlayer invokes the request handler on ITS OWN queue — the
+        // closure must be @Sendable/nonisolated or the Swift 6 isolation
+        // assertion traps (found by the deep-link UI test). UIImage is
+        // immutable here and safe to read across threads.
+        nonisolated(unsafe) let captured = image
         var info = MPNowPlayingInfoCenter.default().nowPlayingInfo ?? [:]
-        info[MPMediaItemPropertyArtwork] = MPMediaItemArtwork(boundsSize: image.size) { _ in image }
+        info[MPMediaItemPropertyArtwork] = MPMediaItemArtwork(boundsSize: image.size) { @Sendable _ in captured }
         MPNowPlayingInfoCenter.default().nowPlayingInfo = info
     }
 }
