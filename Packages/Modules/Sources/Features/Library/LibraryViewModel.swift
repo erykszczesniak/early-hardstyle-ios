@@ -19,10 +19,10 @@ public final class LibraryViewModel {
     private let catalog: CatalogService
     private let favourites: FavouritesStore
     private let progress: PlaybackProgressStoring
+    private let recents: RecentSearchesStoring
     private let analytics: any Analytics
 
     public private(set) var state: LibraryState = .loading
-    public var searchQuery: String = ""
     public var filter = LibraryFilter()
     public private(set) var filterOptions: FilterOptions = .empty
 
@@ -35,11 +35,13 @@ public final class LibraryViewModel {
         catalog: CatalogService,
         favourites: FavouritesStore,
         progress: PlaybackProgressStoring,
+        recents: RecentSearchesStoring,
         analytics: any Analytics
     ) {
         self.catalog = catalog
         self.favourites = favourites
         self.progress = progress
+        self.recents = recents
         self.analytics = analytics
     }
 
@@ -48,25 +50,15 @@ public final class LibraryViewModel {
         SetPresenter.cards(sortedSets, in: catalogData, favourites: favourites.ids)
     }
 
-    /// Sets matching the active filter and search query. The filter runs at the
-    /// domain level (year/event/genre/country); search is a case-insensitive
-    /// match over title and event.
+    /// Sets matching the active filter (year/event/genre/country). Free-text
+    /// search lives in the global Search cover.
     public var visibleSets: [SetCardModel] {
-        var result = allSets
-        if !filter.isEmpty {
-            let allowed = filter.matchingIDs(in: catalogData)
-            result = result.filter { allowed.contains($0.id) }
-        }
-        let query = searchQuery.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
-        if !query.isEmpty {
-            result = result.filter {
-                $0.title.lowercased().contains(query) || $0.eventName.lowercased().contains(query)
-            }
-        }
-        return result
+        guard !filter.isEmpty else { return allSets }
+        let allowed = filter.matchingIDs(in: catalogData)
+        return allSets.filter { allowed.contains($0.id) }
     }
 
-    /// True when the catalogue has sets but the active filter/search hide them all.
+    /// True when the catalogue has sets but the active filter hides them all.
     public var hasNoResults: Bool {
         state == .loaded && !allSets.isEmpty && visibleSets.isEmpty
     }
@@ -76,13 +68,18 @@ public final class LibraryViewModel {
         filter.activeCount
     }
 
-    /// Whether any refining (filter or search) is currently applied.
+    /// Whether any refining (filtering) is currently applied.
     public var isRefining: Bool {
-        !filter.isEmpty || !searchQuery.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+        !filter.isEmpty
     }
 
     public func clearFilters() {
         filter = LibraryFilter()
+    }
+
+    /// Builds the global-search ViewModel (the cover owns its own catalogue load).
+    public func makeSearchViewModel() -> SearchViewModel {
+        SearchViewModel(catalog: catalog, favourites: favourites, recents: recents, analytics: analytics)
     }
 
     /// Builds the Set Detail ViewModel for a tapped card from the loaded

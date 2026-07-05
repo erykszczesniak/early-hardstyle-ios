@@ -8,6 +8,7 @@ public struct LibraryView: View {
     @State private var viewModel: LibraryViewModel
     @State private var selectedSet: SetCardModel?
     @State private var showFilters = false
+    @State private var showSearch = false
 
     private let columns = [
         GridItem(.flexible(), spacing: Spacing.cardGap),
@@ -35,7 +36,9 @@ public struct LibraryView: View {
                 }
         }
         .tint(Palette.accentBlueBright)
-        .searchable(text: $viewModel.searchQuery, prompt: Text(L10n.Library.searchPrompt))
+        .fullScreenCover(isPresented: $showSearch) {
+            SearchView(viewModel: viewModel.makeSearchViewModel())
+        }
         .sheet(isPresented: $showFilters) {
             LibraryFiltersView(viewModel: viewModel)
                 .presentationDetents([.medium, .large])
@@ -45,6 +48,13 @@ public struct LibraryView: View {
 
     @ToolbarContentBuilder
     private var filterToolbarItem: some ToolbarContent {
+        ToolbarItem(placement: .topBarLeading) {
+            Button { showSearch = true } label: {
+                Image(systemName: "magnifyingglass")
+            }
+            .accessibilityLabel(L10n.Search.prompt)
+            .accessibilityIdentifier(A11yID.searchButton)
+        }
         if viewModel.state == .loaded, !viewModel.filterOptions.isEmpty {
             ToolbarItem(placement: .topBarTrailing) {
                 Button { showFilters = true } label: {

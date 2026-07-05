@@ -46,6 +46,7 @@ final class LibraryViewModelTests: XCTestCase {
             catalog: catalog,
             favourites: FavouritesStore(service: favourites),
             progress: progress,
+            recents: UserDefaultsRecentSearchesStore(key: "test.recents.\(UUID().uuidString)"),
             analytics: analytics
         )
     }
@@ -107,28 +108,6 @@ final class LibraryViewModelTests: XCTestCase {
         XCTAssertEqual(sut.visibleSets.count, 2)
     }
 
-    // MARK: Search
-
-    func test_search_filtersByTitleAndEvent() async {
-        let sut = makeSUT(catalog: MockCatalogService.returning(makeCatalog()))
-        await sut.load()
-
-        sut.searchQuery = "technoboy"
-        XCTAssertEqual(sut.visibleSets.map(\.id), ["b"])
-
-        sut.searchQuery = "defqon"
-        XCTAssertEqual(sut.visibleSets.count, 2)
-    }
-
-    func test_search_noMatches_reportsNoResults() async {
-        let sut = makeSUT(catalog: MockCatalogService.returning(makeCatalog()))
-        await sut.load()
-
-        sut.searchQuery = "zzz"
-        XCTAssertTrue(sut.visibleSets.isEmpty)
-        XCTAssertTrue(sut.hasNoResults)
-    }
-
     // MARK: Favourites
 
     func test_toggleSave_marksSetSavedAndPersists() async {
@@ -172,12 +151,11 @@ final class LibraryViewModelTests: XCTestCase {
         XCTAssertEqual(sut.activeFilterCount, 1)
     }
 
-    func test_filterAndSearch_combine() async {
+    func test_filterHidingEverything_reportsNoResults() async {
         let sut = makeSUT(catalog: MockCatalogService.returning(makeCatalog()))
         await sut.load()
 
-        sut.filter.countries = ["Netherlands"] // set "a" only
-        sut.searchQuery = "technoboy" // set "b" only
+        sut.filter.countries = ["Germany"] // matches nothing in the fixture
         XCTAssertTrue(sut.visibleSets.isEmpty)
         XCTAssertTrue(sut.hasNoResults)
     }

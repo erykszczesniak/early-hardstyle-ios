@@ -89,6 +89,26 @@ enum L10n {
         )
     }
 
+    enum Search {
+        static let prompt = String(
+            localized: "search.prompt",
+            defaultValue: "Search sets, DJs, events",
+            bundle: .module
+        )
+        static let cancel = String(localized: "search.cancel", defaultValue: "Cancel", bundle: .module)
+        static let recent = String(localized: "search.recent", defaultValue: "Recent searches", bundle: .module)
+        static let sets = String(localized: "search.sets", defaultValue: "Sets", bundle: .module)
+        static let djs = String(localized: "search.djs", defaultValue: "DJs", bundle: .module)
+        static let events = String(localized: "search.events", defaultValue: "Events", bundle: .module)
+        static let noResultsTitle = String(
+            localized: "search.noResults.title", defaultValue: "No results", bundle: .module
+        )
+
+        static func noResultsMessage(_ query: String) -> String {
+            String(localized: "search.noResults.message", defaultValue: "Nothing matches “\(query)”.", bundle: .module)
+        }
+    }
+
     enum Saved {
         static let title = String(localized: "saved.title", defaultValue: "Saved", bundle: .module)
         static let emptyTitle = String(
