@@ -22,13 +22,28 @@ public struct QueueItem: Identifiable, Equatable, Sendable {
 public final class PlaybackController {
     private let analytics: any Analytics
     private let progress: PlaybackProgressStoring
-    private let makeEngine: @MainActor () -> PlaybackEngine
-    /// The single playback engine, created lazily and **reused for every
-    /// track**. One engine = one video surface, so switching tracks loads the
-    /// new video into the surface that is already on screen. (Creating an
-    /// engine per track left the new engine's web view outside the view
-    /// hierarchy — the UI kept showing, and hearing, the old one.)
+    private let makeEngine: @MainActor (PlaybackSource) -> PlaybackEngine
+    /// One engine per source kind, created lazily and **reused across tracks**
+    /// of that kind. Reuse matters for the YouTube engine: one engine = one
+    /// video surface, so switching tracks loads the new video into the surface
+    /// already on screen. (Creating an engine per track left the new engine's
+    /// web view outside the view hierarchy — the UI kept showing, and hearing,
+    /// the old one.)
+    private var enginesByKind: [EngineKind: PlaybackEngine] = [:]
+    /// The engine driving the current track.
     private var engine: PlaybackEngine?
+
+    private enum EngineKind: Hashable {
+        case youtube
+        case audio
+
+        init(_ source: PlaybackSource) {
+            switch source {
+            case .youtube: self = .youtube
+            case .audio: self = .audio
+            }
+        }
+    }
 
     public private(set) var current: PlayerViewModel?
     public private(set) var queue: [QueueItem] = []
@@ -39,7 +54,7 @@ public final class PlaybackController {
     public init(
         analytics: any Analytics,
         progress: PlaybackProgressStoring,
-        makeEngine: @escaping @MainActor () -> PlaybackEngine
+        makeEngine: @escaping @MainActor (PlaybackSource) -> PlaybackEngine
     ) {
         self.analytics = analytics
         self.progress = progress
@@ -179,9 +194,15 @@ public final class PlaybackController {
             current = nil
             return
         }
-        let engine = engine ?? makeEngine()
-        self.engine = engine
         let item = queue[index].nowPlaying
+        let kind = EngineKind(item.source)
+        let previous = engine
+        let engine = enginesByKind[kind] ?? makeEngine(item.source)
+        enginesByKind[kind] = engine
+        if previous !== engine {
+            previous?.pause() // switching backends: silence the old one
+        }
+        self.engine = engine
         let viewModel = PlayerViewModel(
             nowPlaying: item,
             player: engine,

@@ -26,6 +26,10 @@ public struct HardstyleSet: Identifiable, Hashable, Codable, Sendable {
     /// Dominant tempo in beats per minute (approximate for mixed sets).
     /// Optional so older catalogue payloads keep decoding.
     public let bpm: Int?
+    /// A directly-playable licensed audio URL (local file or stream). When set,
+    /// playback uses the native audio engine (background/lock-screen capable)
+    /// instead of the YouTube embed.
+    public let audioSource: URL?
 
     public init(
         id: String,
@@ -36,7 +40,8 @@ public struct HardstyleSet: Identifiable, Hashable, Codable, Sendable {
         durationSeconds: Int,
         youtubeID: String,
         genreIDs: [Genre.ID] = [],
-        bpm: Int? = nil
+        bpm: Int? = nil,
+        audioSource: URL? = nil
     ) {
         self.id = id
         self.title = title
@@ -47,6 +52,7 @@ public struct HardstyleSet: Identifiable, Hashable, Codable, Sendable {
         self.youtubeID = youtubeID
         self.genreIDs = genreIDs
         self.bpm = bpm
+        self.audioSource = audioSource
     }
 
     /// Artwork URL derived from the YouTube video id — we never copy or
