@@ -18,4 +18,7 @@ enum LaunchEnvironment {
     /// Comma-separated `setID:seconds:duration` triples — seeds the playback
     /// progress store so resume UI can be exercised.
     static let seedProgress = "SEED_PROGRESS"
+    /// When set, launches straight into the bundled demo audio loop (native
+    /// audio engine) — used to prove background/lock-screen playback.
+    static let probeDemoAudio = "PROBE_DEMO_AUDIO"
 }
