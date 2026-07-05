@@ -135,6 +135,7 @@ You only need **Xcode 16+** and a **free Apple ID** — no paid developer accoun
 
 Notes:
 - The app needs **internet** — set artwork comes from YouTube thumbnails and playback is the official YouTube player.
+- **Backgrounding:** the app declares the `audio` background mode and an active playback audio session, but WebKit suspends embedded YouTube video in the background (background play is gated by YouTube itself) — so playback pauses when you leave and **resumes automatically when you return**. No app can keep playing after being force-quit.
 - With a **free** Apple ID the signature expires after **7 days**; just rebuild from Xcode to renew. A paid Apple Developer account removes the limit.
 - Minimum iOS is **17.0**, so any modern iPhone works.
 
