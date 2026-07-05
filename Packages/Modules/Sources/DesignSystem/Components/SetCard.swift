@@ -70,21 +70,17 @@ public struct SetCard: View {
     public var body: some View {
         VStack(alignment: .leading, spacing: Spacing.sm) {
             artwork
+            // Reserve two title lines so every card in a grid row is the same
+            // height regardless of title length.
             Text(model.title)
                 .font(Typography.cardTitle)
                 .foregroundStyle(Palette.textPrimary)
-                .lineLimit(2)
+                .lineLimit(2, reservesSpace: true)
             Text(model.metaLine)
                 .font(Typography.meta)
                 .foregroundStyle(Palette.textSecondary)
                 .lineLimit(1)
-            if !model.genres.isEmpty {
-                HStack(spacing: Spacing.xs) {
-                    ForEach(model.genres.prefix(2), id: \.self) { genre in
-                        Chip(genre)
-                    }
-                }
-            }
+            genreChips
         }
         .padding(Spacing.md)
         .cardSurface()
@@ -94,6 +90,25 @@ public struct SetCard: View {
         .accessibilityElement(children: .combine)
         .accessibilityLabel(SetCardModel.accessibilityLabel(for: model))
         .accessibilityAddTraits(.isButton)
+    }
+
+    /// One-line, non-hyphenating chips: two if they fit, otherwise one
+    /// (truncating). A hidden template chip reserves the row height even when a
+    /// set has no genres, keeping all cards in a grid row equal.
+    private var genreChips: some View {
+        ZStack(alignment: .leading) {
+            Chip("Hardstyle").hidden()
+            if !model.genres.isEmpty {
+                ViewThatFits(in: .horizontal) {
+                    HStack(spacing: Spacing.xs) {
+                        ForEach(model.genres.prefix(2), id: \.self) { genre in
+                            Chip(genre).fixedSize()
+                        }
+                    }
+                    Chip(model.genres[0])
+                }
+            }
+        }
     }
 
     private var artwork: some View {

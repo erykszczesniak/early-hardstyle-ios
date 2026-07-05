@@ -12,23 +12,30 @@ public struct Artwork: View {
     }
 
     public var body: some View {
-        AsyncImage(url: url, transaction: Transaction(animation: .easeOut(duration: 0.25))) { phase in
-            switch phase {
-            case let .success(image):
-                image.resizable().scaledToFill()
-            case .failure:
-                placeholder(icon: "wifi.slash")
-            case .empty:
-                placeholder(icon: "music.note")
-            @unknown default:
-                placeholder(icon: "music.note")
+        // `Color.clear` adopts exactly the size the call site proposes; the
+        // image renders as an overlay and is clipped to those bounds. (Clipping
+        // the AsyncImage directly ran before the outer frame, so a
+        // scaledToFill image could blow past its slot — the DJ-detail row bug.)
+        Color.clear
+            .overlay {
+                AsyncImage(url: url, transaction: Transaction(animation: .easeOut(duration: 0.25))) { phase in
+                    switch phase {
+                    case let .success(image):
+                        image.resizable().scaledToFill()
+                    case .failure:
+                        placeholder(icon: "wifi.slash")
+                    case .empty:
+                        placeholder(icon: "music.note")
+                    @unknown default:
+                        placeholder(icon: "music.note")
+                    }
+                }
             }
-        }
-        .clipShape(RoundedRectangle(cornerRadius: cornerRadius, style: .continuous))
-        .overlay(
-            RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
-                .strokeBorder(Palette.strokeSubtle, lineWidth: 1)
-        )
+            .clipShape(RoundedRectangle(cornerRadius: cornerRadius, style: .continuous))
+            .overlay(
+                RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
+                    .strokeBorder(Palette.strokeSubtle, lineWidth: 1)
+            )
     }
 
     private func placeholder(icon: String) -> some View {
