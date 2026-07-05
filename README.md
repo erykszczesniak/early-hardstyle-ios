@@ -177,7 +177,6 @@ A record of deliberately introduced, theme-matched bugs, each paired with a fix 
 | Reversed catalogue ordering | `test_load_success_populatesNewestFirst` | `archive/ordering-experiment` | `archive/ordering-restore` |
 | Player progress NaN | `test_progress_withZeroDuration_isNotScrubbable` | `archive/progress-experiment` | `archive/progress-guard` |
 
-## Follow-ups
+## Roadmap
 
-- A networked `CatalogService` behind the existing protocol (the typed-error mapping already anticipates it).
-- Optional Metal audio-reactive visualizer behind the player artwork (extended scope; see `the design spec` §3.8).
+Planned work — headlined by **true background & lock-screen playback** via a licensed `AVPlayer` audio engine behind the existing `YouTubePlayer` protocol seam — lives in [`docs/ROADMAP.md`](docs/ROADMAP.md), together with prioritised feature candidates (resume long sets, recently played, search screen, App Intents/widgets, sleep timer, Metal visualizer).
