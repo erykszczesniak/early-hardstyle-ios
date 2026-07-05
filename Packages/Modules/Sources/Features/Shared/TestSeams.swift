@@ -15,4 +15,7 @@ enum LaunchEnvironment {
     /// Comma-separated YouTube ids — launches straight into the player with
     /// those videos queued.
     static let probeVideoID = "PROBE_VIDEO_ID"
+    /// Comma-separated `setID:seconds:duration` triples — seeds the playback
+    /// progress store so resume UI can be exercised.
+    static let seedProgress = "SEED_PROGRESS"
 }
