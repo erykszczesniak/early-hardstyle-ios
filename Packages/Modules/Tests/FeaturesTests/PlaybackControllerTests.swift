@@ -17,6 +17,10 @@ final class PlaybackControllerTests: XCTestCase {
             list.append(engine)
             return engine
         }
+
+        var current: MockYouTubePlayer? {
+            list.last
+        }
     }
 
     private func item(_ id: String) -> NowPlaying {
@@ -132,6 +136,36 @@ final class PlaybackControllerTests: XCTestCase {
 
         XCTAssertEqual(controller.queue.map(\.id), ["b", "c", "a"])
         XCTAssertEqual(controller.nowPlaying?.setID, "b")
+    }
+
+    /// Regression for the track-switching bug: creating an engine per track left
+    /// the new engine's web view outside the view hierarchy, so the on-screen
+    /// player kept showing the old video. The controller must reuse ONE engine
+    /// and load every track into it.
+    func test_trackChanges_reuseTheSameEngine() {
+        let (controller, engines) = makeSUT()
+
+        controller.play([item("a"), item("b"), item("c")])
+        XCTAssertEqual(engines.current?.loadedVideoID, "yt-a")
+
+        controller.advance()
+        XCTAssertEqual(engines.list.count, 1, "advancing must reuse the on-screen engine")
+        XCTAssertEqual(engines.current?.loadedVideoID, "yt-b")
+
+        controller.play(at: 2)
+        XCTAssertEqual(engines.list.count, 1, "queue jumps must reuse the on-screen engine")
+        XCTAssertEqual(engines.current?.loadedVideoID, "yt-c")
+    }
+
+    func test_collapse_keepsCurrentPlaying() {
+        let (controller, _) = makeSUT()
+        controller.play([item("a")])
+        XCTAssertTrue(controller.isExpanded)
+
+        controller.collapse()
+
+        XCTAssertFalse(controller.isExpanded)
+        XCTAssertTrue(controller.hasCurrent, "collapsing must not stop playback")
     }
 
     func test_emptyQueue_hasNoCurrent() {

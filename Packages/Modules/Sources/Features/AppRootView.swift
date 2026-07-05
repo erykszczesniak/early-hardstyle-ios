@@ -42,46 +42,64 @@ public struct AppRootView: View {
     }
 
     public var body: some View {
-        @Bindable var playback = playback
+        ZStack {
+            TabView(selection: $selection) {
+                LibraryView(
+                    viewModel: LibraryViewModel(catalog: catalog, favourites: favourites, analytics: analytics)
+                )
+                .tag(Tab.library)
+                .tabItem { Label(L10n.Tab.library, systemImage: "square.grid.2x2") }
 
-        TabView(selection: $selection) {
-            LibraryView(
-                viewModel: LibraryViewModel(catalog: catalog, favourites: favourites, analytics: analytics)
-            )
-            .tag(Tab.library)
-            .tabItem { Label(L10n.Tab.library, systemImage: "square.grid.2x2") }
+                DJsView(
+                    viewModel: DJsViewModel(catalog: catalog, favourites: favourites, analytics: analytics)
+                )
+                .tag(Tab.djs)
+                .tabItem { Label(L10n.Tab.djs, systemImage: "person.2") }
 
-            DJsView(
-                viewModel: DJsViewModel(catalog: catalog, favourites: favourites, analytics: analytics)
-            )
-            .tag(Tab.djs)
-            .tabItem { Label(L10n.Tab.djs, systemImage: "person.2") }
+                SavedView(
+                    viewModel: SavedViewModel(catalog: catalog, favourites: favourites, analytics: analytics),
+                    onBrowseLibrary: { selection = .library }
+                )
+                .tag(Tab.saved)
+                .tabItem { Label(L10n.Tab.saved, systemImage: "heart") }
+            }
+            .safeAreaInset(edge: .bottom, spacing: 0) { miniPlayer }
 
-            SavedView(
-                viewModel: SavedViewModel(catalog: catalog, favourites: favourites, analytics: analytics),
-                onBrowseLibrary: { selection = .library }
-            )
-            .tag(Tab.saved)
-            .tabItem { Label(L10n.Tab.saved, systemImage: "heart") }
+            playerOverlay
         }
         .environment(playback)
-        .safeAreaInset(edge: .bottom, spacing: 0) { miniPlayer }
-        .fullScreenCover(isPresented: $playback.isExpanded) {
-            PlayerView(controller: playback)
-        }
         .task { await favourites.load() }
         .onAppear(perform: startPlaybackProbeIfRequested)
     }
 
+    /// The full player as a persistent overlay (not a presented cover): while a
+    /// track is loaded it stays mounted even when collapsed, so the engine's
+    /// video surface never leaves the view hierarchy and audio keeps playing
+    /// behind the mini-player.
+    @ViewBuilder
+    private var playerOverlay: some View {
+        if playback.hasCurrent {
+            PlayerView(controller: playback)
+                .opacity(playback.isExpanded ? 1 : 0)
+                .offset(y: playback.isExpanded ? 0 : 56)
+                .allowsHitTesting(playback.isExpanded)
+                .accessibilityHidden(!playback.isExpanded)
+                .animation(.easeInOut(duration: 0.25), value: playback.isExpanded)
+                .zIndex(1)
+        }
+    }
+
     /// DEBUG-only test seam: when `PROBE_VIDEO_ID` is set in the launch
-    /// environment, launch straight into the player for that video so UI tests
-    /// can verify real playback end-to-end. No effect in release builds.
+    /// environment (a comma-separated list), launch straight into the player
+    /// with those videos queued so UI tests can verify real playback — and real
+    /// track switching — end-to-end. No effect in release builds.
     private func startPlaybackProbeIfRequested() {
         #if DEBUG
-            guard let id = ProcessInfo.processInfo.environment["PROBE_VIDEO_ID"], !id.isEmpty else { return }
-            playback.play([
-                NowPlaying(setID: "probe", title: id, subtitle: "probe", artworkURL: nil, youtubeID: id)
-            ])
+            guard let raw = ProcessInfo.processInfo.environment["PROBE_VIDEO_ID"], !raw.isEmpty else { return }
+            let items = raw.split(separator: ",").map(String.init).map { id in
+                NowPlaying(setID: "probe-\(id)", title: id, subtitle: "probe", artworkURL: nil, youtubeID: id)
+            }
+            playback.play(items)
         #endif
     }
 

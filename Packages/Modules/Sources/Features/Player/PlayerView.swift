@@ -6,7 +6,6 @@ import SwiftUI
 /// buffering/error/ended states. Bound to the app-level `PlaybackController` so
 /// it and the mini-player reflect one playback session.
 public struct PlayerView: View {
-    @Environment(\.dismiss) private var dismiss
     @Bindable private var controller: PlaybackController
     @State private var showQueue = false
 
@@ -58,7 +57,7 @@ public struct PlayerView: View {
 
     private var header: some View {
         HStack {
-            Button { dismiss() } label: {
+            Button { controller.collapse() } label: {
                 Image(systemName: "chevron.down")
                     .font(.system(size: 18, weight: .semibold))
                     .frame(width: 44, height: 44)
@@ -131,6 +130,7 @@ public struct PlayerView: View {
             transportButton(system: "backward.fill", size: 28) { controller.goPrevious() }
                 .disabled(!controller.canGoPrevious)
                 .opacity(controller.canGoPrevious ? 1 : 0.35)
+                .accessibilityLabel(L10n.Player.previous)
 
             Button { controller.togglePlayPause() } label: {
                 Image(systemName: primaryGlyph)
@@ -144,6 +144,7 @@ public struct PlayerView: View {
             transportButton(system: "forward.fill", size: 28) { controller.advance() }
                 .disabled(!controller.canGoNext)
                 .opacity(controller.canGoNext ? 1 : 0.35)
+                .accessibilityLabel(L10n.Player.next)
         }
     }
 
