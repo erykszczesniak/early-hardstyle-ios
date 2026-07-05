@@ -6,6 +6,7 @@ import SwiftUI
 struct QueueView: View {
     @Bindable var controller: PlaybackController
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     var body: some View {
         NavigationStack {
@@ -61,8 +62,15 @@ struct QueueView: View {
                 }
                 Spacer(minLength: 0)
                 if isCurrent {
+                    // Animates while audio is actually playing; static when
+                    // paused or under Reduce Motion.
                     Image(systemName: "waveform")
                         .foregroundStyle(Palette.accentBlueBright)
+                        .symbolEffect(
+                            .variableColor.iterative,
+                            options: .repeating,
+                            isActive: controller.isPlaying && !reduceMotion
+                        )
                 }
             }
         }
