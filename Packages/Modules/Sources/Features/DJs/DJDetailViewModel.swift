@@ -36,7 +36,7 @@ public final class DJDetailViewModel {
     }
 
     public func onAppear() async {
-        analytics.trackScreenView("DJ Detail")
+        analytics.trackScreenView(.djDetail)
         await favourites.load()
     }
 

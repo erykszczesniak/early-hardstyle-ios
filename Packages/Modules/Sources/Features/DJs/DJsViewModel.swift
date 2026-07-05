@@ -37,7 +37,7 @@ public final class DJsViewModel {
     }
 
     public func onAppear() async {
-        analytics.trackScreenView("DJs")
+        analytics.trackScreenView(.djs)
         if state == .loading { await load() }
     }
 

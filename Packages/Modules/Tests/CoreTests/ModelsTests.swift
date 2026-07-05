@@ -97,6 +97,17 @@ final class ModelsTests: XCTestCase {
         XCTAssertEqual(catalog.sets(byDJ: "showtek").map(\.id), ["b", "a"])
     }
 
+    func test_youtubeThumbnail_buildsBothQualities() {
+        XCTAssertEqual(
+            YouTubeThumbnail.url(videoID: "abc123XYZ_-"),
+            URL(string: "https://i.ytimg.com/vi/abc123XYZ_-/hqdefault.jpg")
+        )
+        XCTAssertEqual(
+            YouTubeThumbnail.url(videoID: "abc123XYZ_-", quality: .medium),
+            URL(string: "https://i.ytimg.com/vi/abc123XYZ_-/mqdefault.jpg")
+        )
+    }
+
     func test_formatDuration() {
         XCTAssertEqual(HardstyleSet.formatDuration(seconds: 4125), "1:08:45")
         XCTAssertEqual(HardstyleSet.formatDuration(seconds: 3500), "58:20")

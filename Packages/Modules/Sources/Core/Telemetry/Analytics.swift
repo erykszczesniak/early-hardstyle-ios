@@ -17,6 +17,11 @@ public extension Analytics {
     func trackScreenView(_ screen: String) {
         track(.screenView(screen))
     }
+
+    /// Typo-proof overload over the screen taxonomy.
+    func trackScreenView(_ screen: AnalyticsScreen) {
+        track(.screenView(screen))
+    }
 }
 
 /// Default no-op sink. The safe production default until a real backend is
@@ -31,7 +36,7 @@ public struct NoopAnalytics: Analytics {
 public struct ConsoleAnalytics: Analytics {
     private let logger: Logger
 
-    public init(subsystem: String = "com.erykszczesniak.EarlyHardstyle", category: String = "Analytics") {
+    public init(subsystem: String = Telemetry.subsystem, category: String = "Analytics") {
         logger = Logger(subsystem: subsystem, category: category)
     }
 
