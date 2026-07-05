@@ -526,6 +526,17 @@
         }
       }
     },
+    "setDetail.bpm": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld BPM"
+          }
+        }
+      }
+    },
     "setDetail.play": {
       "extractionState": "manual",
       "localizations": {
