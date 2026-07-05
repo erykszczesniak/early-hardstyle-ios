@@ -13,8 +13,9 @@ public protocol YouTubePlayer: AnyObject {
     /// Callback the engine invokes as playback state/progress changes.
     var onEvent: ((PlaybackEvent) -> Void)? { get set }
 
-    /// Loads (and prepares) the given video.
-    func load(videoID: String)
+    /// Loads (and prepares) the given video, optionally starting mid-way (the
+    /// resume point for long sets).
+    func load(videoID: String, startAt seconds: Int?)
     func play()
     func pause()
     /// Seeks to a `0...1` fraction of the video's duration.
@@ -35,14 +36,16 @@ public final class MockYouTubePlayer: YouTubePlayer {
     public var onEvent: ((PlaybackEvent) -> Void)?
 
     public private(set) var loadedVideoID: String?
+    public private(set) var loadedStartAt: Int?
     public private(set) var playCount = 0
     public private(set) var pauseCount = 0
     public private(set) var lastSeekFraction: Double?
 
     public init() {}
 
-    public func load(videoID: String) {
+    public func load(videoID: String, startAt seconds: Int?) {
         loadedVideoID = videoID
+        loadedStartAt = seconds
     }
 
     public func play() {
