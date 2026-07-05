@@ -91,7 +91,7 @@ public final class LibraryViewModel {
     }
 
     public func onAppear() async {
-        analytics.trackScreenView("Library")
+        analytics.trackScreenView(.library)
         if state == .loading { await load() }
     }
 

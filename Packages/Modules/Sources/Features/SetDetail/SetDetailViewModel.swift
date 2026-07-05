@@ -81,7 +81,7 @@ public final class SetDetailViewModel {
     }
 
     public func onAppear() async {
-        analytics.trackScreenView("Set Detail")
+        analytics.trackScreenView(.setDetail)
         await favourites.load()
     }
 

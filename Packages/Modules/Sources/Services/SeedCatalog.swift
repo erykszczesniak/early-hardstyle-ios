@@ -17,10 +17,9 @@ public enum SeedCatalog {
 
     /// Official YouTube thumbnail for one of the DJ's own seeded uploads —
     /// avatars follow the same "official thumbnails only" rule as set artwork.
+    /// Medium quality is natively 16:9, so it fills the circular crop cleanly.
     private static func avatar(_ youtubeID: String) -> URL? {
-        // mqdefault is natively 16:9 (no letterbox bars), so it fills the
-        // circular avatar crop cleanly.
-        URL(string: "https://i.ytimg.com/vi/\(youtubeID)/mqdefault.jpg")
+        YouTubeThumbnail.url(videoID: youtubeID, quality: .medium)
     }
 
     private static let djs: [Dj] = [

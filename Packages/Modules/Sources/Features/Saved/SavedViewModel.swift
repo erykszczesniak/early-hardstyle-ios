@@ -26,7 +26,7 @@ public final class SavedViewModel {
     }
 
     public func onAppear() async {
-        analytics.trackScreenView("Saved")
+        analytics.trackScreenView(.saved)
         if loadedCatalog {
             await refreshSaved()
         } else {

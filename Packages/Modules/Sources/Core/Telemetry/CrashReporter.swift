@@ -39,7 +39,7 @@ public struct NoopCrashReporter: CrashReporter {
 public struct ConsoleCrashReporter: CrashReporter {
     private let logger: Logger
 
-    public init(subsystem: String = "com.erykszczesniak.EarlyHardstyle", category: String = "Crash") {
+    public init(subsystem: String = Telemetry.subsystem, category: String = "Crash") {
         logger = Logger(subsystem: subsystem, category: category)
     }
 
