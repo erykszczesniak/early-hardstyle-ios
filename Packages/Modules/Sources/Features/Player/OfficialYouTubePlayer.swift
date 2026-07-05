@@ -29,13 +29,17 @@ public final class OfficialYouTubePlayer: NSObject, YouTubePlayer, VideoSurfaceP
         playerView.backgroundColor = .black
     }
 
-    public func load(videoID: String) {
+    public func load(videoID: String, startAt seconds: Int?) {
         cachedDuration = 0
-        playerView.load(withVideoId: videoID, playerVars: [
+        var vars: [String: Any] = [
             "playsinline": 1,
             "controls": 0,
             "rel": 0
-        ])
+        ]
+        if let seconds, seconds > 0 {
+            vars["start"] = seconds
+        }
+        playerView.load(withVideoId: videoID, playerVars: vars)
     }
 
     public func play() {

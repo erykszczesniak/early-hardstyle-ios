@@ -12,6 +12,7 @@ struct EarlyHardstyleApp: App {
             AppRootView(
                 catalog: dependencies.catalog,
                 favourites: dependencies.favourites,
+                playbackProgress: dependencies.playbackProgress,
                 analytics: dependencies.telemetry.analytics
             )
             .preferredColorScheme(.dark)

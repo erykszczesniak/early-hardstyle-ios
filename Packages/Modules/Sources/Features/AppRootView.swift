@@ -33,12 +33,18 @@ public struct AppRootView: View {
     /// screen and the mini-player.
     @State private var favourites: FavouritesStore
 
-    public init(catalog: CatalogService, favourites: FavouritesService, analytics: any Analytics) {
+    public init(
+        catalog: CatalogService,
+        favourites: FavouritesService,
+        playbackProgress: PlaybackProgressStoring,
+        analytics: any Analytics
+    ) {
         self.catalog = catalog
         self.analytics = analytics
         _favourites = State(initialValue: FavouritesStore(service: favourites))
         _playback = State(initialValue: PlaybackController(
             analytics: analytics,
+            progress: playbackProgress,
             makeEngine: { OfficialYouTubePlayer() }
         ))
     }

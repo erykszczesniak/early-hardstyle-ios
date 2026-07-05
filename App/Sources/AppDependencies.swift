@@ -16,6 +16,8 @@ struct AppDependencies {
     let catalog: CatalogService
     /// The saved-sets store.
     let favourites: FavouritesService
+    /// Per-set playback positions (resume for long sets).
+    let playbackProgress: PlaybackProgressStoring
 
     /// Builds the production dependency graph used by the live app. Telemetry
     /// logs to the console in debug builds and stays inert in release. The
@@ -30,7 +32,8 @@ struct AppDependencies {
         return AppDependencies(
             telemetry: telemetry,
             catalog: BundledCatalogService(),
-            favourites: UserDefaultsFavouritesService()
+            favourites: UserDefaultsFavouritesService(),
+            playbackProgress: UserDefaultsPlaybackProgressStore()
         )
     }
 }

@@ -24,11 +24,22 @@ public final class PlayerViewModel {
     /// Invoked when playback reaches the end — the queue uses this to autoplay
     /// the next item.
     public var onPlaybackEnded: (() -> Void)?
+    /// Progress ticks (time, duration) — the controller persists these so long
+    /// sets can resume.
+    public var onProgress: ((Double, Double) -> Void)?
+    /// Where playback should start (the persisted resume point).
+    private let resumeFrom: Int?
 
-    public init(nowPlaying: NowPlaying, player: YouTubePlayer, analytics: any Analytics) {
+    public init(
+        nowPlaying: NowPlaying,
+        player: YouTubePlayer,
+        analytics: any Analytics,
+        resumeFrom: Int? = nil
+    ) {
         self.nowPlaying = nowPlaying
         engine = player
         self.analytics = analytics
+        self.resumeFrom = resumeFrom
         player.onEvent = { [weak self] event in
             self?.handle(event)
         }
@@ -66,7 +77,7 @@ public final class PlayerViewModel {
     public func start() {
         analytics.trackScreenView(.player)
         state = .loading
-        engine.load(videoID: nowPlaying.youtubeID)
+        engine.load(videoID: nowPlaying.youtubeID, startAt: resumeFrom)
     }
 
     public func togglePlayPause() {
@@ -108,6 +119,7 @@ public final class PlayerViewModel {
         case let .progress(time, total):
             currentTime = time
             duration = total
+            onProgress?(time, total)
         }
     }
 }
