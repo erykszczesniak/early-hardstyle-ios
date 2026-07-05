@@ -47,12 +47,14 @@ public struct AppRootView: View {
                 LibraryView(
                     viewModel: LibraryViewModel(catalog: catalog, favourites: favourites, analytics: analytics)
                 )
+                .safeAreaInset(edge: .bottom, spacing: 0) { miniPlayer }
                 .tag(Tab.library)
                 .tabItem { Label(L10n.Tab.library, systemImage: "square.grid.2x2") }
 
                 DJsView(
                     viewModel: DJsViewModel(catalog: catalog, favourites: favourites, analytics: analytics)
                 )
+                .safeAreaInset(edge: .bottom, spacing: 0) { miniPlayer }
                 .tag(Tab.djs)
                 .tabItem { Label(L10n.Tab.djs, systemImage: "person.2") }
 
@@ -60,10 +62,10 @@ public struct AppRootView: View {
                     viewModel: SavedViewModel(catalog: catalog, favourites: favourites, analytics: analytics),
                     onBrowseLibrary: { selection = .library }
                 )
+                .safeAreaInset(edge: .bottom, spacing: 0) { miniPlayer }
                 .tag(Tab.saved)
                 .tabItem { Label(L10n.Tab.saved, systemImage: "heart") }
             }
-            .safeAreaInset(edge: .bottom, spacing: 0) { miniPlayer }
 
             playerOverlay
         }
@@ -120,6 +122,8 @@ public struct AppRootView: View {
             )
             .padding(.horizontal, Spacing.md)
             .padding(.bottom, Spacing.xs)
+            .accessibilityElement(children: .contain)
+            .accessibilityIdentifier("mini-player")
         }
     }
 }
