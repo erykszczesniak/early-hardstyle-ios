@@ -107,6 +107,8 @@ enum L10n {
         static let play = String(localized: "player.play", defaultValue: "Play", bundle: .module)
         static let pause = String(localized: "player.pause", defaultValue: "Pause", bundle: .module)
         static let replay = String(localized: "player.replay", defaultValue: "Replay", bundle: .module)
+        static let previous = String(localized: "player.previous", defaultValue: "Previous", bundle: .module)
+        static let next = String(localized: "player.next", defaultValue: "Next", bundle: .module)
         static let attribution = String(
             localized: "player.attribution",
             defaultValue: "Video played via the official YouTube player",
