@@ -22,6 +22,7 @@ public struct QueueItem: Identifiable, Equatable, Sendable {
 public final class PlaybackController {
     private let analytics: any Analytics
     private let progress: PlaybackProgressStoring
+    private let nowPlayingCenter = NowPlayingCenter()
     private let makeEngine: @MainActor (PlaybackSource) -> PlaybackEngine
     /// One engine per source kind, created lazily and **reused across tracks**
     /// of that kind. Reuse matters for the YouTube engine: one engine = one
@@ -59,6 +60,7 @@ public final class PlaybackController {
         self.analytics = analytics
         self.progress = progress
         self.makeEngine = makeEngine
+        nowPlayingCenter.attach(to: self)
     }
 
     // MARK: Derived
@@ -170,6 +172,7 @@ public final class PlaybackController {
             if queue.isEmpty {
                 current = nil
                 index = 0
+                nowPlayingCenter.clear()
             } else {
                 index = min(index, queue.count - 1)
                 startCurrent()
@@ -214,10 +217,17 @@ public final class PlaybackController {
             self?.handlePlaybackEnded()
         }
         viewModel.onProgress = { [weak self] time, duration in
-            self?.progress.save(seconds: Int(time), duration: Int(duration), for: item.setID)
+            guard let self else { return }
+            progress.save(seconds: Int(time), duration: Int(duration), for: item.setID)
+            nowPlayingCenter.updateProgress(
+                time: time,
+                duration: duration,
+                isPlaying: isPlaying
+            )
         }
         current = viewModel
         viewModel.start()
+        nowPlayingCenter.update(with: item)
     }
 
     private func handlePlaybackEnded() {
