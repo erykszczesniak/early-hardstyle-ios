@@ -143,9 +143,8 @@ public struct AppRootView: View {
                     }
                 }
             }
-            if ProcessInfo.processInfo.environment[LaunchEnvironment.probeDemoAudio] != nil,
-               let demo = Bundle.module.url(forResource: "DemoLoop", withExtension: "m4a")
-            {
+            let demoRequested = ProcessInfo.processInfo.environment[LaunchEnvironment.probeDemoAudio] != nil
+            if demoRequested, let demo = Bundle.module.url(forResource: "DemoLoop", withExtension: "m4a") {
                 playback.play([NowPlaying(
                     setID: "demo-loop",
                     title: "EARLYHS — Demo Loop",
