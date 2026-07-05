@@ -262,6 +262,17 @@
         }
       }
     },
+    "library.jumpBackIn": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Jump back in"
+          }
+        }
+      }
+    },
     "library.noResults.clear": {
       "extractionState": "manual",
       "localizations": {

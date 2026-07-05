@@ -39,9 +39,15 @@ final class LibraryViewModelTests: XCTestCase {
     private func makeSUT(
         catalog: CatalogService,
         favourites: FavouritesService = InMemoryFavouritesService(),
+        progress: PlaybackProgressStoring = SpyProgressStore(),
         analytics: SpyAnalytics = SpyAnalytics()
     ) -> LibraryViewModel {
-        LibraryViewModel(catalog: catalog, favourites: FavouritesStore(service: favourites), analytics: analytics)
+        LibraryViewModel(
+            catalog: catalog,
+            favourites: FavouritesStore(service: favourites),
+            progress: progress,
+            analytics: analytics
+        )
     }
 
     // MARK: Loading
@@ -185,6 +191,27 @@ final class LibraryViewModelTests: XCTestCase {
         sut.clearFilters()
         XCTAssertEqual(sut.visibleSets.count, 2)
         XCTAssertFalse(sut.isRefining)
+    }
+
+    // MARK: Jump back in
+
+    func test_jumpBackIn_mapsRecentsToLoadedSets() async {
+        let progress = SpyProgressStore()
+        progress.save(seconds: 600, duration: 3600, for: "a")
+        progress.save(seconds: 300, duration: 3600, for: "ghost") // not in catalogue
+        let sut = makeSUT(catalog: MockCatalogService.returning(makeCatalog()), progress: progress)
+        await sut.load()
+
+        let rail = sut.jumpBackIn
+        XCTAssertEqual(rail.map(\.card.id), ["a"], "unknown ids are skipped")
+        XCTAssertEqual(rail.first?.fraction ?? 0, 600.0 / 3600.0, accuracy: 0.001)
+        XCTAssertEqual(rail.first?.nowPlaying.setID, "a")
+    }
+
+    func test_jumpBackIn_isEmptyWithoutProgress() async {
+        let sut = makeSUT(catalog: MockCatalogService.returning(makeCatalog()))
+        await sut.load()
+        XCTAssertTrue(sut.jumpBackIn.isEmpty)
     }
 
     // MARK: Analytics
