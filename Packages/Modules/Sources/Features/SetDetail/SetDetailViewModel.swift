@@ -48,9 +48,13 @@ public final class SetDetailViewModel {
         HardstyleSet.formatDuration(seconds: hardstyleSet.durationSeconds)
     }
 
-    /// Secondary meta line, e.g. "Defqon.1 2007 · 1:08:45".
+    /// Secondary meta line, e.g. "Defqon.1 2007 · 1:08:45 · 150 BPM".
     public var metaLine: String {
-        "\(card.eventName) \(hardstyleSet.year) · \(durationText)"
+        var line = "\(card.eventName) \(hardstyleSet.year) · \(durationText)"
+        if let bpm = hardstyleSet.bpm {
+            line += " · \(L10n.SetDetail.bpm(bpm))"
+        }
+        return line
     }
 
     public var isSaved: Bool {

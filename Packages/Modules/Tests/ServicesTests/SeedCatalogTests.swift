@@ -47,6 +47,13 @@ final class SeedCatalogTests: XCTestCase {
         }
     }
 
+    func test_everySet_hasAnEraPlausibleBPM() {
+        for set in catalog.sets {
+            let bpm = try? XCTUnwrap(set.bpm, "set \(set.id) has no BPM")
+            XCTAssertTrue((135 ... 155).contains(bpm ?? 0), "implausible BPM for \(set.id)")
+        }
+    }
+
     func test_everyDJ_hasAnOfficialThumbnailAvatar() {
         for dj in catalog.djs {
             let url = try? XCTUnwrap(dj.imageURL, "DJ \(dj.id) has no avatar")
