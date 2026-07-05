@@ -34,10 +34,26 @@ public enum AnalyticsValue: Equatable, Sendable {
 
 // MARK: - Curated event factories
 
+/// The app's tracked screens — a closed, typo-proof taxonomy. Raw values are
+/// the stable identifiers that reach the analytics sink (never localized).
+public enum AnalyticsScreen: String, Sendable {
+    case library = "Library"
+    case djs = "DJs"
+    case djDetail = "DJ Detail"
+    case saved = "Saved"
+    case setDetail = "Set Detail"
+    case player = "Player"
+}
+
 public extension AnalyticsEvent {
     /// A screen/tab became visible. `name` is a stable screen identifier, never
     /// user content.
     static func screenView(_ screen: String) -> AnalyticsEvent {
         AnalyticsEvent(name: "screen_view", parameters: ["screen": .string(screen)])
+    }
+
+    /// Typo-proof overload over the screen taxonomy.
+    static func screenView(_ screen: AnalyticsScreen) -> AnalyticsEvent {
+        screenView(screen.rawValue)
     }
 }

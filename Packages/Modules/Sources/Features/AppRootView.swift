@@ -108,7 +108,8 @@ public struct AppRootView: View {
     /// track switching — end-to-end. No effect in release builds.
     private func startPlaybackProbeIfRequested() {
         #if DEBUG
-            guard let raw = ProcessInfo.processInfo.environment["PROBE_VIDEO_ID"], !raw.isEmpty else { return }
+            guard let raw = ProcessInfo.processInfo.environment[LaunchEnvironment.probeVideoID],
+                  !raw.isEmpty else { return }
             let items = raw.split(separator: ",").map(String.init).map { id in
                 NowPlaying(setID: "probe-\(id)", title: id, subtitle: "probe", artworkURL: nil, youtubeID: id)
             }
@@ -134,7 +135,7 @@ public struct AppRootView: View {
             .padding(.horizontal, Spacing.md)
             .padding(.bottom, Spacing.xs)
             .accessibilityElement(children: .contain)
-            .accessibilityIdentifier("mini-player")
+            .accessibilityIdentifier(A11yID.miniPlayer)
         }
     }
 }

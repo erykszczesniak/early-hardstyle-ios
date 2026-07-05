@@ -64,7 +64,7 @@ public final class PlayerViewModel {
     // MARK: Intent
 
     public func start() {
-        analytics.trackScreenView("Player")
+        analytics.trackScreenView(.player)
         state = .loading
         engine.load(videoID: nowPlaying.youtubeID)
     }

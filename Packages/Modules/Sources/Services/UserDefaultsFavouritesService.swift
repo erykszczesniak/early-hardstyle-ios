@@ -9,6 +9,9 @@ import Foundation
 /// Thread-safe via a lock (`UserDefaults` is itself thread-safe), so a single
 /// instance can be shared across every screen's ViewModel.
 public final class UserDefaultsFavouritesService: FavouritesService, @unchecked Sendable {
+    /// Versioned storage key — bump on breaking format changes.
+    public static let defaultKey = "favourites.v1"
+
     private let defaults: UserDefaults
     private let key: String
     private let now: @Sendable () -> Date
@@ -17,7 +20,7 @@ public final class UserDefaultsFavouritesService: FavouritesService, @unchecked 
 
     public init(
         defaults: UserDefaults = .standard,
-        key: String = "favourites.v1",
+        key: String = UserDefaultsFavouritesService.defaultKey,
         now: @escaping @Sendable () -> Date = Date.init
     ) {
         self.defaults = defaults

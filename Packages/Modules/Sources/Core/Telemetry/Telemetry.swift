@@ -2,6 +2,9 @@
 /// dependency graph. Features receive `Telemetry` (or, more narrowly, one of
 /// its protocols) via initialiser injection — never a global.
 public struct Telemetry: Sendable {
+    /// The app's unified-logging subsystem, shared by the console sinks.
+    public static let subsystem = "com.erykszczesniak.EarlyHardstyle"
+
     public let analytics: any Analytics
     public let crashReporter: any CrashReporter
 
