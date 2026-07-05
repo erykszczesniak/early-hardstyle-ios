@@ -1,6 +1,8 @@
 import AVFoundation
 import Foundation
 
+// swiftformat:disable redundantSelf
+
 /// The `PlaybackEngine` for licensed `.audio` sources, backed by `AVPlayer`.
 /// Unlike the YouTube embed, native audio keeps playing in the background and
 /// on the lock screen (the `audio` background mode + playback session are
@@ -79,8 +81,8 @@ public final class AVPlayerAudioEngine: PlaybackEngine {
                 case .paused:
                     // Initial pre-ready pauses are noise; only report a pause
                     // once something has actually loaded.
-                    if let self, duration > 0 {
-                        onEvent?(.paused)
+                    if let self, self.duration > 0 {
+                        self.onEvent?(.paused)
                     }
                 @unknown default:
                     break
