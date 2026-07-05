@@ -45,6 +45,13 @@ public enum SeedCatalog {
             bio: "Italy's hardstyle pioneer, known for anthemic energy."
         ),
         Dj(
+            id: "ktraxx",
+            name: "K-Traxx",
+            country: "Italy",
+            imageURL: avatar("WeASJbEZ5n8"),
+            bio: "A harder alias from Technoboy's studio — Hardventure (2002) is a classic."
+        ),
+        Dj(
             id: "the-prophet",
             name: "The Prophet",
             country: "Netherlands",
@@ -180,6 +187,16 @@ public enum SeedCatalog {
             ["raw", "early-hardstyle"]
         ),
         set("tb-rage", "Technoboy — Rage", "technoboy", "qlimax", 2007, 3300, "f3UGKYFv4dE", ["nu-style"]),
+        set(
+            "ktrx-hardventure-technoboy-remix",
+            "K-Traxx - Hardventure (Technoboy Remix)",
+            "ktraxx",
+            "decibel",
+            2002,
+            3300,
+            "WeASJbEZ5n8",
+            ["nu-style"]
+        ),
         set(
             "tb-rage-live",
             "Technoboy — Rage (Live Edit)",
