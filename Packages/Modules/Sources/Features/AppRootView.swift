@@ -141,7 +141,13 @@ public struct AppRootView: View {
             guard let raw = ProcessInfo.processInfo.environment[LaunchEnvironment.probeVideoID],
                   !raw.isEmpty else { return }
             let items = raw.split(separator: ",").map(String.init).map { id in
-                NowPlaying(setID: "probe-\(id)", title: id, subtitle: "probe", artworkURL: nil, youtubeID: id)
+                NowPlaying(
+                    setID: "probe-\(id)",
+                    title: id,
+                    subtitle: "probe",
+                    artworkURL: nil,
+                    source: .youtube(id: id)
+                )
             }
             playback.play(items)
         #endif
