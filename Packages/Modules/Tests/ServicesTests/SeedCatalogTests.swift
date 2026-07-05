@@ -47,6 +47,13 @@ final class SeedCatalogTests: XCTestCase {
         }
     }
 
+    func test_everyDJ_hasAnOfficialThumbnailAvatar() {
+        for dj in catalog.djs {
+            let url = try? XCTUnwrap(dj.imageURL, "DJ \(dj.id) has no avatar")
+            XCTAssertEqual(url?.host, "i.ytimg.com", "avatars must be official YouTube thumbnails")
+        }
+    }
+
     func test_everyDJ_hasAtLeastOneSet() {
         for dj in catalog.djs {
             XCTAssertFalse(catalog.sets(byDJ: dj.id).isEmpty, "DJ \(dj.id) has no sets")
