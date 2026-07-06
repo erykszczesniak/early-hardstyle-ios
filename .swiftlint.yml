@@ -64,7 +64,7 @@ identifier_name:
     - dj
 
 type_name:
-  # `Dj` is the domain model name mandated by the project brief.
+  # `Dj` is the established domain model name.
   excluded:
     - Dj
     - DJ

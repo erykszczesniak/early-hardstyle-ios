@@ -145,8 +145,7 @@ public final class LibraryViewModel {
             let loaded = try await catalog.loadCatalog()
             catalogData = loaded
             await favourites.load()
-            // FIX (exercise log history): descending sort so the newest
-            // golden-era sets lead.
+            // Descending sort so the newest golden-era sets lead.
             sortedSets = loaded.sets.sorted { $0.year > $1.year }
             filterOptions = FilterOptions.derive(from: loaded)
             state = sortedSets.isEmpty ? .empty : .loaded

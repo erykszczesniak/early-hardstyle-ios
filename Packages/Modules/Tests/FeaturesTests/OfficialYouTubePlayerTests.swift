@@ -4,7 +4,7 @@ import YouTubeiOSPlayerHelper
 
 @MainActor
 final class OfficialYouTubePlayerTests: XCTestCase {
-    /// The exercise log / audit retain-cycle lesson, kept as a regression test
+    /// The audit retain-cycle lesson, kept as a regression test
     /// on the new engine: dropping the last strong reference must deallocate it
     /// (YTPlayerView holds its delegate weakly).
     func test_engineDeallocates() {
