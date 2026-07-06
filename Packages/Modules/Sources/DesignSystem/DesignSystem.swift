@@ -3,7 +3,7 @@ import SwiftUI
 
 /// Root namespace for the DesignSystem module: colour/type/shape tokens, the
 /// reusable component inventory (cards, badges, chips, buttons, mini-player)
-/// and the 3D/motion modifiers described in `DESIGN.md`.
+/// and the 3D/motion modifiers that define the app's visual language.
 ///
 /// Rule of the module: no hex literals or one-off styling may live outside
 /// here — every surface pulls from these tokens.

@@ -1,6 +1,6 @@
 import CoreGraphics
 
-/// Spacing tokens on a 4pt grid (see `DESIGN.md`).
+/// Spacing tokens on a 4pt grid.
 public enum Spacing {
     public static let xs: CGFloat = 4
     public static let sm: CGFloat = 8

@@ -1,7 +1,7 @@
 import SwiftUI
 
 /// The save (favourite) control. Tapping flips the heart 180° on the y-axis and
-/// lands filled-blue (DESIGN.md motion #6). Under Reduce Motion it simply
+/// lands filled-blue. Under Reduce Motion it simply
 /// toggles fill with no flip. Meets the 44pt hit target.
 public struct SaveHeart: View {
     private let isSaved: Bool

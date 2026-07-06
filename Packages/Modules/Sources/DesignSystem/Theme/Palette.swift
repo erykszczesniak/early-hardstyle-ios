@@ -13,7 +13,7 @@ extension Color {
 
 /// The app's colour tokens — the single source of truth for colour.
 ///
-/// Brand direction (see `DESIGN.md`): black canvas, blue energy. Electric blue
+/// Brand direction: black canvas, blue energy. Electric blue
 /// is the ONLY accent; states are expressed with blue intensity + white
 /// opacity. No second hue is ever introduced.
 public enum Palette {

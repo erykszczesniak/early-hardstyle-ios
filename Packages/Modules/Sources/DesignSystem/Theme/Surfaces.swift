@@ -1,6 +1,6 @@
 import SwiftUI
 
-/// The card depth recipe from `DESIGN.md`: a 1px subtle border, a soft drop
+/// The card depth recipe: a 1px subtle border, a soft drop
 /// shadow, and an inner top highlight — "flat layouts, non-flat materials".
 public struct CardSurface: ViewModifier {
     var cornerRadius: CGFloat = Radius.card

@@ -1,6 +1,6 @@
 # Roadmap — EarlyHS
 
-> Planned work, in priority order. Each item ships as its own branch + PR per `CLAUDE.md`.
+> Planned work, in priority order. Each item ships as its own branch + PR.
 
 ---
 
@@ -33,11 +33,11 @@
 |---|---------|-----|--------|
 | 2.1 | **Resume long sets** — persist per-set playback position, "Continue listening" rail on Home | Sets are 50–70 min; losing your place is the #1 pain in a DJ-set app. We already track progress — persist `setID → seconds` and seek on start. | S |
 | 2.2 | **Recently played** — history store + rail, pairs with 2.1 | Cheap once 2.1 exists; makes Home feel alive. | S |
-| 2.3 | **Search screen** per `DESIGN.md` §4.7 — full-screen cover, grouped results (Sets / DJs / Events), recent searches as chips | Closes the last designed-but-unbuilt screen from the spec. | M |
+| 2.3 | **Search screen** — full-screen cover, grouped results (Sets / DJs / Events), recent searches as chips | Closes the last designed-but-unbuilt screen. | M |
 | 2.4 | **App Intents + deep links** — `earlyhs://set/<id>`, "Play the latest set" Siri/Shortcuts/Spotlight | Modern-iOS portfolio signal; deep links are also the foundation for 2.5. | M |
 | 2.5 | **WidgetKit widget** — "Set of the day" / Continue listening on the Home Screen | High visible wow; exercises app groups + shared storage + timeline provider. | M |
 | 2.6 | **Sleep timer** — stop playback after N minutes / end of set | Classic music-app nicety; trivial with the playback controller. | S |
 | 2.7 | **Event browse** — tap an event chip → all sets from that brand (Defqon.1 page) | Natural catalogue navigation; reuses existing grid + filter machinery. | S |
-| 2.8 | **Metal audio-reactive visualizer** behind the player artwork | The `DESIGN.md` §3.8 extended-scope item — pure portfolio flex (Shaders/Metal). | L |
+| 2.8 | **Metal audio-reactive visualizer** behind the player artwork | Extended-scope item — pure portfolio flex (Shaders/Metal). | L |
 
 Suggested order: **2.1 → 2.2** (one arc), then **1** (the big one), then 2.3–2.5.
