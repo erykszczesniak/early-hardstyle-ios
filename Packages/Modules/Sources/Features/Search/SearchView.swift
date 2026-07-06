@@ -2,7 +2,7 @@ import Core
 import DesignSystem
 import SwiftUI
 
-/// The global search cover (the design spec §4.7): a large input on black, recent
+/// The global search cover: a large input on black, recent
 /// phrases as ghost chips, and results grouped into Sets / DJs / Events.
 struct SearchView: View {
     @Environment(\.dismiss) private var dismiss
