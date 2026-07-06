@@ -31,6 +31,7 @@ A native iOS catalogue of the golden era of early hardstyle (1999–2007): legen
 - **Explicit state machines** — every screen models `loading / loaded / empty / failed(retryable)`; the player models `idle / loading / buffering / playing / paused / ended / failed`
 - **Concurrency** — structured `async/await`, `@MainActor` UI, cancellation handled
 - **Telemetry** — privacy-respecting `Analytics` + `CrashReporter` abstractions (no-op/console defaults, no PII)
+- **Localization-ready** — user-facing copy lives in String Catalogs (`.xcstrings`) behind typed `L10n` accessors per module; ships English-only, and adding a language is a catalog-only change
 - The `.xcodeproj` is generated from `project.yml` and never committed
 
 ## Getting started
