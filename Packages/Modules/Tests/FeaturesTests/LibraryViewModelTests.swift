@@ -192,6 +192,20 @@ final class LibraryViewModelTests: XCTestCase {
         XCTAssertTrue(sut.jumpBackIn.isEmpty)
     }
 
+    func test_resumeQueue_startsWithResumedSetAndAppendsRelated() async {
+        let progress = SpyProgressStore()
+        progress.save(seconds: 600, duration: 3600, for: "a")
+        let sut = makeSUT(catalog: MockCatalogService.returning(makeCatalog()), progress: progress)
+        await sut.load()
+
+        guard let entry = sut.jumpBackIn.first else { return XCTFail("expected a resume entry") }
+        let queue = sut.resumeQueue(for: entry)
+
+        XCTAssertEqual(queue.first?.setID, "a", "the resumed set plays first")
+        XCTAssertGreaterThan(queue.count, 1, "related sets follow so next/previous work")
+        XCTAssertTrue(queue.dropFirst().contains { $0.setID == "b" })
+    }
+
     // MARK: Analytics
 
     func test_onAppear_tracksScreenViewAndLoads() async {

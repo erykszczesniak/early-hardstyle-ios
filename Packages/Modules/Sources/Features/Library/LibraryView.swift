@@ -144,7 +144,7 @@ public struct LibraryView: View {
                     HStack(alignment: .top, spacing: Spacing.cardGap) {
                         ForEach(entries) { entry in
                             ContinueCard(model: entry.card, fraction: entry.fraction) {
-                                playback.play([entry.nowPlaying])
+                                playback.play(viewModel.resumeQueue(for: entry))
                             }
                         }
                     }

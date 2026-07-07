@@ -97,7 +97,10 @@ public struct AppRootView: View {
                 .tag(Tab.saved)
                 .tabItem { Label(L10n.Tab.saved, systemImage: "heart") }
             }
-            .modifier(MiniPlayerAccessory(content: { accessoryMiniPlayer }))
+            .modifier(MiniPlayerAccessory(
+                isEnabled: playback.hasCurrent && !playback.isExpanded,
+                content: { accessoryMiniPlayer }
+            ))
 
             playerOverlay
         }
@@ -212,9 +215,12 @@ public struct AppRootView: View {
 
     /// iOS 26 mount point: the system accessory slot above the floating tab
     /// bar, which supplies its own Liquid Glass and keeps taps to itself.
+    /// Mounted with `isEnabled: false` while nothing plays (or the full player
+    /// covers the screen), so no empty glass capsule ever shows — the accessory
+    /// appears only once a track actually starts.
     @ViewBuilder
     private var accessoryMiniPlayer: some View {
-        if let nowPlaying = playback.nowPlaying, !playback.isExpanded {
+        if let nowPlaying = playback.nowPlaying {
             miniPlayerContent(for: nowPlaying, context: .accessory)
         }
     }
@@ -239,12 +245,20 @@ public struct AppRootView: View {
 }
 
 /// Mounts `content` as a `tabViewBottomAccessory` on iOS 26+; a no-op before
-/// (the legacy `safeAreaInset` dock handles those systems).
+/// (the legacy `safeAreaInset` dock handles those systems). `isEnabled` fully
+/// removes the accessory — the system draws its glass capsule even for empty
+/// content, so a boolean gate is the only way to hide it without rebuilding
+/// the `TabView` (which would reset per-tab navigation state).
 private struct MiniPlayerAccessory<Accessory: View>: ViewModifier {
+    let isEnabled: Bool
     @ViewBuilder let content: () -> Accessory
 
     func body(content base: Content) -> some View {
-        if #available(iOS 26.0, *) {
+        if #available(iOS 26.1, *) {
+            base.tabViewBottomAccessory(isEnabled: isEnabled, content: content)
+        } else if #available(iOS 26.0, *) {
+            // 26.0 has no `isEnabled` — the empty capsule can show while idle
+            // there, a cosmetic quirk fixed by the first point release.
             base.tabViewBottomAccessory(content: content)
         } else {
             base

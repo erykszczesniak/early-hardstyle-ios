@@ -112,6 +112,17 @@ public final class LibraryViewModel {
         }
     }
 
+    /// The play queue for resuming a "Jump back in" entry: the resumed set
+    /// first, then its related sets — the same shape Set Detail plays, so
+    /// next/previous and autoplay keep working from a resume.
+    public func resumeQueue(for entry: ResumeEntry) -> [NowPlaying] {
+        guard let set = catalogData.sets.first(where: { $0.id == entry.id }) else {
+            return [entry.nowPlaying]
+        }
+        return ([set] + SetDetailViewModel.related(to: set, in: catalogData))
+            .map { SetPresenter.nowPlaying(for: $0, in: catalogData) }
+    }
+
     /// The newest set, surfaced by the hero's "Play latest" action.
     public var latestSet: SetCardModel? {
         allSets.first
