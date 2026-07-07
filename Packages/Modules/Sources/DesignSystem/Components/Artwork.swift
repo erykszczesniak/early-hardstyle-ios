@@ -30,7 +30,12 @@ public struct Artwork: View {
         // image could blow past its slot — the DJ-detail row bug.)
         Color.clear
             .overlay {
-                if let image {
+                // Show the loaded image only when it belongs to the CURRENT url.
+                // `Artwork` keeps a stable identity across url changes (e.g. the
+                // persistent mini-player swapping sets), so without this guard
+                // the previous track's cover would flash for one frame before
+                // `.task` reloads — the image state outlives the url.
+                if let image, loadedURL == url {
                     image.resizable().scaledToFill()
                 } else {
                     placeholder
@@ -45,16 +50,16 @@ public struct Artwork: View {
     }
 
     private func load() async {
-        if loadedURL != url {
-            image = nil
-        }
-        guard image == nil, let url else { return }
+        guard let url else { return }
+        if image != nil, loadedURL == url { return } // already have this url's art
         for attempt in 1 ... 3 {
             if Task.isCancelled { return }
             let data = try? await URLSession.shared.data(from: url).0
             if let data, let loaded = UIImage(data: data) {
-                loadedURL = url
-                withAnimation(.easeOut(duration: 0.25)) { image = Image(uiImage: loaded) }
+                withAnimation(.easeOut(duration: 0.25)) {
+                    image = Image(uiImage: loaded)
+                    loadedURL = url
+                }
                 return
             }
             // Transient failure — back off briefly, then try again.

@@ -16,6 +16,17 @@ public final class OfficialYouTubePlayer: NSObject, PlaybackEngine, VideoSurface
 
     private let playerView = YTPlayerView()
     private var cachedDuration: Double = 0
+    /// The iframe API silently drops `playVideo()` while the player is still
+    /// loading or the video is not yet cued — on a cold WKWebView start that
+    /// window is seconds long, which used to eat both autoplay and the user's
+    /// taps. So `play()` records intent, and the delegate replays it once the
+    /// player reports ready/cued.
+    private var pendingPlay = false
+    /// Bounded warmup re-issues of `playVideo()`, reset on every fresh intent —
+    /// enough to ride out a cold WKWebView, capped so a genuinely unplayable
+    /// video can never spin.
+    private var playRetries = 0
+    private static let maxPlayRetries = 8
 
     public var surface: AnyView {
         AnyView(PlayerSurfaceView(playerView: playerView))
@@ -35,6 +46,8 @@ public final class OfficialYouTubePlayer: NSObject, PlaybackEngine, VideoSurface
             return
         }
         cachedDuration = 0
+        pendingPlay = false
+        playRetries = 0
         var vars: [String: Any] = [
             "playsinline": 1,
             "controls": 0,
@@ -47,11 +60,21 @@ public final class OfficialYouTubePlayer: NSObject, PlaybackEngine, VideoSurface
     }
 
     public func play() {
-        playerView.playVideo()
+        pendingPlay = true
+        playRetries = 0
+        attemptPlay()
     }
 
     public func pause() {
+        pendingPlay = false
         playerView.pauseVideo()
+    }
+
+    /// Issues `playVideo()` and, while the player is still cold, keeps the
+    /// intent so warmup state callbacks can re-issue it (see `didChangeTo`).
+    private func attemptPlay() {
+        guard pendingPlay else { return }
+        playerView.playVideo()
     }
 
     public func seek(toFraction fraction: Double) {
@@ -69,6 +92,8 @@ public final class OfficialYouTubePlayer: NSObject, PlaybackEngine, VideoSurface
         MainActor.assumeIsolated {
             refreshDuration()
             onEvent?(.ready)
+            // If a play intent arrived before the player was ready, honour it now.
+            attemptPlay()
         }
     }
 
@@ -78,12 +103,21 @@ public final class OfficialYouTubePlayer: NSObject, PlaybackEngine, VideoSurface
             case .buffering:
                 onEvent?(.buffering)
             case .playing:
+                pendingPlay = false
+                playRetries = 0
                 refreshDuration()
                 onEvent?(.playing)
             case .paused:
                 onEvent?(.paused)
             case .ended:
                 onEvent?(.ended)
+            case .cued, .unstarted:
+                // The player finished cueing but did not start — on a cold start
+                // the earlier playVideo() was dropped. Re-issue it (bounded).
+                if pendingPlay, playRetries < Self.maxPlayRetries {
+                    playRetries += 1
+                    attemptPlay()
+                }
             default:
                 break
             }
