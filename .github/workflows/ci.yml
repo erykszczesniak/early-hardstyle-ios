@@ -28,7 +28,10 @@ jobs:
 
   build-test:
     name: Build & Test
-    runs-on: macos-15
+    # macos-26: the Liquid Glass layer (glassEffect/GlassEffectContainer/
+    # tabViewBottomAccessory) needs the iOS 26 SDK — macos-15's Xcode 16
+    # cannot even parse those symbols (#available is runtime-only).
+    runs-on: macos-26
     steps:
       - uses: actions/checkout@v4
 
