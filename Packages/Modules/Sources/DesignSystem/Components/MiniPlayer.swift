@@ -18,21 +18,33 @@ public struct MiniPlayerModel: Equatable, Sendable {
 }
 
 /// The mini-player docked above the tab bar: 40pt artwork, title/subtitle,
-/// play/pause and save. Rendered on `.ultraThinMaterial`, with the now-playing
-/// pulse glow while playing.
+/// play/pause and save. Rendered on Liquid Glass, with the now-playing pulse
+/// glow while playing.
 public struct MiniPlayer: View {
+    /// Where the mini-player is mounted, which decides who draws its glass.
+    public enum Context: Sendable {
+        /// Free-floating (legacy `safeAreaInset` dock) — draws its own glass.
+        case docked
+        /// Inside a `tabViewBottomAccessory` — the system already wraps the
+        /// accessory in Liquid Glass, so the content stays transparent.
+        case accessory
+    }
+
     private let model: MiniPlayerModel
+    private let context: Context
     private let onPlayPause: () -> Void
     private let onToggleSave: () -> Void
     private let onOpen: () -> Void
 
     public init(
         model: MiniPlayerModel,
+        context: Context = .docked,
         onPlayPause: @escaping () -> Void,
         onToggleSave: @escaping () -> Void,
         onOpen: @escaping () -> Void
     ) {
         self.model = model
+        self.context = context
         self.onPlayPause = onPlayPause
         self.onToggleSave = onToggleSave
         self.onOpen = onOpen
@@ -75,12 +87,22 @@ public struct MiniPlayer: View {
         }
         .padding(.horizontal, Spacing.md)
         .padding(.vertical, Spacing.sm)
-        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: Radius.miniPlayer, style: .continuous))
-        .overlay(
-            RoundedRectangle(cornerRadius: Radius.miniPlayer, style: .continuous)
-                .strokeBorder(Palette.strokeSubtle, lineWidth: 1)
-        )
+        .modifier(MiniPlayerSurface(context: context))
         .pulseGlow(isActive: model.isPlaying)
+    }
+}
+
+/// Docked draws its own glass; accessory stays bare (the system supplies it).
+private struct MiniPlayerSurface: ViewModifier {
+    let context: MiniPlayer.Context
+
+    func body(content: Content) -> some View {
+        switch context {
+        case .docked:
+            content.liquidGlass(in: RoundedRectangle(cornerRadius: Radius.miniPlayer, style: .continuous))
+        case .accessory:
+            content
+        }
     }
 }
 

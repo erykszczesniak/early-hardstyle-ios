@@ -66,13 +66,15 @@ public struct SavedView: View {
 
     private var grid: some View {
         ScrollView {
-            LazyVGrid(columns: columns, spacing: Spacing.cardGap) {
-                ForEach(viewModel.sets) { set in
-                    SetCard(
-                        model: set,
-                        onOpen: { selectedSet = set },
-                        onToggleSave: { Task { await viewModel.toggleSave(set.id) } }
-                    )
+            GlassGroup(spacing: Spacing.cardGap) {
+                LazyVGrid(columns: columns, spacing: Spacing.cardGap) {
+                    ForEach(viewModel.sets) { set in
+                        SetCard(
+                            model: set,
+                            onOpen: { selectedSet = set },
+                            onToggleSave: { Task { await viewModel.toggleSave(set.id) } }
+                        )
+                    }
                 }
             }
             .padding(Spacing.gutter)

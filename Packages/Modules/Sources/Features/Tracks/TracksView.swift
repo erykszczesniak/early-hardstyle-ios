@@ -52,9 +52,11 @@ public struct TracksView: View {
         ScrollView {
             VStack(spacing: Spacing.lg) {
                 sortPicker
-                LazyVStack(spacing: Spacing.cardGap) {
-                    ForEach(viewModel.tracks) { track in
-                        TrackRow(model: track) { selectedTrack = track }
+                GlassGroup(spacing: Spacing.cardGap) {
+                    LazyVStack(spacing: Spacing.cardGap) {
+                        ForEach(viewModel.tracks) { track in
+                            TrackRow(model: track) { selectedTrack = track }
+                        }
                     }
                 }
             }
