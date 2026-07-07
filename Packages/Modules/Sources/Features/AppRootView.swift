@@ -97,6 +97,7 @@ public struct AppRootView: View {
                 .tag(Tab.saved)
                 .tabItem { Label(L10n.Tab.saved, systemImage: "heart") }
             }
+            .modifier(MiniPlayerAccessory(content: { accessoryMiniPlayer }))
 
             playerOverlay
         }
@@ -193,25 +194,60 @@ public struct AppRootView: View {
         #endif
     }
 
+    /// Legacy dock (iOS 17–25): the mini-player rides a `safeAreaInset` above
+    /// the tab bar. On iOS 26 the floating Liquid Glass tab bar overlaps that
+    /// inset — taps on play/pause fell through and switched tabs — so there the
+    /// mini-player mounts as a `tabViewBottomAccessory` instead (see
+    /// `accessoryMiniPlayer`) and this renders nothing.
     @ViewBuilder
     private var miniPlayer: some View {
+        if #unavailable(iOS 26.0) {
+            if let nowPlaying = playback.nowPlaying, !playback.isExpanded {
+                miniPlayerContent(for: nowPlaying, context: .docked)
+                    .padding(.horizontal, Spacing.md)
+                    .padding(.bottom, Spacing.xs)
+            }
+        }
+    }
+
+    /// iOS 26 mount point: the system accessory slot above the floating tab
+    /// bar, which supplies its own Liquid Glass and keeps taps to itself.
+    @ViewBuilder
+    private var accessoryMiniPlayer: some View {
         if let nowPlaying = playback.nowPlaying, !playback.isExpanded {
-            MiniPlayer(
-                model: MiniPlayerModel(
-                    title: nowPlaying.title,
-                    subtitle: nowPlaying.subtitle,
-                    thumbnailURL: nowPlaying.artworkURL,
-                    isPlaying: playback.isPlaying,
-                    isSaved: favourites.isFavourite(nowPlaying.setID)
-                ),
-                onPlayPause: { playback.togglePlayPause() },
-                onToggleSave: { Task { await favourites.toggle(nowPlaying.setID) } },
-                onOpen: { playback.expand() }
-            )
-            .padding(.horizontal, Spacing.md)
-            .padding(.bottom, Spacing.xs)
-            .accessibilityElement(children: .contain)
-            .accessibilityIdentifier(A11yID.miniPlayer)
+            miniPlayerContent(for: nowPlaying, context: .accessory)
+        }
+    }
+
+    private func miniPlayerContent(for nowPlaying: NowPlaying, context: MiniPlayer.Context) -> some View {
+        MiniPlayer(
+            model: MiniPlayerModel(
+                title: nowPlaying.title,
+                subtitle: nowPlaying.subtitle,
+                thumbnailURL: nowPlaying.artworkURL,
+                isPlaying: playback.isPlaying,
+                isSaved: favourites.isFavourite(nowPlaying.setID)
+            ),
+            context: context,
+            onPlayPause: { playback.togglePlayPause() },
+            onToggleSave: { Task { await favourites.toggle(nowPlaying.setID) } },
+            onOpen: { playback.expand() }
+        )
+        .accessibilityElement(children: .contain)
+        .accessibilityIdentifier(A11yID.miniPlayer)
+    }
+}
+
+/// Mounts `content` as a `tabViewBottomAccessory` on iOS 26+; a no-op before
+/// (the legacy `safeAreaInset` dock handles those systems).
+private struct MiniPlayerAccessory<Accessory: View>: ViewModifier {
+    @ViewBuilder let content: () -> Accessory
+
+    func body(content base: Content) -> some View {
+        if #available(iOS 26.0, *) {
+            base.tabViewBottomAccessory(content: content)
+        } else {
+            base
         }
     }
 }

@@ -114,13 +114,15 @@ public struct LibraryView: View {
                     )
                     .padding(.top, Spacing.xxl)
                 } else {
-                    LazyVGrid(columns: columns, spacing: Spacing.cardGap) {
-                        ForEach(viewModel.visibleSets) { set in
-                            SetCard(
-                                model: set,
-                                onOpen: { selectedSet = set },
-                                onToggleSave: { Task { await viewModel.toggleSave(set.id) } }
-                            )
+                    GlassGroup(spacing: Spacing.cardGap) {
+                        LazyVGrid(columns: columns, spacing: Spacing.cardGap) {
+                            ForEach(viewModel.visibleSets) { set in
+                                SetCard(
+                                    model: set,
+                                    onOpen: { selectedSet = set },
+                                    onToggleSave: { Task { await viewModel.toggleSave(set.id) } }
+                                )
+                            }
                         }
                     }
                     .padding(.horizontal, Spacing.gutter)

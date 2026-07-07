@@ -61,9 +61,11 @@ public struct DJsView: View {
                 )
                 .padding(.top, Spacing.xxl)
             } else {
-                LazyVGrid(columns: columns, spacing: Spacing.cardGap) {
-                    ForEach(viewModel.visibleDJs) { card in
-                        DJCard(model: card) { selectedDJ = card }
+                GlassGroup(spacing: Spacing.cardGap) {
+                    LazyVGrid(columns: columns, spacing: Spacing.cardGap) {
+                        ForEach(viewModel.visibleDJs) { card in
+                            DJCard(model: card) { selectedDJ = card }
+                        }
                     }
                 }
                 .padding(Spacing.gutter)

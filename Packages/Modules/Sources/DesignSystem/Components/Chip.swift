@@ -30,11 +30,7 @@ public struct Chip: View {
         .foregroundStyle(foreground)
         .padding(.horizontal, Spacing.md)
         .padding(.vertical, Spacing.sm)
-        .background(background, in: RoundedRectangle(cornerRadius: Radius.chip, style: .continuous))
-        .overlay(
-            RoundedRectangle(cornerRadius: Radius.chip, style: .continuous)
-                .strokeBorder(Palette.strokeSubtle, lineWidth: style == .ghost ? 1 : 0)
-        )
+        .modifier(ChipSurface(style: style))
     }
 
     private var foreground: Color {
@@ -43,11 +39,23 @@ public struct Chip: View {
         case .filledBlue: Palette.textPrimary
         }
     }
+}
 
-    private var background: Color {
+/// The chip's surface: ghost chips are a bare hairline outline; active chips
+/// ride Liquid Glass tinted electric blue.
+private struct ChipSurface: ViewModifier {
+    let style: Chip.Style
+
+    private var shape: RoundedRectangle {
+        RoundedRectangle(cornerRadius: Radius.chip, style: .continuous)
+    }
+
+    func body(content: Content) -> some View {
         switch style {
-        case .ghost: .clear
-        case .filledBlue: Palette.accentBlue
+        case .ghost:
+            content.overlay(shape.strokeBorder(Palette.strokeSubtle, lineWidth: 1))
+        case .filledBlue:
+            content.liquidGlass(in: shape, tint: Palette.accentBlue)
         }
     }
 }

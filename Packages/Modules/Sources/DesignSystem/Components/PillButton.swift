@@ -48,35 +48,36 @@ private struct PillButtonStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
             .font(Typography.cardTitle)
-            .foregroundStyle(foreground)
+            .foregroundStyle(Palette.textPrimary)
             .padding(.horizontal, Spacing.xl)
             .frame(minHeight: 52)
-            .background(background(pressed: configuration.isPressed), in: shape)
-            .overlay(shape.strokeBorder(border, lineWidth: role == .secondary ? 1 : 0))
+            .modifier(PillSurface(role: role, pressed: configuration.isPressed))
             .opacity(configuration.isPressed && role == .secondary ? 0.7 : 1)
             .animation(.easeOut(duration: 0.12), value: configuration.isPressed)
     }
+}
+
+/// The pill's surface: the primary action rides interactive Liquid Glass tinted
+/// electric blue; the secondary stays a quiet stroke-only ghost.
+private struct PillSurface: ViewModifier {
+    let role: PillButton.Role
+    let pressed: Bool
 
     private var shape: RoundedRectangle {
         RoundedRectangle(cornerRadius: Radius.button, style: .continuous)
     }
 
-    private var foreground: Color {
+    func body(content: Content) -> some View {
         switch role {
-        case .primary: Palette.textPrimary
-        case .secondary: Palette.textPrimary
+        case .primary:
+            content.liquidGlass(
+                in: shape,
+                tint: pressed ? Palette.accentBlueDeep : Palette.accentBlue,
+                interactive: true
+            )
+        case .secondary:
+            content.overlay(shape.strokeBorder(Palette.strokeSubtle, lineWidth: 1))
         }
-    }
-
-    private func background(pressed: Bool) -> Color {
-        switch role {
-        case .primary: pressed ? Palette.accentBlueDeep : Palette.accentBlue
-        case .secondary: .clear
-        }
-    }
-
-    private var border: Color {
-        role == .secondary ? Palette.strokeSubtle : .clear
     }
 }
 

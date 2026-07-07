@@ -129,7 +129,9 @@ struct SearchView: View {
     private func group(_ title: String, @ViewBuilder content: () -> some View) -> some View {
         VStack(alignment: .leading, spacing: Spacing.md) {
             SectionHeader(title)
-            content()
+            GlassGroup(spacing: Spacing.cardGap) {
+                content()
+            }
         }
     }
 
@@ -159,13 +161,15 @@ struct SearchView: View {
 
     private func eventSets(_ event: Event) -> some View {
         ScrollView {
-            LazyVStack(spacing: Spacing.cardGap) {
-                ForEach(viewModel.sets(for: event)) { card in
-                    SetCardRow(
-                        model: card,
-                        onOpen: { selectedSet = card },
-                        onToggleSave: { Task { await viewModel.toggleSave(card.id) } }
-                    )
+            GlassGroup(spacing: Spacing.cardGap) {
+                LazyVStack(spacing: Spacing.cardGap) {
+                    ForEach(viewModel.sets(for: event)) { card in
+                        SetCardRow(
+                            model: card,
+                            onOpen: { selectedSet = card },
+                            onToggleSave: { Task { await viewModel.toggleSave(card.id) } }
+                        )
+                    }
                 }
             }
             .padding(Spacing.gutter)

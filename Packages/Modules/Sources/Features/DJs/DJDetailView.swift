@@ -14,13 +14,15 @@ struct DJDetailView: View {
         ScrollView {
             VStack(alignment: .leading, spacing: Spacing.xl) {
                 header
-                LazyVStack(spacing: Spacing.cardGap) {
-                    ForEach(viewModel.sets) { set in
-                        SetCardRow(
-                            model: set,
-                            onOpen: { selectedSet = set },
-                            onToggleSave: { Task { await viewModel.toggleSave(set.id) } }
-                        )
+                GlassGroup(spacing: Spacing.cardGap) {
+                    LazyVStack(spacing: Spacing.cardGap) {
+                        ForEach(viewModel.sets) { set in
+                            SetCardRow(
+                                model: set,
+                                onOpen: { selectedSet = set },
+                                onToggleSave: { Task { await viewModel.toggleSave(set.id) } }
+                            )
+                        }
                     }
                 }
             }
