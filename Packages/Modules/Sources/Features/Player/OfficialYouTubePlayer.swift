@@ -46,12 +46,17 @@ public final class OfficialYouTubePlayer: NSObject, PlaybackEngine, VideoSurface
             return
         }
         cachedDuration = 0
-        pendingPlay = false
+        pendingPlay = true
         playRetries = 0
+        // `autoplay: 1` makes the iframe start playback itself the instant it is
+        // ready, instead of us depending on an external `playVideo()` landing
+        // during the fragile cold-WKWebView warmup window (the "several taps to
+        // start" bug). The retry path below stays as a belt-and-suspenders.
         var vars: [String: Any] = [
             "playsinline": 1,
             "controls": 0,
-            "rel": 0
+            "rel": 0,
+            "autoplay": 1
         ]
         if let seconds, seconds > 0 {
             vars["start"] = seconds
