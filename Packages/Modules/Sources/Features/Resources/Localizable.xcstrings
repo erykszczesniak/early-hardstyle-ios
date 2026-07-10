@@ -680,6 +680,17 @@
         }
       }
     },
+    "setDetail.tracklist": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tracklist"
+          }
+        }
+      }
+    },
     "tab.djs": {
       "extractionState": "manual",
       "localizations": {

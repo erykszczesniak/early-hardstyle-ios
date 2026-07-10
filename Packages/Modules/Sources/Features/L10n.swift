@@ -132,6 +132,7 @@ enum L10n {
     enum SetDetail {
         static let play = String(localized: "setDetail.play", defaultValue: "Play", bundle: .module)
         static let related = String(localized: "setDetail.related", defaultValue: "Related sets", bundle: .module)
+        static let tracklist = String(localized: "setDetail.tracklist", defaultValue: "Tracklist", bundle: .module)
         static let playerComingSoon = String(
             localized: "setDetail.playerComingSoon", defaultValue: "Player coming soon", bundle: .module
         )

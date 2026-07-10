@@ -15,7 +15,8 @@ public struct HardstyleSet: Identifiable, Hashable, Codable, Sendable {
     public let djID: Dj.ID
     /// Event brand the set was played at.
     public let eventID: Event.ID
-    /// Edition year (1999–2007 for the golden era).
+    /// Edition year (1999–2007 for golden-era event sets; later for
+    /// channel-curated classics mixes, which carry their upload year).
     public let year: Int
     /// Runtime in whole seconds.
     public let durationSeconds: Int
@@ -30,6 +31,9 @@ public struct HardstyleSet: Identifiable, Hashable, Codable, Sendable {
     /// playback uses the native audio engine (background/lock-screen capable)
     /// instead of the YouTube embed.
     public let audioSource: URL?
+    /// The set's ordered tracklist, when one is known. Optional so older
+    /// catalogue payloads keep decoding; read via ``tracks``.
+    public let tracklist: [SetTrack]?
 
     public init(
         id: String,
@@ -41,7 +45,8 @@ public struct HardstyleSet: Identifiable, Hashable, Codable, Sendable {
         youtubeID: String,
         genreIDs: [Genre.ID] = [],
         bpm: Int? = nil,
-        audioSource: URL? = nil
+        audioSource: URL? = nil,
+        tracklist: [SetTrack]? = nil
     ) {
         self.id = id
         self.title = title
@@ -53,6 +58,12 @@ public struct HardstyleSet: Identifiable, Hashable, Codable, Sendable {
         self.genreIDs = genreIDs
         self.bpm = bpm
         self.audioSource = audioSource
+        self.tracklist = tracklist
+    }
+
+    /// The tracklist, empty when none is known.
+    public var tracks: [SetTrack] {
+        tracklist ?? []
     }
 
     /// Artwork URL derived from the YouTube video id — we never copy or
