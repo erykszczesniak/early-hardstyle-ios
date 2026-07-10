@@ -44,6 +44,10 @@ public struct LibraryView: View {
                 .presentationDetents([.medium, .large])
         }
         .task { await viewModel.onAppear() }
+        // Saved progress lives outside observation — nudge the rail (and the
+        // hero's resume target) whenever playback state changes.
+        .onChange(of: playback.isExpanded) { _, _ in viewModel.refreshProgress() }
+        .onChange(of: playback.nowPlaying?.setID) { _, _ in viewModel.refreshProgress() }
     }
 
     @ToolbarContentBuilder
@@ -168,9 +172,9 @@ public struct LibraryView: View {
                 Text(L10n.Library.heroMeta)
                     .font(Typography.meta)
                     .foregroundStyle(Palette.textSecondary)
-                if let latest = viewModel.latestSet {
+                if let hero = viewModel.heroSet {
                     PillButton(L10n.Library.heroPlay, systemImage: "play.fill", role: .primary) {
-                        selectedSet = latest
+                        selectedSet = hero
                     }
                     .padding(.top, Spacing.xs)
                 }

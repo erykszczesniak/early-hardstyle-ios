@@ -128,7 +128,7 @@ public enum SeedCatalog {
     private static let sets: [HardstyleSet] = [
         set(
             "hh-home",
-            "Headhunterz — The Home of Hardstyle",
+            "Headhunterz - The Home of Hardstyle",
             "headhunterz",
             "defqon-1",
             2007,
@@ -139,7 +139,7 @@ public enum SeedCatalog {
         ),
         set(
             "hh-hws",
-            "Headhunterz — HARD with STYLE",
+            "Headhunterz - HARD with STYLE",
             "headhunterz",
             "in-qontrol",
             2007,
@@ -150,7 +150,7 @@ public enum SeedCatalog {
         ),
         set(
             "hh-destiny",
-            "Headhunterz — Destiny",
+            "Headhunterz - Destiny",
             "headhunterz",
             "qlimax",
             2007,
@@ -161,7 +161,7 @@ public enum SeedCatalog {
         ),
         set(
             "hh-down",
-            "Headhunterz & Wildstylez — Down With The Bassdrum",
+            "Headhunterz & Wildstylez - Down With The Bassdrum",
             "headhunterz",
             "defqon-1",
             2007,
@@ -172,7 +172,7 @@ public enum SeedCatalog {
         ),
         set(
             "stk-early",
-            "Showtek — Best of Early Hardstyle",
+            "Showtek - Best of Early Hardstyle",
             "showtek",
             "sensation-black",
             2004,
@@ -183,7 +183,7 @@ public enum SeedCatalog {
         ),
         set(
             "stk-old",
-            "Showtek — Old Hardstyle Times",
+            "Showtek - Old Hardstyle Times",
             "showtek",
             "mysteryland",
             2003,
@@ -194,7 +194,7 @@ public enum SeedCatalog {
         ),
         set(
             "stk-dear",
-            "Showtek — Dear Hardstyle",
+            "Showtek - Dear Hardstyle",
             "showtek",
             "defqon-1",
             2007,
@@ -205,7 +205,7 @@ public enum SeedCatalog {
         ),
         set(
             "stk-hardcore",
-            "Showtek — Do You Like It Hardcore",
+            "Showtek - Do You Like It Hardcore",
             "showtek",
             "q-base",
             2005,
@@ -214,7 +214,7 @@ public enum SeedCatalog {
             ["raw", "early-hardstyle"],
             bpm: 148
         ),
-        set("tb-rage", "Technoboy — Rage", "technoboy", "qlimax", 2007, 3300, "f3UGKYFv4dE", ["nu-style"], bpm: 150),
+        set("tb-rage", "Technoboy - Rage", "technoboy", "qlimax", 2007, 3300, "f3UGKYFv4dE", ["nu-style"], bpm: 150),
         set(
             "ktrx-hardventure-technoboy-remix",
             "K-Traxx - Hardventure (Technoboy Remix)",
@@ -228,7 +228,7 @@ public enum SeedCatalog {
         ),
         set(
             "tb-rage-live",
-            "Technoboy — Rage (Live Edit)",
+            "Technoboy - Rage (Live Edit)",
             "technoboy",
             "decibel",
             2006,
@@ -239,7 +239,7 @@ public enum SeedCatalog {
         ),
         set(
             "tp-classics",
-            "The Prophet — Welcome To The Classics",
+            "The Prophet - Welcome To The Classics",
             "the-prophet",
             "in-qontrol",
             2005,
@@ -250,7 +250,7 @@ public enum SeedCatalog {
         ),
         set(
             "tp-back",
-            "The Prophet — Back In Time",
+            "The Prophet - Back In Time",
             "the-prophet",
             "qlimax",
             2004,
@@ -261,7 +261,7 @@ public enum SeedCatalog {
         ),
         set(
             "tp-listen",
-            "The Prophet — Listen To Your Heart",
+            "The Prophet - Listen To Your Heart",
             "the-prophet",
             "sensation-black",
             2006,
@@ -272,7 +272,7 @@ public enum SeedCatalog {
         ),
         set(
             "tp-creatures",
-            "The Prophet — Creatures Of The Night",
+            "The Prophet - Creatures Of The Night",
             "the-prophet",
             "q-base",
             2005,
@@ -283,7 +283,7 @@ public enum SeedCatalog {
         ),
         set(
             "bh-lose",
-            "Brennan Heart & Wildstylez — Lose My Mind",
+            "Brennan Heart & Wildstylez - Lose My Mind",
             "brennan-heart",
             "defqon-1",
             2007,
@@ -294,7 +294,7 @@ public enum SeedCatalog {
         ),
         set(
             "wsz-summer",
-            "Wildstylez — Year Of Summer",
+            "Wildstylez - Year Of Summer",
             "wildstylez",
             "mysteryland",
             2007,
@@ -305,7 +305,7 @@ public enum SeedCatalog {
         ),
         set(
             "alu-voodoo",
-            "A-lusion — Voodoo",
+            "A-lusion - Voodoo",
             "a-lusion",
             "decibel",
             2006,

@@ -100,9 +100,22 @@ public final class LibraryViewModel {
         }
     }
 
+    /// Bumped whenever saved playback progress may have changed (collapsing
+    /// the player, switching tracks). The progress store itself is not
+    /// observable, so reading this in `jumpBackIn` is what makes SwiftUI
+    /// re-render the rail — without it the just-played set only appeared
+    /// after an unrelated re-render or an app relaunch.
+    private var progressVersion = 0
+
+    /// Call when playback state changed so the rail re-reads saved progress.
+    public func refreshProgress() {
+        progressVersion += 1
+    }
+
     /// Partially-listened sets, most recent first — the "Jump back in" rail.
     public var jumpBackIn: [ResumeEntry] {
-        progress.recent(limit: 6).compactMap { entry in
+        _ = progressVersion // observable dependency; see `refreshProgress`
+        return progress.recent(limit: 6).compactMap { entry in
             guard let set = catalogData.sets.first(where: { $0.id == entry.id }) else { return nil }
             return ResumeEntry(
                 card: SetPresenter.card(for: set, in: catalogData, isSaved: favourites.isFavourite(set.id)),
@@ -126,6 +139,13 @@ public final class LibraryViewModel {
     /// The newest set, surfaced by the hero's "Play latest" action.
     public var latestSet: SetCardModel? {
         allSets.first
+    }
+
+    /// What the hero's "Play latest" opens: the set the listener most recently
+    /// played (so the button continues their session), falling back to the
+    /// newest set in the catalogue when nothing has been played yet.
+    public var heroSet: SetCardModel? {
+        jumpBackIn.first?.card ?? latestSet
     }
 
     public func onAppear() async {
