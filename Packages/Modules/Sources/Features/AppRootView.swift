@@ -105,7 +105,10 @@ public struct AppRootView: View {
             playerOverlay
         }
         .environment(playback)
-        .task { await favourites.load() }
+        .task {
+            WebKitPrewarm.run()
+            await favourites.load()
+        }
         .onChange(of: scenePhase) { _, phase in
             switch phase {
             case .background:
