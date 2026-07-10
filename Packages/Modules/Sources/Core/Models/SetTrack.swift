@@ -12,7 +12,9 @@ public struct SetTrack: Identifiable, Hashable, Codable, Sendable {
     public let startSeconds: Int?
 
     /// Tracks are unique by position within their set.
-    public var id: Int { number }
+    public var id: Int {
+        number
+    }
 
     public init(number: Int, title: String, startSeconds: Int? = nil) {
         self.number = number
