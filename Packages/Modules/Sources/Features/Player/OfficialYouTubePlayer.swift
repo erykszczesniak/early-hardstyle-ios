@@ -10,23 +10,38 @@ import YouTubeiOSPlayerHelper
 ///
 /// Playback still happens inside YouTube's own embedded player — no media is
 /// ripped or self-hosted, per project rules.
+///
+/// ## Cold-start strategy
+/// A cold WKWebView (first playback after launch) takes seconds to spawn its
+/// WebContent/GPU processes, and during that window the iframe API silently
+/// drops `playVideo()` — and may not even deliver the state callbacks a
+/// callback-driven retry would hook onto. So starting playback is belt, braces
+/// AND a watchdog:
+/// 1. `autoplay: 1` — the iframe starts itself the instant it is ready.
+/// 2. The web view load is deferred one runloop tick so SwiftUI can mount the
+///    player UI first — the tap responds instantly instead of freezing the
+///    screen for the WKWebView spawn.
+/// 3. A time-based watchdog re-issues `playVideo()` every 700 ms while a play
+///    intent is unfulfilled (bounded to ~10 s), independent of any callback
+///    arriving. `playVideo()` on an already-playing video is a no-op, so the
+///    loop is harmless when racing the autoplay.
 @MainActor
 public final class OfficialYouTubePlayer: NSObject, PlaybackEngine, VideoSurfaceProviding, YTPlayerViewDelegate {
     public var onEvent: ((PlaybackEvent) -> Void)?
 
     private let playerView = YTPlayerView()
     private var cachedDuration: Double = 0
-    /// The iframe API silently drops `playVideo()` while the player is still
-    /// loading or the video is not yet cued — on a cold WKWebView start that
-    /// window is seconds long, which used to eat both autoplay and the user's
-    /// taps. So `play()` records intent, and the delegate replays it once the
-    /// player reports ready/cued.
+    /// True while the user (or autoplay) wants playback that has not started
+    /// yet. Cleared by `.playing`, a user pause, or a player error.
     private var pendingPlay = false
-    /// Bounded warmup re-issues of `playVideo()`, reset on every fresh intent —
-    /// enough to ride out a cold WKWebView, capped so a genuinely unplayable
-    /// video can never spin.
-    private var playRetries = 0
-    private static let maxPlayRetries = 8
+    /// The watchdog re-issuing `playVideo()` while `pendingPlay` holds.
+    private var playWatchdog: Task<Void, Never>?
+    /// Invalidates deferred loads that were superseded by a newer `load`.
+    private var loadGeneration = 0
+    /// True between a `load()` call and its deferred page replacement: any
+    /// delegate event arriving then comes from the SUPERSEDED video and must
+    /// not reach the new track's view model.
+    private var suppressStaleEvents = false
 
     public var surface: AnyView {
         AnyView(PlayerSurfaceView(playerView: playerView))
@@ -47,11 +62,17 @@ public final class OfficialYouTubePlayer: NSObject, PlaybackEngine, VideoSurface
         }
         cachedDuration = 0
         pendingPlay = true
-        playRetries = 0
-        // `autoplay: 1` makes the iframe start playback itself the instant it is
-        // ready, instead of us depending on an external `playVideo()` landing
-        // during the fragile cold-WKWebView warmup window (the "several taps to
-        // start" bug). The retry path below stays as a belt-and-suspenders.
+        loadGeneration += 1
+        let generation = loadGeneration
+        // The engine is REUSED across tracks and `onEvent` is already rewired
+        // to the NEW track's view model — but the OLD video's page stays alive
+        // until the deferred load below replaces it. Silence its delegate
+        // events (a stale `.ended` would advance the queue again and wipe the
+        // new track's resume point; a stale `didPlayTime` would corrupt it)
+        // and stop the old watchdog from nudging the doomed page.
+        playWatchdog?.cancel()
+        suppressStaleEvents = true
+
         var vars: [String: Any] = [
             "playsinline": 1,
             "controls": 0,
@@ -61,30 +82,48 @@ public final class OfficialYouTubePlayer: NSObject, PlaybackEngine, VideoSurface
         if let seconds, seconds > 0 {
             vars["start"] = seconds
         }
-        playerView.load(withVideoId: videoID, playerVars: vars)
+        // One-tick deferral: let SwiftUI commit the player UI before the
+        // (potentially seconds-long, main-thread) cold WKWebView spawn runs.
+        Task { @MainActor [weak self] in
+            guard let self, generation == loadGeneration else { return }
+            // Replacing the page tears the old one down — events from here on
+            // belong to the new video.
+            suppressStaleEvents = false
+            playerView.load(withVideoId: videoID, playerVars: vars)
+            startPlayWatchdog()
+        }
     }
 
     public func play() {
         pendingPlay = true
-        playRetries = 0
-        attemptPlay()
+        playerView.playVideo()
+        startPlayWatchdog()
     }
 
     public func pause() {
         pendingPlay = false
+        playWatchdog?.cancel()
         playerView.pauseVideo()
-    }
-
-    /// Issues `playVideo()` and, while the player is still cold, keeps the
-    /// intent so warmup state callbacks can re-issue it (see `didChangeTo`).
-    private func attemptPlay() {
-        guard pendingPlay else { return }
-        playerView.playVideo()
     }
 
     public func seek(toFraction fraction: Double) {
         guard cachedDuration > 0 else { return }
         playerView.seek(toSeconds: Float(fraction * cachedDuration), allowSeekAhead: true)
+    }
+
+    /// Re-issues `playVideo()` on a timer until the play intent is fulfilled.
+    /// Purely time-based: a wedged/cold web view that never delivers state
+    /// callbacks still gets nudged, which the callback-driven retry this
+    /// replaces could not do.
+    private func startPlayWatchdog() {
+        playWatchdog?.cancel()
+        playWatchdog = Task { @MainActor [weak self] in
+            for _ in 0 ..< 15 {
+                try? await Task.sleep(for: .milliseconds(700))
+                guard !Task.isCancelled, let self, pendingPlay else { return }
+                playerView.playVideo()
+            }
+        }
     }
 
     // MARK: YTPlayerViewDelegate
@@ -95,21 +134,25 @@ public final class OfficialYouTubePlayer: NSObject, PlaybackEngine, VideoSurface
 
     public nonisolated func playerViewDidBecomeReady(_: YTPlayerView) {
         MainActor.assumeIsolated {
+            guard !suppressStaleEvents else { return }
             refreshDuration()
             onEvent?(.ready)
-            // If a play intent arrived before the player was ready, honour it now.
-            attemptPlay()
+            // If a play intent is still unfulfilled, honour it now.
+            if pendingPlay {
+                playerView.playVideo()
+            }
         }
     }
 
     public nonisolated func playerView(_: YTPlayerView, didChangeTo state: YTPlayerState) {
         MainActor.assumeIsolated {
+            guard !suppressStaleEvents else { return }
             switch state {
             case .buffering:
                 onEvent?(.buffering)
             case .playing:
                 pendingPlay = false
-                playRetries = 0
+                playWatchdog?.cancel()
                 refreshDuration()
                 onEvent?(.playing)
             case .paused:
@@ -117,11 +160,9 @@ public final class OfficialYouTubePlayer: NSObject, PlaybackEngine, VideoSurface
             case .ended:
                 onEvent?(.ended)
             case .cued, .unstarted:
-                // The player finished cueing but did not start — on a cold start
-                // the earlier playVideo() was dropped. Re-issue it (bounded).
-                if pendingPlay, playRetries < Self.maxPlayRetries {
-                    playRetries += 1
-                    attemptPlay()
+                // Finished cueing without starting — the autoplay was dropped.
+                if pendingPlay {
+                    playerView.playVideo()
                 }
             default:
                 break
@@ -131,12 +172,18 @@ public final class OfficialYouTubePlayer: NSObject, PlaybackEngine, VideoSurface
 
     public nonisolated func playerView(_: YTPlayerView, receivedError error: YTPlayerError) {
         MainActor.assumeIsolated {
+            guard !suppressStaleEvents else { return }
+            // A hard player error (unavailable, not embeddable) can't be fixed
+            // by nudging — stop the watchdog so it never hammers a dead video.
+            pendingPlay = false
+            playWatchdog?.cancel()
             onEvent?(.failed(Self.message(for: error)))
         }
     }
 
     public nonisolated func playerView(_: YTPlayerView, didPlayTime playTime: Float) {
         MainActor.assumeIsolated {
+            guard !suppressStaleEvents else { return }
             onEvent?(.progress(time: Double(playTime), duration: cachedDuration))
         }
     }

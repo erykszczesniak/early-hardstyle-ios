@@ -18,6 +18,12 @@ final class ManualPlayReproUITest: XCTestCase {
         XCTAssertTrue(play.waitForExistence(timeout: 5), "Set Detail Play button")
         play.tap()
 
+        // The player screen must open IMMEDIATELY on the first tap — the cold
+        // WKWebView spawn must never run before the UI responds (the "app
+        // hangs on Play" regression).
+        let close = app.buttons["Close player"].firstMatch
+        XCTAssertTrue(close.waitForExistence(timeout: 2.5), "player must open right away on the first tap")
+
         let playing = app.descendants(matching: .any)
             .matching(identifier: "player-state-playing").firstMatch
         let failed = app.descendants(matching: .any)
