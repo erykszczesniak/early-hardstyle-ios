@@ -11,7 +11,9 @@ final class ManualPlayReproUITest: XCTestCase {
         let app = XCUIApplication()
         app.launch()
 
-        app.buttons["Play latest"].firstMatch.tap()
+        // By id, not label — the hero reads "Play latest" or "Continue
+        // listening" depending on listening history.
+        app.buttons["hero-play-button"].firstMatch.tap()
 
         // Set Detail's primary Play.
         let play = app.buttons["Play"].firstMatch

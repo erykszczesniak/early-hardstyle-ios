@@ -13,7 +13,7 @@ final class DeepLinkUITest: XCTestCase {
         app.open(url)
 
         XCTAssertTrue(
-            app.staticTexts["Headhunterz — Destiny"].waitForExistence(timeout: 15),
+            app.staticTexts["Headhunterz - Destiny"].waitForExistence(timeout: 15),
             "the deep-linked set opens in the player"
         )
         let playing = app.descendants(matching: .any)

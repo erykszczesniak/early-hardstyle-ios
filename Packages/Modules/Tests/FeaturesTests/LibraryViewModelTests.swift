@@ -192,6 +192,38 @@ final class LibraryViewModelTests: XCTestCase {
         XCTAssertTrue(sut.jumpBackIn.isEmpty)
     }
 
+    func test_heroSet_isNewestWithoutProgress() async {
+        let sut = makeSUT(catalog: MockCatalogService.returning(makeCatalog()))
+        await sut.load()
+        XCTAssertEqual(sut.heroSet?.id, sut.latestSet?.id, "no listening history -> newest set")
+        XCTAssertEqual(sut.heroSet?.id, "b", "newest (2007) set leads the catalogue")
+        XCTAssertFalse(sut.heroResumes, "fresh catalogue -> 'Play latest' label")
+    }
+
+    func test_heroSet_isMostRecentlyPlayedWhenProgressExists() async {
+        let progress = SpyProgressStore()
+        progress.save(seconds: 600, duration: 3600, for: "a")
+        let sut = makeSUT(catalog: MockCatalogService.returning(makeCatalog()), progress: progress)
+        await sut.load()
+        XCTAssertEqual(sut.heroSet?.id, "a", "the hero continues the last-played set")
+        XCTAssertTrue(sut.heroResumes, "listening history -> 'Continue listening' label")
+    }
+
+    func test_refreshProgress_revealsEntriesSavedAfterLoad() async {
+        let progress = SpyProgressStore()
+        let sut = makeSUT(catalog: MockCatalogService.returning(makeCatalog()), progress: progress)
+        await sut.load()
+        XCTAssertTrue(sut.jumpBackIn.isEmpty)
+
+        // Playback saves progress outside the ViewModel; a refresh nudge must
+        // surface it on the rail (and retarget the hero) without a reload.
+        progress.save(seconds: 600, duration: 3600, for: "a")
+        sut.refreshProgress()
+
+        XCTAssertEqual(sut.jumpBackIn.map(\.card.id), ["a"])
+        XCTAssertEqual(sut.heroSet?.id, "a")
+    }
+
     func test_resumeQueue_startsWithResumedSetAndAppendsRelated() async {
         let progress = SpyProgressStore()
         progress.save(seconds: 600, duration: 3600, for: "a")
