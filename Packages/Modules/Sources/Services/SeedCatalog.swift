@@ -9,10 +9,10 @@ import Foundation
 /// here to update a set's video.
 public enum SeedCatalog {
     public static let catalog = Catalog(
-        djs: djs + mixDJs,
-        events: events + mixEvents,
+        djs: djs + mixDJs + singleDJs,
+        events: events + mixEvents + singleEvents,
         genres: genres,
-        sets: sets + mixSets
+        sets: sets + mixSets + singleTracks
     )
 
     /// Official YouTube thumbnail for one of the DJ's own seeded uploads —
@@ -221,7 +221,7 @@ public enum SeedCatalog {
             "ktraxx",
             "decibel",
             2002,
-            3300,
+            458,
             "WeASJbEZ5n8",
             ["nu-style"],
             bpm: 140

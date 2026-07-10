@@ -37,8 +37,9 @@ extension SeedCatalog {
             durationSeconds: 4343,
             youtubeID: "ByYn0U4mrtY",
             genreIDs: ["early-hardstyle", "reverse-bass"],
-            bpm: 150,
-            tracklist: energyMixTracklist
+            bpm: 150
+            // The known tracklist for this mix has no timestamps, so its tracks
+            // are seeded as standalone singles instead (SeedCatalog+SingleTracks).
         ),
         HardstyleSet(
             id: "hoc-oldschool-resurrection",
@@ -50,7 +51,7 @@ extension SeedCatalog {
             youtubeID: "MN--YMQ14Ik",
             genreIDs: ["early-hardstyle"],
             bpm: 148,
-            tracklist: oldschoolResurrectionTracklist
+            tracklist: resurrectionTracklist
         ),
         HardstyleSet(
             id: "ljq-oldschool-revolution",
@@ -62,7 +63,7 @@ extension SeedCatalog {
             youtubeID: "Lk_qIZsuknc",
             genreIDs: ["early-hardstyle"],
             bpm: 145,
-            tracklist: oldschoolRevolutionTracklist
+            tracklist: revolutionTracklist
         )
     ]
 
@@ -70,26 +71,7 @@ extension SeedCatalog {
         SetTrack(number: number, title: title, startSeconds: startSeconds)
     }
 
-    private static let energyMixTracklist: [SetTrack] = [
-        track(1, "Zatox & Zany - Oldskool", at: 0),
-        track(2, "The Prophet ft. Wildstylez - Cold Rockking (Gostosa Remix)", at: 3),
-        track(3, "Bruno Power - The Saint (DJ Yev Edit)", at: 230),
-        track(4, "Geck-O - Respect Mah Clap", at: 311),
-        track(5, "Showtek vs The Prophet & Heady - FTS (Imports Fuck This Summer Mashup)", at: 451),
-        track(6, "Francesco Zeta - What Is What (Reverse Fanatic Edit)", at: 696),
-        track(7, "Hardstyle Masterz - Les Phases", at: 799),
-        track(8, "Scope DJ - Rock Hypnotic Again (2011 Refixx)", at: 891),
-        track(9, "Zatox - Tanz Electrik (The R3bels Remix) (Reverse Fanatic Edit)", at: 1111),
-        track(10, "The Pitcher ft. MC Renegade - Smack", at: 1211),
-        track(11, "Air Teo - Keep da Fuck Bitch", at: 1388),
-        track(12, "Scope DJ - Lockdown (Bassleader Edit)", at: 1578),
-        track(13, "Francesco Zeta - Rock 'N' Rave", at: 1793),
-        track(14, "Josh & Wesz - Retrospect", at: 1958),
-        track(15, "Chain Reaction - Lellebel (Revisited)", at: 2171),
-        track(16, "Technoboy & The Prophet ft. Shayla - Psycho Ex (Hardstyle Masterz Remix)", at: 2335)
-    ]
-
-    private static let oldschoolResurrectionTracklist: [SetTrack] = [
+    private static let resurrectionTracklist: [SetTrack] = [
         track(1, "Intro: Headhunterz - Back In The Days", at: 0),
         track(2, "Blademasterz - MasterBlade", at: 47),
         track(3, "Zany - Skyhigh (TBY RMX)", at: 201),
@@ -113,36 +95,22 @@ extension SeedCatalog {
         track(21, "Walt - Let The Music Play", at: 3382)
     ]
 
-    private static let oldschoolRevolutionTracklist: [SetTrack] = [
-        track(1, "Cenoginerz - You Like The Bass (DJ Zany Remix)"),
-        track(2, "Erik Vee - Wildside (Club Mix)"),
-        track(3, "Hardheadz - Hardhouz Generation (DJ Dean Remix)"),
-        track(4, "DJ Serge & DJ Remy Martinez - Da Beat (Original Mix)"),
-        track(5, "Atlantic Wave - The Creation (Giada Remix)"),
-        track(6, "Le Brisc - I've Got The Power (Thomas Trouble Hardstyle Mix)"),
-        track(7, "K-Traxx - Hardventure (Technoboy Remix)"),
-        track(8, "The KGB's - The Disco Fan (Hardisco Mix)"),
-        track(9, "Psycho Hardstylers - The Game (Analogic Disturbance Mix)"),
-        track(10, "Tuneboy - Demolition (Technoboy Remix)"),
-        track(11, "DJ Neil - Go Ahead (Orange Mix)"),
-        track(12, "Player One - Insomnia (Asylum Mix)"),
-        track(13, "Luca Antolini - Life Is A Mistery"),
-        track(14, "Project Medusa vs Exor - Moonshine (Megara vs DJ Lee Dub Remix)"),
-        track(15, "Klubbingman - Highway To The Sky (Megara vs DJ Lee Remix)"),
-        track(16, "Apollo - Dance (Megara vs DJ Lee Remix)"),
-        track(17, "DJ Digress - The Frequency (DJ Dean Remix)"),
-        track(18, "DJ Dean - Protect Your Ears (Ballanation Mix)"),
-        track(19, "DJ Shredda - Chainsaw (Crow Remix)"),
-        track(20, "Uberdruck - Bloody Slut (The Crow Mix)"),
-        track(21, "Rayden - I Know Ur Waiting (Uberdruck Remix)"),
-        track(22, "Max B. Grant - Running (DJ Vortex Remix)"),
-        track(23, "Dopeman - Who Iz Your Daddy (Original Mix)"),
-        track(24, "High Voltage - Bombs Away (Original Mix)"),
-        track(25, "Adam & Glund - Bass Core (Mass In Orbit Remix)"),
-        track(26, "Kai Tracid - 4 Just 1 Day (Derb Remix)"),
-        track(27, "Daniele Mondello - Kamikaze (Activator Remix)"),
-        track(28, "Titanic Bros - Hypnotized (DJ Vortex & Arpas Dream Remix)"),
-        track(29, "Blutonium Boy - Make It Loud (Blutonium Boy Mix)"),
-        track(30, "Piero Zeta & Manuel Es - Warfare (DJ Mantes Rmx)")
+    private static let revolutionTracklist: [SetTrack] = [
+        track(1, "Zatox & Zany - Oldskool", at: 0),
+        track(2, "The Prophet ft. Wildstylez - Cold Rockking (Gostosa Remix)", at: 3),
+        track(3, "Bruno Power - The Saint (DJ Yev Edit)", at: 230),
+        track(4, "Geck-O - Respect Mah Clap", at: 311),
+        track(5, "Showtek vs The Prophet & Heady - FTS (Imports Fuck This Summer Mashup)", at: 451),
+        track(6, "Francesco Zeta - What Is What (Reverse Fanatic Edit)", at: 696),
+        track(7, "Hardstyle Masterz - Les Phases", at: 799),
+        track(8, "Scope DJ - Rock Hypnotic Again (2011 Refixx)", at: 891),
+        track(9, "Zatox - Tanz Electrik (The R3bels Remix) (Reverse Fanatic Edit)", at: 1111),
+        track(10, "The Pitcher ft. MC Renegade - Smack", at: 1211),
+        track(11, "Air Teo - Keep da Fuck Bitch", at: 1388),
+        track(12, "Scope DJ - Lockdown (Bassleader Edit)", at: 1578),
+        track(13, "Francesco Zeta - Rock 'N' Rave", at: 1793),
+        track(14, "Josh & Wesz - Retrospect", at: 1958),
+        track(15, "Chain Reaction - Lellebel (Revisited)", at: 2171),
+        track(16, "Technoboy & The Prophet ft. Shayla - Psycho Ex (Hardstyle Masterz Remix)", at: 2335)
     ]
 }

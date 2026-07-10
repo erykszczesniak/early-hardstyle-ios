@@ -68,15 +68,22 @@ final class SeedCatalogTests: XCTestCase {
     }
 
     func test_onlineMixes_areSeededWithTracklists() {
-        let mixIDs = ["hoc-energy-mix", "hoc-oldschool-resurrection", "ljq-oldschool-revolution"]
-        for id in mixIDs {
-            let set = catalog.sets.first { $0.id == id }
-            XCTAssertNotNil(set, "missing seeded mix \(id)")
-            XCTAssertFalse(set?.tracks.isEmpty ?? true, "mix \(id) has no tracklist")
-        }
-        XCTAssertEqual(catalog.sets.first { $0.id == "hoc-energy-mix" }?.tracks.count, 16)
+        // The energy mix's known tracklist has no timestamps — its tracks are
+        // seeded as standalone singles instead of a tracklist under the set.
+        XCTAssertEqual(catalog.sets.first { $0.id == "hoc-energy-mix" }?.tracks.count, 0)
         XCTAssertEqual(catalog.sets.first { $0.id == "hoc-oldschool-resurrection" }?.tracks.count, 21)
-        XCTAssertEqual(catalog.sets.first { $0.id == "ljq-oldschool-revolution" }?.tracks.count, 30)
+        XCTAssertEqual(catalog.sets.first { $0.id == "ljq-oldschool-revolution" }?.tracks.count, 16)
+    }
+
+    func test_classicSingles_areSeededAsIndividualTracks() {
+        let singles = catalog.sets.filter { $0.eventID == "classics" }
+        // 30-track energy-mix tracklist minus K-Traxx - Hardventure, which the
+        // main seed already carries as its own entry.
+        XCTAssertEqual(singles.count, 29)
+        for single in singles {
+            XCTAssertNil(single.tracklist, "single \(single.id) should not carry a tracklist")
+            XCTAssertLessThan(single.durationSeconds, 720, "single \(single.id) looks like a full mix")
+        }
     }
 
     func test_everySet_hasAnEraPlausibleBPM() {
