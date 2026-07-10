@@ -225,6 +225,32 @@ final class PlaybackControllerTests: XCTestCase {
         XCTAssertNil(engines.current?.loadedStartAt, "tracks without a stored position start from the top")
     }
 
+    func test_play_fromSeconds_overridesStoredResumePoint() {
+        let store = SpyProgressStore()
+        store.save(seconds: 600, duration: 3600, for: "a")
+        let (controller, engines) = makeSUT(progress: store)
+
+        controller.play([item("a"), item("b")], fromSeconds: 1211)
+
+        XCTAssertEqual(engines.current?.loadedStartAt, 1211, "a tracklist tap starts at the track's timestamp")
+
+        controller.advance()
+        XCTAssertNil(engines.current?.loadedStartAt, "the override is one-shot; queue navigation ignores it")
+
+        controller.goPrevious()
+        XCTAssertEqual(engines.current?.loadedStartAt, 600, "back on \"a\", the stored resume point applies again")
+    }
+
+    func test_play_fromSecondsZero_beatsResumePoint_soTrackOneStartsAtTheTop() {
+        let store = SpyProgressStore()
+        store.save(seconds: 600, duration: 3600, for: "a")
+        let (controller, engines) = makeSUT(progress: store)
+
+        controller.play([item("a")], fromSeconds: 0)
+
+        XCTAssertEqual(engines.current?.loadedStartAt, 0)
+    }
+
     func test_progressTicks_arePersisted() {
         let store = SpyProgressStore()
         let (controller, engines) = makeSUT(progress: store)

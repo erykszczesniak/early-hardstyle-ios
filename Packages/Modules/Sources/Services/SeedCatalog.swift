@@ -9,16 +9,16 @@ import Foundation
 /// here to update a set's video.
 public enum SeedCatalog {
     public static let catalog = Catalog(
-        djs: djs,
-        events: events,
+        djs: djs + mixDJs,
+        events: events + mixEvents,
         genres: genres,
-        sets: sets
+        sets: sets + mixSets
     )
 
     /// Official YouTube thumbnail for one of the DJ's own seeded uploads —
     /// avatars follow the same "official thumbnails only" rule as set artwork.
     /// Medium quality is natively 16:9, so it fills the circular crop cleanly.
-    private static func avatar(_ youtubeID: String) -> URL? {
+    static func avatar(_ youtubeID: String) -> URL? {
         YouTubeThumbnail.url(videoID: youtubeID, quality: .medium)
     }
 
