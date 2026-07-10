@@ -61,6 +61,11 @@ public final class SetDetailViewModel {
         favourites.isFavourite(hardstyleSet.id)
     }
 
+    /// The set's ordered tracklist, empty when none is known.
+    public var tracklist: [SetTrack] {
+        hardstyleSet.tracks
+    }
+
     /// The descriptor handed to the player.
     public var nowPlaying: NowPlaying {
         SetPresenter.nowPlaying(for: hardstyleSet, in: catalog)

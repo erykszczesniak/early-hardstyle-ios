@@ -119,6 +119,39 @@ final class ModelsTests: XCTestCase {
         XCTAssertEqual(restored.bpm, 150)
     }
 
+    func test_set_decodesWithoutTracklist_asEmpty() throws {
+        // Older payloads have no tracklist key — decoding must not break.
+        let set = try XCTUnwrap(decodeCatalog().sets.first)
+        XCTAssertNil(set.tracklist)
+        XCTAssertTrue(set.tracks.isEmpty)
+    }
+
+    func test_set_roundTripsTracklist() throws {
+        let set = HardstyleSet(
+            id: "x",
+            title: "X",
+            djID: "d",
+            eventID: "e",
+            year: 2004,
+            durationSeconds: 60,
+            youtubeID: "y",
+            tracklist: [
+                SetTrack(number: 1, title: "Zany - Pillz", startSeconds: 0),
+                SetTrack(number: 2, title: "Showtek - Puta Madre")
+            ]
+        )
+        let data = try JSONEncoder().encode(set)
+        let restored = try JSONDecoder().decode(HardstyleSet.self, from: data)
+        XCTAssertEqual(restored.tracks.map(\.title), ["Zany - Pillz", "Showtek - Puta Madre"])
+        XCTAssertEqual(restored.tracks.first?.startSeconds, 0)
+        XCTAssertNil(restored.tracks.last?.startSeconds)
+    }
+
+    func test_setTrack_formattedStart() {
+        XCTAssertEqual(SetTrack(number: 1, title: "T", startSeconds: 230).formattedStart, "3:50")
+        XCTAssertNil(SetTrack(number: 2, title: "T").formattedStart)
+    }
+
     func test_youtubeThumbnail_buildsBothQualities() {
         XCTAssertEqual(
             YouTubeThumbnail.url(videoID: "abc123XYZ_-"),

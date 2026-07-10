@@ -88,11 +88,14 @@ public final class PlaybackController {
     // MARK: Intent
 
     /// Replaces the queue with `items` and starts playback at `startAt`.
-    public func play(_ items: [NowPlaying], startAt: Int = 0) {
+    /// `fromSeconds` starts that item mid-way (e.g. a tracklist entry),
+    /// overriding any persisted resume point.
+    public func play(_ items: [NowPlaying], startAt: Int = 0, fromSeconds: Int? = nil) {
         guard !items.isEmpty else { return }
         AudioSession.activatePlayback()
         queue = items.map(QueueItem.init)
         index = min(max(startAt, 0), queue.count - 1)
+        startOverrideSeconds = fromSeconds
         startCurrent()
         isExpanded = true
     }
@@ -192,7 +195,14 @@ public final class PlaybackController {
 
     // MARK: Internals
 
+    /// One-shot start position for the next `startCurrent()` — set by
+    /// `play(_:startAt:fromSeconds:)`, consumed immediately so queue
+    /// navigation falls back to persisted resume points.
+    private var startOverrideSeconds: Int?
+
     private func startCurrent() {
+        let startOverride = startOverrideSeconds
+        startOverrideSeconds = nil
         guard queue.indices.contains(index) else {
             current = nil
             return
@@ -210,7 +220,7 @@ public final class PlaybackController {
             nowPlaying: item,
             player: engine,
             analytics: analytics,
-            resumeFrom: progress.position(for: item.setID)?.seconds
+            resumeFrom: startOverride ?? progress.position(for: item.setID)?.seconds
         )
         viewModel.onPlaybackEnded = { [weak self] in
             self?.progress.clear(for: item.setID) // finished → restart from the top next time

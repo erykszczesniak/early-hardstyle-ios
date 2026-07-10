@@ -42,9 +42,41 @@ final class SeedCatalogTests: XCTestCase {
     func test_everySet_hasArtworkAndPlausibleYearAndDuration() {
         for set in catalog.sets {
             XCTAssertNotNil(set.thumbnailURL, "no artwork for \(set.id)")
-            XCTAssertTrue((1999 ... 2010).contains(set.year), "implausible year for \(set.id)")
+            // Event sets are golden-era; classics mixes carry their upload year.
+            XCTAssertTrue((1999 ... 2026).contains(set.year), "implausible year for \(set.id)")
             XCTAssertGreaterThan(set.durationSeconds, 0)
         }
+    }
+
+    func test_tracklists_areWellFormed() {
+        for set in catalog.sets {
+            let numbers = set.tracks.map(\.number)
+            XCTAssertEqual(
+                numbers,
+                (0 ..< set.tracks.count).map { $0 + 1 },
+                "tracklist numbering for \(set.id) is not 1…n"
+            )
+            for track in set.tracks {
+                XCTAssertFalse(track.title.isEmpty, "empty track title in \(set.id)")
+            }
+            let starts = set.tracks.compactMap(\.startSeconds)
+            XCTAssertEqual(starts, starts.sorted(), "timestamps out of order in \(set.id)")
+            if let last = starts.last {
+                XCTAssertLessThan(last, set.durationSeconds, "timestamp past the end of \(set.id)")
+            }
+        }
+    }
+
+    func test_onlineMixes_areSeededWithTracklists() {
+        let mixIDs = ["hoc-energy-mix", "hoc-oldschool-resurrection", "ljq-oldschool-revolution"]
+        for id in mixIDs {
+            let set = catalog.sets.first { $0.id == id }
+            XCTAssertNotNil(set, "missing seeded mix \(id)")
+            XCTAssertFalse(set?.tracks.isEmpty ?? true, "mix \(id) has no tracklist")
+        }
+        XCTAssertEqual(catalog.sets.first { $0.id == "hoc-energy-mix" }?.tracks.count, 16)
+        XCTAssertEqual(catalog.sets.first { $0.id == "hoc-oldschool-resurrection" }?.tracks.count, 21)
+        XCTAssertEqual(catalog.sets.first { $0.id == "ljq-oldschool-revolution" }?.tracks.count, 30)
     }
 
     func test_everySet_hasAnEraPlausibleBPM() {
