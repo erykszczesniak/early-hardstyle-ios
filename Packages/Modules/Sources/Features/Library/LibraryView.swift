@@ -48,6 +48,18 @@ public struct LibraryView: View {
         // hero's resume target) whenever playback state changes.
         .onChange(of: playback.isExpanded) { _, _ in viewModel.refreshProgress() }
         .onChange(of: playback.nowPlaying?.setID) { _, _ in viewModel.refreshProgress() }
+        // …and on a slow heartbeat while something plays: progress keeps being
+        // saved (and cleared at natural end / the completion threshold) with
+        // no discrete transition to hook — without this the rail missed sets
+        // crossing the 30s resume threshold, kept "finished" sets around, and
+        // froze its progress bars mid-listen.
+        .task(id: playback.hasCurrent) {
+            guard playback.hasCurrent else { return }
+            while !Task.isCancelled {
+                try? await Task.sleep(for: .seconds(5))
+                viewModel.refreshProgress()
+            }
+        }
     }
 
     @ToolbarContentBuilder
@@ -173,10 +185,15 @@ public struct LibraryView: View {
                     .font(Typography.meta)
                     .foregroundStyle(Palette.textSecondary)
                 if let hero = viewModel.heroSet {
-                    PillButton(L10n.Library.heroPlay, systemImage: "play.fill", role: .primary) {
+                    PillButton(
+                        viewModel.heroResumes ? L10n.Library.heroContinue : L10n.Library.heroPlay,
+                        systemImage: "play.fill",
+                        role: .primary
+                    ) {
                         selectedSet = hero
                     }
                     .padding(.top, Spacing.xs)
+                    .accessibilityIdentifier(A11yID.heroPlayButton)
                 }
             }
             .padding(Spacing.gutter)

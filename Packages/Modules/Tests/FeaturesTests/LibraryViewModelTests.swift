@@ -197,6 +197,7 @@ final class LibraryViewModelTests: XCTestCase {
         await sut.load()
         XCTAssertEqual(sut.heroSet?.id, sut.latestSet?.id, "no listening history -> newest set")
         XCTAssertEqual(sut.heroSet?.id, "b", "newest (2007) set leads the catalogue")
+        XCTAssertFalse(sut.heroResumes, "fresh catalogue -> 'Play latest' label")
     }
 
     func test_heroSet_isMostRecentlyPlayedWhenProgressExists() async {
@@ -204,7 +205,8 @@ final class LibraryViewModelTests: XCTestCase {
         progress.save(seconds: 600, duration: 3600, for: "a")
         let sut = makeSUT(catalog: MockCatalogService.returning(makeCatalog()), progress: progress)
         await sut.load()
-        XCTAssertEqual(sut.heroSet?.id, "a", "Play latest continues the last-played set")
+        XCTAssertEqual(sut.heroSet?.id, "a", "the hero continues the last-played set")
+        XCTAssertTrue(sut.heroResumes, "listening history -> 'Continue listening' label")
     }
 
     func test_refreshProgress_revealsEntriesSavedAfterLoad() async {

@@ -28,6 +28,9 @@ enum L10n {
             localized: "library.hero.meta", defaultValue: "1999–2007 · raw power", bundle: .module
         )
         static let heroPlay = String(localized: "library.hero.play", defaultValue: "Play latest", bundle: .module)
+        static let heroContinue = String(
+            localized: "library.hero.continue", defaultValue: "Continue listening", bundle: .module
+        )
         static let emptyTitle = String(localized: "library.empty.title", defaultValue: "No sets yet", bundle: .module)
         static let noResultsTitle = String(
             localized: "library.noResults.title",

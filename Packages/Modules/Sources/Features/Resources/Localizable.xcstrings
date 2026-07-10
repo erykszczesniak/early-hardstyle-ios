@@ -240,6 +240,17 @@
         }
       }
     },
+    "library.hero.continue": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Continue listening"
+          }
+        }
+      }
+    },
     "library.hero.meta": {
       "extractionState": "manual",
       "localizations": {

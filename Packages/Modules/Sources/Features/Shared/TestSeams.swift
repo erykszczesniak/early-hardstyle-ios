@@ -5,6 +5,9 @@ import Foundation
 enum A11yID {
     static let miniPlayer = "mini-player"
     static let searchButton = "search-button"
+    /// The hero's primary action — its LABEL flips between "Play latest" and
+    /// "Continue listening", so tests address it by this stable id.
+    static let heroPlayButton = "hero-play-button"
 
     static func playerState(_ slug: String) -> String {
         "player-state-\(slug)"

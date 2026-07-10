@@ -136,16 +136,22 @@ public final class LibraryViewModel {
             .map { SetPresenter.nowPlaying(for: $0, in: catalogData) }
     }
 
-    /// The newest set, surfaced by the hero's "Play latest" action.
+    /// The newest set in the catalogue (the hero's fallback target).
     public var latestSet: SetCardModel? {
         allSets.first
     }
 
-    /// What the hero's "Play latest" opens: the set the listener most recently
-    /// played (so the button continues their session), falling back to the
-    /// newest set in the catalogue when nothing has been played yet.
+    /// What the hero's primary action opens: the set the listener most
+    /// recently played (so the button continues their session), falling back
+    /// to the newest set in the catalogue when nothing has been played yet.
     public var heroSet: SetCardModel? {
         jumpBackIn.first?.card ?? latestSet
+    }
+
+    /// Whether the hero continues a listening session (labels the button
+    /// "Continue listening" instead of "Play latest").
+    public var heroResumes: Bool {
+        jumpBackIn.first != nil
     }
 
     public func onAppear() async {
