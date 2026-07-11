@@ -45,3 +45,26 @@ open EarlyHardstyle.xcodeproj   # run the EarlyHardstyle scheme (iOS 17+)
 - 120+ unit tests — ViewModels (happy/failure/edge), services, decoding and the player state machine (`EarlyHardstyleKit-Package` scheme, iOS Simulator)
 - End-to-end XCUI tests, including a real-playback probe, a background-audio proof and the screenshot tour that regenerates the images above
 - SwiftLint (`--strict`) + SwiftFormat; GitHub Actions lints, builds and tests every PR
+
+## Performance
+
+Measured with XCTest's performance metrics (the same counters Instruments
+reports), 5 iterations each — `PerfMetricsTests`, Debug build, iPhone 17
+simulator (iOS 26.5):
+
+| Metric | Result | Notes |
+|---|---|---|
+| App launch | **1.06 s** avg (±1.3%) | `XCTApplicationLaunchMetric`, cold-ish launch to a usable Library |
+| Launch → real playback | **4.43 s** avg (±1.6%) | full cold path: WebKit prewarm, deferred web view load, YouTube iframe, autoplay + watchdog — to the `playing` state |
+| Memory (browse) | ~267 MB RSS | Library with hero mesh, Liquid Glass and artwork loaded |
+| Memory (playback) | ~285 MB RSS peak | 40 s YouTube session; steady ≈270 MB |
+
+<img src="docs/performance/xctest-metrics-report.png" width="720" alt="Xcode test report: 3 performance tests passed on the iPhone 17 simulator">
+
+Reproduce locally:
+
+```bash
+xcodebuild test -scheme EarlyHardstyle \
+  -destination 'platform=iOS Simulator,name=iPhone 17' \
+  -only-testing:EarlyHardstyleUITests/PerfMetricsTests
+```
