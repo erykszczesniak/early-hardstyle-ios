@@ -1,4 +1,4 @@
-# Early Hardstyle — iOS
+# Early Hardstyle
 
 A native iOS catalogue of the golden era of early hardstyle (1999–2007): legendary sets, DJs and events — with full playback, a queue and a personal library. Swift 6 · SwiftUI · MVVM.
 
