@@ -11,6 +11,11 @@
 --enable sortImports
 --enable wrapMultilineStatementBraces
 
+# Newer SwiftFormat versions (CI installs latest via brew) enable these by
+# default; the codebase deliberately keeps single-line if bodies.
+--disable wrapIfStatementBodies
+--disable wrapIfExpressionBodies
+
 --self remove
 --importgrouping testable-bottom
 --commas inline
