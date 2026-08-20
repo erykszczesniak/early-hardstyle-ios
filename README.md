@@ -68,3 +68,7 @@ xcodebuild test -scheme EarlyHardstyle \
   -destination 'platform=iOS Simulator,name=iPhone 17' \
   -only-testing:EarlyHardstyleUITests/PerfMetricsTests
 ```
+
+## License
+
+Proprietary — all rights reserved. This repository is public temporarily, for demonstration and code-review purposes only; copying, reuse or redistribution of the code is not permitted. See [LICENSE](LICENSE).
